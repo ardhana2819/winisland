@@ -108,6 +108,39 @@ public class NotificationFeedTests
     }
 
     [Fact]
+    public void Fast_messages_seen_by_polling_keep_every_message()
+    {
+        // Diva's bug, 31 Oct 2026: three WhatsApp messages within about 1 s. Polling sees the new
+        // notification and the removal of the old one in the same check, and reports the new one first.
+        NotificationFeed feed = new();
+        feed.Add(Message(511, "Sam", "a"), Now, Six);
+        feed.Add(Message(512, "Sam", "b"), Now.AddSeconds(1), Six);
+        feed.MarkRemoved(511, Now.AddSeconds(1));
+        feed.Add(Message(513, "Sam", "c"), Now.AddSeconds(2), Six);
+        feed.MarkRemoved(512, Now.AddSeconds(2));
+
+        feed.UpdateTime(Now.AddSeconds(5));
+
+        Assert.Equal(new uint[] { 513, 512, 511 }, feed.Recent.Select(item => item.WindowsId));
+        Assert.Equal(513u, feed.CurrentBanner?.WindowsId);
+    }
+
+    [Fact]
+    public void Discord_reading_a_DM_removes_older_and_newer_messages()
+    {
+        // Spike U3: Discord keeps separate notifications and removes them all when the DM is read.
+        NotificationFeed feed = new();
+        feed.Add(Message(474, "Kai") with { Source = NotificationSource.Discord, AppName = "Discord" }, Now, Six);
+        feed.Add(Message(475, "Kai") with { Source = NotificationSource.Discord, AppName = "Discord" }, Now, Six);
+
+        feed.MarkRemoved(474, Now.AddSeconds(3));
+        feed.MarkRemoved(475, Now.AddSeconds(3));
+        feed.UpdateTime(Now.AddSeconds(4));
+
+        Assert.Empty(feed.Recent);
+    }
+
+    [Fact]
     public void Reading_a_chat_after_replacements_removes_all_its_messages()
     {
         NotificationFeed feed = new();
