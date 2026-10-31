@@ -15,7 +15,7 @@ The problem: in a game, music and message alerts either do not show at all (Wind
 - G1. See what is playing and control it without leaving the game. Success: play/pause/next/previous work from the island in windowed and borderless games.
 - G2. Know a WhatsApp or Discord message arrived without leaving the game. Success: a preview shows in the island within about 2 seconds of the Windows notification.
 - G3. Never get in the way. Success: the island does not take keyboard focus, and you can hide it instantly.
-- G4. Stay light. Proposed target: under 100 MB RAM and near-zero CPU when idle. [Proposed] RAM is measured as working set. [Confirmed 31 Oct 2026] The spike's bare test window already used about 101 MB working set, so the real number is measured in Phase 2 and the target is decided then. [Confirmed 31 Oct 2026]
+- G4. Stay light. Proposed target: under 100 MB RAM and near-zero CPU when idle. [Proposed] RAM is measured as working set. [Confirmed 31 Oct 2026] The spike's bare test window already used about 101 MB working set, so the real number is measured in Phase 2 and the target is decided then. [Confirmed 31 Oct 2026] Target set after Phase 2 (idle about 103 MB working set): **under 150 MB working set**, measured and reported in every pull request. [Confirmed 31 Oct 2026]
 
 ## 3. Users
 
@@ -161,7 +161,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 ## 13. States and edge cases
 
 - No music session: show clock.
-- Spotify paused: show the paused music state for 5 seconds, then the clock. [Confirmed 31 Oct 2026]
+- Spotify paused: show the paused music state for 5 seconds, then the clock. [Confirmed 31 Oct 2026] While the island is expanded, the paused music and its controls stay, so you can press play again; the 5 seconds start when the island closes. [Confirmed 31 Oct 2026]
 - Notification permission denied: show a one-time hint and stay functional for music and clock.
 - Very long sender or message: truncate cleanly.
 - Notification with no text or image-only: show app and sender only.
