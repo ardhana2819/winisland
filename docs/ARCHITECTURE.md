@@ -54,6 +54,21 @@ In words:
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
 
+## What is in Platform and App so far
+
+| Part | File | What it does |
+|---|---|---|
+| Platform | `Windows/NonActivatingWindow.cs` | Makes the island window stay on top and take clicks without stealing focus from the game. |
+| Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |
+| Platform | `Windows/NativeMethods.cs` | The Win32 functions above, in one place. They only touch WinIsland's own windows. |
+| Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (a white pill drawn in code) and its menu. For now only Quit. |
+| App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
+| App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
+| App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
+| App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
+
+The island window never changes size. It is big enough for the largest island shape, and the clear parts let clicks through to the game. Resizing a transparent window during an animation would be slow.
+
 ## Rules that keep it this way
 
 - **Core depends on nothing.** It does not reference App, Platform, WPF, or Windows APIs. That keeps the logic testable with plain unit tests in `tests/WinIsland.Core.Tests`.
