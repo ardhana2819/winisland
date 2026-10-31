@@ -17,7 +17,7 @@ public partial class App : Application
     private SingleInstance? _singleInstance;
     private IslandWindow? _islandWindow;
     private TrayIcon? _trayIcon;
-    private PauseEndTimer? _pauseEndTimer;
+    private IslandTimeTimer? _islandTimeTimer;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -31,13 +31,13 @@ public partial class App : Application
         }
 
         IslandStateMachine island = new();
-        _pauseEndTimer = new PauseEndTimer(island);
+        _islandTimeTimer = new IslandTimeTimer(island);
         _islandWindow = new IslandWindow(island);
         _islandWindow.Show();
 
         _trayIcon = new TrayIcon();
         _trayIcon.PauseOrResumeRequested += (_, _) => PauseOrResume(island);
-        _trayIcon.HideOrShowRequested += (_, _) => island.ToggleHidden();
+        _trayIcon.HideOrShowRequested += (_, _) => island.ToggleHidden(DateTimeOffset.Now);
         _trayIcon.QuitRequested += (_, _) => Shutdown();
         island.Changed += (_, _) => UpdateTray(island);
         UpdateTray(island);
@@ -46,7 +46,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _trayIcon?.Dispose();
-        _pauseEndTimer?.Dispose();
+        _islandTimeTimer?.Dispose();
         _islandWindow?.Close();
         _singleInstance?.Dispose();
         base.OnExit(e);
