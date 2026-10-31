@@ -41,6 +41,19 @@ In words:
 4. **App** draws the new state and animates the change.
 5. When you click a button, App asks Core what to do, and Platform sends the command to Windows (for example "next track").
 
+## What is in Core so far
+
+| Folder | File | What it decides |
+|---|---|---|
+| `Island/` | `IslandStateMachine.cs` | What the island is doing: compact or expanded, hidden, paused for an hour. Expanding only works while music is present. |
+| `Island/` | `IslandView.cs` | The shapes the island can show (compact, expanded; more arrive with music and notifications). |
+| `Island/` | `IslandScale.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25). |
+| `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
+| `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
+| `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
+
+Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
+
 ## Rules that keep it this way
 
 - **Core depends on nothing.** It does not reference App, Platform, WPF, or Windows APIs. That keeps the logic testable with plain unit tests in `tests/WinIsland.Core.Tests`.
