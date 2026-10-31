@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WinIsland prototype</title>
+<style>
+:root{--bg:#f4f5f7;--fg:#16181d;--muted:#555c69;--panel:#fff;--line:#d5d9e0;--btn:#eceef3;--ring:#2563eb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101114;--fg:#f2f3f5;--muted:#a6abb6;--panel:#1a1c21;--line:#2a2d35;--btn:#272a33;--ring:#6ea0ff}}
+:root[data-theme="dark"]{--bg:#101114;--fg:#f2f3f5;--muted:#a6abb6;--panel:#1a1c21;--line:#2a2d35;--btn:#272a33;--ring:#6ea0ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;line-height:1.45}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:26px;margin:0 0 6px;font-weight:650}
+h2{font-size:14px;margin:0 0 8px;font-weight:650}
+.lead{margin:0 0 18px;color:var(--muted);max-width:70ch}
+.stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#0b1220,#24394f 70%,#3b2f2f)}
+.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:15px;text-align:center;padding:0 16px}
+.pw{position:absolute;left:50%;top:0;transform-origin:top center}
+.pill{position:relative;background:#000;color:#fff;overflow:hidden;width:120px;height:34px;border-radius:17px;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:width .6s cubic-bezier(.34,1.4,.56,1),height .6s cubic-bezier(.34,1.4,.56,1),border-radius .6s cubic-bezier(.34,1.4,.56,1),opacity .3s,transform .5s cubic-bezier(.34,1.4,.56,1)}
+.pill.hid{opacity:0;transform:scale(.4) translateY(-14px);pointer-events:none}
+.l{position:absolute;left:50%;top:50%;width:var(--w);height:var(--h);margin-left:calc(var(--w) / -2);margin-top:calc(var(--h) / -2);box-sizing:border-box;display:flex;align-items:center;opacity:0;filter:blur(10px);transform:scale(.88);pointer-events:none;transition:opacity .2s,filter .25s,transform .35s}
+.l.on{opacity:1;filter:blur(0);transform:scale(1);pointer-events:auto;transition:opacity .3s .14s,filter .35s .14s,transform .5s .14s cubic-bezier(.34,1.4,.56,1)}
+.clk{width:100%;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.l[data-m=music]{padding:0 12px 0 6px;gap:10px}
+.art{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#7c3aed,#06b6d4);flex:none}
+.art.big{width:64px;height:64px;border-radius:12px}
+.t{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq{display:flex;gap:3px;align-items:flex-end;height:16px}
+.eq i{display:block;width:3px;height:5px;background:#4ade80}
+.playing .eq i{animation:bar .9s ease-in-out infinite alternate}
+.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
+@keyframes bar{from{height:4px}to{height:16px}}
+.ex{flex-direction:column;align-items:stretch;justify-content:center;padding:16px;gap:10px}
+.xr{display:flex;gap:14px;align-items:center}
+.xm{min-width:0;display:flex;flex-direction:column}
+.xm b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xm span{font-size:13px;color:#a6abb6}
+.xp{display:flex;align-items:center;gap:8px;font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums}
+.seek{flex:1;height:16px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.bar{width:100%;height:4px;border-radius:2px;background:#3a3a3c;transition:height .15s}
+.seek:hover .bar{height:6px}
+.nos{cursor:default}
+.nos:hover .bar{height:4px}
+.bar div{height:100%;border-radius:3px;background:#fff;width:0;position:relative}
+#xf::after{content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:#fff;opacity:0;transition:opacity .15s}
+.seek:hover #xf::after,.seek:focus-visible #xf::after{opacity:1}
+.nos:hover #xf::after{opacity:0}
+.ctl{display:flex;justify-content:center;gap:16px}
+.ib{width:44px;height:44px;border:0;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.ib.main{background:#fff}
+.ib svg{width:22px;height:22px;fill:#fff}
+.ib.main svg{fill:#000}
+.l[data-m=notif]{padding:0 16px;gap:12px;cursor:pointer}
+.ni{width:40px;height:40px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.nb{flex:1;min-width:0;display:flex;flex-direction:column}
+.nb b{font-size:14px}
+.nb span{font-size:13px;color:#a6abb6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd{background:#2c2c2e;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600}
+.l[data-m=list]{flex-direction:column;align-items:stretch;justify-content:center;padding:12px 16px;gap:8px;cursor:pointer}
+.rw{display:flex;align-items:center;gap:12px;height:50px}
+.l[data-m=list].one .rw{height:auto;align-items:flex-start}
+.l[data-m=list].one .nb span{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.l[data-m=perm]{padding:0 10px 0 20px;gap:12px;font-size:13px}
+.l[data-m=perm] span,.l[data-m=conflict] span{flex:1}
+.l[data-m=conflict]{padding:0 10px 0 16px;gap:10px;font-size:13px}
+.warn{width:20px;height:20px;fill:#fbbf24;flex:none}
+.allow{border:0;background:#fff;color:#000;border-radius:16px;padding:7px 16px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+.panel{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{background:var(--btn);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+.btn[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.note{color:var(--muted);font-size:13px;margin:8px 0 0}
+#log{margin:16px 0 0;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;min-height:20px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
+.rm *{transition-duration:.01s!important;animation:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>WinIsland prototype</h1>
+<p class="lead">Interactive mock with fake data. It shows the look and the motion only. Spotify, Windows notifications and games get tested in Claude Code. Hotkeys work here too: Ctrl+Alt+I to expand, Ctrl+Alt+H to hide, Alt+X to hide notifications. You can also click the island to expand it and swipe a notification sideways to hide it.</p>
+
+<div class="stage" id="stage">
+  <div class="scene" aria-hidden="true">Game running in a borderless window</div>
+  <div class="pw" id="pw">
+    <div class="pill" id="pill">
+      <div class="l" data-m="idle"><span class="clk" id="clk">00:00</span></div>
+      <div class="l" data-m="music"><span class="art"></span><span class="t" id="mt"></span><span class="eq"><i></i><i></i><i></i></span></div>
+      <div class="l ex" data-m="exp">
+        <div class="xr"><span class="art big"></span><div class="xm"><b id="xt"></b><span id="xa"></span></div></div>
+        <div class="xp"><span id="xc">0:00</span><div class="seek" id="seek" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" tabindex="0"><div class="bar"><div id="xf"></div></div></div><span id="xd">0:00</span></div>
+        <div class="ctl">
+          <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+          <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+          <button class="ib" id="bnext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+        </div>
+      </div>
+      <div class="l" data-m="notif" id="nl"><div class="ni" id="ni">W</div><div class="nb"><b id="ns"></b><span id="nt"></span></div><span class="bd" id="nbd"></span></div>
+      <div class="l" data-m="list" id="ll"></div>
+      <div class="l" data-m="perm"><span>Allow notification access</span><button class="allow" id="ballow">Allow</button></div>
+      <div class="l" data-m="conflict"><svg class="warn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z"/></svg><span>Alt+X is used by another app</span><button class="allow" id="bset">Change</button></div>
+    </div>
+  </div>
+</div>
+
+<section class="panel" aria-label="Prototype controls">
+  <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-start">Start music</button><button class="btn" id="a-stop">Stop music</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Click the island or press Ctrl+Alt+I to expand it, then use play, previous and next. With no music, expanding does nothing. Click the open island outside the buttons to close it, or wait 2 seconds after the pointer leaves.</p></div>
+  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a notification to see the last 3, newest first. Swipe it sideways to hide one, or hide all. The banner vanishes after 6 seconds.</p></div>
+  <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Expand (Ctrl+Alt+I)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
+  <div class="group"><h2>Monitor</h2><div class="btns" id="mons"><button class="btn" data-dip="1920" aria-pressed="false">24 in, 1080p</button><button class="btn" data-dip="2560" aria-pressed="true">27 in, 1440p</button><button class="btn" data-dip="3072" aria-pressed="false">32 in, 4K at 125%</button></div>
+  <div class="btns" style="margin-top:8px"><button class="btn" id="a-zoom" aria-pressed="false">True proportion</button></div><p class="note" id="scl"></p></div>
+</section>
+<p id="log" role="status" aria-live="polite">Ready. Start music or send a message.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const D={idle:[120,34,17],music:[280,36,18],exp:[420,168,28],notif:[420,72,36],perm:[360,52,26],list:[420,190,28],conflict:[400,52,26]};
+const listH=n=>{if(S.hist.length===1){const l=Math.min(3,Math.max(1,Math.ceil(S.hist[0].text.length/44)));return 24+22+l*18+6}return 24+Math.max(1,n)*50+Math.max(0,n-1)*8};
+const T=[{t:"Song Title One",a:"Artist Name",d:221},{t:"Song Title Two",a:"Artist Name",d:187},{t:"Song Title Three",a:"Artist Name",d:243}];
+const S={ov:null,hidden:false,paused:false,music:false,playing:false,pos:0,ti:0,q:[],hist:[],tm:null,dip:2560,zoom:true};
+const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
+layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+const mode=()=>S.ov||(S.music?"music":"idle");
+function log(m){$("log").textContent=m}
+function render(){
+  const m=mode(),tr=T[S.ti],q=S.q[0],d=m==="list"?[420,listH(S.hist.length),28]:D[m];
+  pill.classList.toggle("hid",S.hidden||S.paused);
+  pill.classList.toggle("playing",S.music&&S.playing);
+  pill.style.width=d[0]+"px";pill.style.height=d[1]+"px";pill.style.borderRadius=d[2]+"px";
+  layers.forEach(l=>{const on=l.dataset.m===m;l.classList.toggle("on",on);l.inert=!on});
+  $("ll").style.setProperty("--h",listH(S.hist.length)+"px");
+  $("ll").innerHTML=S.hist.map(x=>'<div class="rw"><div class="ni" style="width:36px;height:36px;background:'+(x.app==="Discord"?"#4752c4":"#177a40")+'">'+x.app[0]+'</div><div class="nb"><b>'+x.sender+'</b><span>'+x.text+'</span></div></div>').join("");
+  $("ll").classList.toggle("one",S.hist.length===1);
+  $("mt").textContent=tr.t;$("xt").textContent=tr.t;$("xa").textContent=tr.a;$("xd").textContent=fmt(tr.d);
+  $("xf").style.width=(S.pos/tr.d*100)+"%";$("xc").textContent=fmt(S.pos);
+  $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
+  $("ppi").innerHTML=S.playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M7 5v14l12-7z"/>';
+  if(q){$("ni").textContent=q.app[0];$("ni").style.background=q.app==="Discord"?"#4752c4":"#177a40";$("ns").textContent=q.sender;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
+  $("a-pause").setAttribute("aria-pressed",S.paused);$("a-pause").textContent=S.paused?"Resume":"Pause for 1 hour";
+  $("a-zoom").setAttribute("aria-pressed",!S.zoom);
+}
+function layout(){
+  const auto=Math.min(1.25,Math.max(.85,S.dip/2560)),k=$("stage").clientWidth/S.dip,f=k*auto*(S.zoom?3:1);
+  $("pw").style.transform="translateX(-50%) scale("+f+")";$("pw").style.top=(12*f)+"px";
+  $("scl").textContent="Auto scale "+auto.toFixed(2)+"x for a "+S.dip+" px wide display (Windows DPI units). "+(S.zoom?"Pill drawn 3x larger so you can read it.":"Pill drawn at true proportion.");
+}
+function clearNotif(){clearTimeout(S.tm);S.q=[];if(S.ov==="notif")S.ov=null}
+function arm(){clearTimeout(S.tm);S.tm=setTimeout(()=>{clearNotif();render();log("Notification dismissed after 6 seconds.")},6000)}
+function notify(app,sender,text){
+  if(S.paused){log("Paused, so the notification was silenced.");return}
+  const n={app,sender,text};S.q.unshift(n);S.hist.unshift(n);S.hist=S.hist.slice(0,3);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
+}
+function expand(){
+  if(S.ov==="exp"){S.ov=null;log("Island collapsed.")}
+  else if(!S.music){log("Nothing is playing, so there is nothing to expand. Start music first.");return}
+  else{S.ov="exp";log("Island expanded. It is clickable but does not take keyboard focus.")}
+  render();
+}
+function nextT(d){S.ti=(S.ti+d+T.length)%T.length;S.pos=0;render()}
+$("a-start").onclick=()=>{S.music=true;S.playing=true;S.pos=0;S.ti=0;render();log("Music started.")};
+$("a-stop").onclick=()=>{S.music=false;S.playing=false;if(S.ov==="exp")S.ov=null;render();log("Music stopped. The clock is back.")};
+$("a-wa").onclick=()=>notify("WhatsApp","Sender Name","Message preview text goes here and gets cut cleanly when it is long. Tap the banner to read the whole message here without opening WhatsApp.");
+$("a-dc").onclick=()=>notify("Discord","Sender Name","Short Discord message");
+$("a-3").onclick=()=>{notify("WhatsApp","Sender One","First message");notify("Discord","Sender Two","Second message");notify("WhatsApp","Sender Three","Third message")};
+$("a-read").onclick=()=>{if(!S.hist.length){log("No notification to clear.");return}S.hist.shift();S.q.shift();if(S.ov==="list"&&!S.hist.length)S.ov=null;if(S.ov==="notif"){if(!S.q.length){clearTimeout(S.tm);S.ov=null}else arm()}render();log("Simulated: the app cleared the notification in Windows, so the island removed it too.")};
+$("a-perm").onclick=()=>{S.ov="perm";render();log("Permission prompt shown once if access is denied.")};
+$("ballow").onclick=()=>{S.ov=null;render();log("Access granted (simulated).")};
+$("a-exp").onclick=expand;
+$("a-hide").onclick=()=>{S.hidden=!S.hidden;render();log(S.hidden?"Island hidden. The app keeps running.":"Island visible again.")};
+$("a-pause").onclick=()=>{S.paused=!S.paused;if(S.paused)clearNotif();render();log(S.paused?"Paused for 1 hour: island hidden and notifications silenced.":"Resumed.")};
+$("bpp").onclick=()=>{S.playing=!S.playing;render()};
+$("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
+$("nl").onclick=e=>{if(S.sw){S.sw=false;return}S.skip=true;clearTimeout(S.tm);S.q=[];S.ov="list";render();log("Showing the last "+S.hist.length+" notifications, newest first.")};
+$("mons").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.dip=+b.dataset.dip;[...$("mons").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout()};
+$("a-zoom").onclick=()=>{S.zoom=!S.zoom;layout();render()};
+function clearAll(){if(!S.q.length&&S.ov!=="list"){log("Nothing to hide.");return}clearNotif();if(S.ov==="list")S.ov=null;render();log("Hidden from the island only. The notifications stay in Windows and in the last 3 list.")}
+$("a-clear").onclick=clearAll;
+function swipeOut(dx){S.sw=true;setTimeout(()=>{S.sw=false},300);const nl=$("nl");nl.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX("+(dx>0?90:-90)+"px)",opacity:0}],{duration:200}).finished.then(()=>{S.q.shift();if(!S.q.length){clearTimeout(S.tm);if(S.ov==="notif")S.ov=null}else arm();render();log("Swiped away. "+(S.q.length?S.q.length+" left.":""))})}
+let sx=null;
+$("nl").addEventListener("pointerdown",e=>{sx=e.clientX});
+$("nl").addEventListener("pointerup",e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)swipeOut(dx)});
+pill.addEventListener("click",e=>{if(S.skip){S.skip=false;return}if(S.hidden||S.paused)return;const m=mode();if(m==="music")expand();else if((m==="exp"||m==="list")&&!e.target.closest("button")&&!e.target.closest(".seek")){S.ov=null;render();log("Clicked the open island, so it closed.")}});
+pill.addEventListener("mouseleave",()=>{if(S.ov==="exp"||S.ov==="list"){clearTimeout(S.lt);S.lt=setTimeout(()=>{if(S.ov==="exp"||S.ov==="list"){S.ov=null;render();log("Pointer left, island collapsed.")}},2000)}});
+pill.addEventListener("mouseenter",()=>clearTimeout(S.lt));
+S.seekOK=true;
+function seekTo(e){if(!S.seekOK)return;const r=$("seek").getBoundingClientRect();const p=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));S.pos=Math.round(p*T[S.ti].d);render()}
+let sk=false;
+$("seek").addEventListener("pointerdown",e=>{if(!S.seekOK)return;sk=true;$("seek").setPointerCapture(e.pointerId);seekTo(e)});
+$("seek").addEventListener("pointermove",e=>{if(sk)seekTo(e)});
+$("seek").addEventListener("pointerup",()=>{sk=false});
+$("seek").addEventListener("keydown",e=>{if(!S.seekOK)return;if(e.key==="ArrowRight"){S.pos=Math.min(T[S.ti].d,S.pos+5);render()}else if(e.key==="ArrowLeft"){S.pos=Math.max(0,S.pos-5);render()}});
+$("a-seek").onclick=()=>{S.seekOK=!S.seekOK;$("seek").classList.toggle("nos",!S.seekOK);$("a-seek").setAttribute("aria-pressed",S.seekOK);$("a-seek").textContent=S.seekOK?"Seek works":"Seek not supported";log(S.seekOK?"Click or drag the progress bar to seek.":"This player does not support seeking, so the bar is display only.")};
+$("a-conf").onclick=()=>{S.ov="conflict";render();log("Shown for 10 seconds at start if a hotkey is taken. The same error shows in Settings.");clearTimeout(S.ct);S.ct=setTimeout(()=>{if(S.ov==="conflict"){S.ov=null;render()}},10000)};
+$("bset").onclick=()=>{S.ov=null;render();log("This would open Settings with the hotkey row marked.")};
+$("a-rm").onclick=()=>{const on=document.body.classList.toggle("rm");$("a-rm").setAttribute("aria-pressed",on);log(on?"Reduced motion on: changes are instant.":"Reduced motion off.")};
+addEventListener("resize",layout);
+addEventListener("keydown",e=>{
+  if(e.ctrlKey&&e.altKey&&e.code==="KeyI"){e.preventDefault();expand()}
+  else if(e.ctrlKey&&e.altKey&&e.code==="KeyH"){e.preventDefault();$("a-hide").click()}
+  else if(e.altKey&&!e.ctrlKey&&e.code==="KeyX"){e.preventDefault();clearAll()}
+  else if(e.key==="Escape"&&(S.ov==="exp"||S.ov==="list")){S.ov=null;render()}
+});
+setInterval(()=>{
+  $("clk").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  if(S.music&&S.playing){S.pos++;if(S.pos>=T[S.ti].d)nextT(1);else{$("xf").style.width=(S.pos/T[S.ti].d*100)+"%";$("xc").textContent=fmt(S.pos)}}
+},1000);
+$("clk").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+layout();render();
+</script>
+</body>
+</html>
