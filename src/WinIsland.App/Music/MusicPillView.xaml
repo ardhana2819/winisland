@@ -2,7 +2,8 @@
   MusicPillView.xaml: the compact music pill, 280 x 36 (DESIGN_SPEC section 2).
   Section 5: left padding 6, right padding 12, artwork 24 square with radius 6, 10 gap,
   title fills the middle, equalizer on the right.
-  Section 3: title 13, regular, one line, cut with an ellipsis.
+  Section 3: title 13, regular, one line. Too long titles scroll sideways (Diva's request,
+  31 Oct 2026, replacing the ellipsis in the design); see MarqueeText.
 -->
 <UserControl x:Class="WinIsland.App.Music.MusicPillView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -20,15 +21,14 @@
 
         <Border x:Name="Artwork" Grid.Column="0" Width="24" Height="24" CornerRadius="6" VerticalAlignment="Center" />
 
-        <TextBlock x:Name="TitleText"
-                   Grid.Column="1"
-                   Margin="10,0,10,0"
-                   VerticalAlignment="Center"
-                   Foreground="#FFFFFF"
-                   FontFamily="Segoe UI Variable Text, Segoe UI"
-                   FontSize="13"
-                   TextTrimming="CharacterEllipsis"
-                   AutomationProperties.AutomationId="MusicPillTitle" />
+        <music:MarqueeText x:Name="TitleText"
+                           Grid.Column="1"
+                           Margin="10,0,10,0"
+                           VerticalAlignment="Center"
+                           Foreground="#FFFFFF"
+                           FontFamily="Segoe UI Variable Text, Segoe UI"
+                           FontSize="13"
+                           AutomationProperties.AutomationId="MusicPillTitle" />
 
         <music:EqualizerView x:Name="Equalizer" Grid.Column="2" VerticalAlignment="Center" />
     </Grid>

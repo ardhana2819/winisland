@@ -29,9 +29,12 @@ public partial class IslandWindow : Window
     private readonly MinuteTimer _minuteTimer = new();
     private readonly DispatcherTimer _conflictTimer;
     private readonly PillAnimator _animator;
+    private readonly MusicController _music;
     private readonly IslandMusicPresenter _musicPresenter;
     private readonly PointerLeaveCollapser _leaveCollapser;
+    private readonly OutsideClickWatcher _outsideClickWatcher;
     private GlobalHotkeys? _hotkeys;
+    private ExpandedMusicKeys? _expandedMusicKeys;
     private IslandView _shownView = IslandView.Compact;
     private bool _shownVisible = true;
 
@@ -40,12 +43,14 @@ public partial class IslandWindow : Window
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
         _island = island;
+        _music = music;
 
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
         _animator.SetShape(PillShape.For(IslandView.Compact));
         _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer);
         _leaveCollapser = new PointerLeaveCollapser(island, Pill);
+        _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
 
         _conflictTimer = new DispatcherTimer { Interval = ConflictBannerDuration };
         _conflictTimer.Tick += (_, _) =>
@@ -99,6 +104,7 @@ public partial class IslandWindow : Window
         };
 
         IReadOnlyList<HotkeyRegistration> results = _hotkeys.Register(wanted);
+        _expandedMusicKeys = new ExpandedMusicKeys(_island, _hotkeys);
         List<Hotkey> unavailable = results.Where(result => !result.IsRegistered).Select(result => result.Hotkey).ToList();
         string? conflictMessage = HotkeyConflictMessage.Describe(unavailable);
         if (conflictMessage is not null)
@@ -120,6 +126,15 @@ public partial class IslandWindow : Window
                 break;
             case HotkeyAction.HideBanner:
                 // Not registered until notification banners exist (Phase 4).
+                break;
+            case HotkeyAction.MusicPlayPause:
+                _ = _music.TogglePlayPauseAsync();
+                break;
+            case HotkeyAction.MusicNext:
+                _ = _music.NextAsync();
+                break;
+            case HotkeyAction.MusicPrevious:
+                _ = _music.PreviousAsync();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown hotkey action.");
@@ -225,6 +240,8 @@ public partial class IslandWindow : Window
         _conflictTimer.Stop();
         _musicPresenter.Dispose();
         _leaveCollapser.Dispose();
+        _outsideClickWatcher.Dispose();
+        _expandedMusicKeys?.Dispose();
         _minuteTimer.Dispose();
         _hotkeys?.Dispose();
     }

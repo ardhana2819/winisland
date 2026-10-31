@@ -22,4 +22,7 @@ public partial class MusicPillView : UserControl
         Artwork.Background = ArtworkBrush.For(artwork);
         Equalizer.SetPlaying(music.IsPlaying);
     }
+
+    /// <summary>The title only scrolls while this pill is the view on screen.</summary>
+    public void SetActive(bool isActive) => TitleText.SetActive(isActive);
 }

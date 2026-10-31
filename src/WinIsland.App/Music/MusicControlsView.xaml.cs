@@ -66,6 +66,9 @@ public partial class MusicControlsView : UserControl
         UpdateProgress(now);
     }
 
+    /// <summary>The title only scrolls while the expanded island is the view on screen.</summary>
+    public void SetActive(bool isActive) => TitleText.SetActive(isActive);
+
     /// <summary>Moves the elapsed time and the bar on; called once per second while expanded (DESIGN_SPEC section 7).</summary>
     public void UpdateProgress(DateTimeOffset now)
     {

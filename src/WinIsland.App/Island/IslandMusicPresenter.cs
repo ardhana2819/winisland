@@ -48,6 +48,9 @@ internal sealed class IslandMusicPresenter : IDisposable
             _controls.Show(music, _music.Artwork, DateTimeOffset.Now);
         }
 
+        _pill.SetActive(_island.IsVisible && _island.View == IslandView.Music);
+        _controls.SetActive(_island.IsVisible && _island.View == IslandView.Expanded);
+
         bool needsTicks = music is { IsPlaying: true } && _island.View == IslandView.Expanded;
         if (needsTicks && !_progressTimer.IsEnabled)
         {

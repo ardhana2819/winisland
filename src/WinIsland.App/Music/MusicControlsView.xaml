@@ -6,7 +6,8 @@
       a 16 high area; with seek support, hovering grows it to 6 high and shows a 10 round thumb.
     Bottom row: previous, play or pause, next, centered, 16 gap; buttons 44 across, icons 22.
       Play or pause is a white circle with a black icon; the others have no background.
-  Section 3: title 16 semibold, artist 13, time labels 11 tabular.
+  Section 3: title 16 semibold (scrolls sideways when too long, see MarqueeText), artist 13,
+  time labels 11 tabular.
   Section 4: secondary text #A6ABB6, track #3A3A3C, fill #FFFFFF.
   Icons are the prototype's SVG paths, each inside a 24 x 24 Canvas like the SVG viewBox. Without
   that frame, WPF sizes a Path from (0,0) to its far edge and the Viewbox pushes the icon off center.
@@ -15,6 +16,7 @@
 <UserControl x:Class="WinIsland.App.Music.MusicControlsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:music="clr-namespace:WinIsland.App.Music"
              Width="420"
              Height="168"
              Focusable="False">
@@ -42,13 +44,12 @@
         <StackPanel Orientation="Horizontal">
             <Border x:Name="Artwork" Width="64" Height="64" CornerRadius="12" />
             <StackPanel Margin="14,0,0,0" VerticalAlignment="Center" Width="306">
-                <TextBlock x:Name="TitleText"
-                           AutomationProperties.AutomationId="ExpandedTitle"
-                           Foreground="#FFFFFF"
-                           FontFamily="Segoe UI Variable Text, Segoe UI"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           TextTrimming="CharacterEllipsis" />
+                <music:MarqueeText x:Name="TitleText"
+                                   AutomationProperties.AutomationId="ExpandedTitle"
+                                   Foreground="#FFFFFF"
+                                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                                   FontSize="16"
+                                   FontWeight="SemiBold" />
                 <TextBlock x:Name="ArtistText"
                            AutomationProperties.AutomationId="ExpandedArtist"
                            Foreground="#A6ABB6"
