@@ -10,7 +10,7 @@ Privacy: this file records behavior only, never message content.
 
 | Test | Result | Evidence | What it means for the PRD |
 |---|---|---|---|
-| S1. Does the notification listener need package identity? | **Partly** | Claude ran `NotificationProbe --check` and a 6 s watch, unpackaged (31 Oct 2026): identity NO, access status `Allowed`, `GetNotificationsAsync` returned 2 toasts (Windows Security, Snipping Tool) with app name, AUMID and text. `NotificationChanged` event subscribe FAILED with `COMException 0x80070490` (Element not found). Run with identity: Not tested yet (needs Diva's admin step, see S1 steps). | Reading notifications by **polling works without identity**. Only the push event failed. If the event also fails with identity, the product can skip the sparse package and certificate entirely and poll (FR-13, risk 4 in PRD section 17). |
+| S1. Does the notification listener need package identity? | **Pass** (answered) | **Unpackaged** (Claude ran, 31 Oct 2026): identity NO, access `Allowed`, polling with `GetNotificationsAsync` returned 2 existing toasts with app name, AUMID and text. `NotificationChanged` subscribe FAILED, `COMException 0x80070490` (Element not found). **With identity** (Diva approved the admin certificate step via UAC, Claude ran the rest): identity YES (`WinIsland.Spike.NotificationProbe_1.0.0.0_x64__2k9dtv6xm75sy`), access `Allowed`, `NotificationChanged` subscribed OK. A local test toast sent from PowerShell arrived as `ADDED via=event` with 0.1 s delay, and removing it from Windows arrived as `REMOVED via=event` within milliseconds. | Identity is **not needed to read** notifications, but **is needed for the instant push event**. Without identity the app must poll (up to 1 s delay, still inside the 2 s goal G2). Recommendation for Phase 4: use the event when identity is present and fall back to polling when it is not, so the app works either way and setup friction (PRD risk 4) becomes optional. |
 | U1. WhatsApp and Discord reach the listener during a game with DND on | Not tested | | |
 | U2. Listener still receives them with banners off | Not tested | | |
 | U3. Apps remove the notification after reading, listener reports removal | Not tested | | |
@@ -24,7 +24,8 @@ Privacy: this file records behavior only, never message content.
 ### Extra findings
 
 - **Media "current session" is not Spotify.** Windows reported 3 sessions (Spotify.exe, Chrome, Brave) and chose Brave as the current one. The product must pick the Spotify session by its app id (`Spotify.exe`), not use Windows' current session (FR-7, FR-10).
-- **The push event may not be available.** If `NotificationChanged` also fails with identity, the product polls once per second. That adds up to 1 s of delay, which still fits the 2 s goal (G2).
+- **The push event needs identity.** It works with the sparse package and fails without it. Polling works in both cases.
+- **The identity package scripts work end to end on this PC:** certificate created non-exportable in `CurrentUser\My` and trusted in `LocalMachine\TrustedPeople`, package built with `makeappx`, signed with `signtool` by thumbprint (no `.pfx`, no password), registered with `Add-AppxPackage -ExternalLocation`, status `Ok`.
 
 ## How to run the tests
 
@@ -134,7 +135,6 @@ Send these to Claude, or fill them in here:
 
 | Test | Your result |
 |---|---|
-| S1 with identity: identity line, event line, via=event seen? | |
 | U2: WhatsApp arrived? Discord arrived? delays | |
 | U3: removed after read on PC / on phone, per app | |
 | U7: app name and AUMID, separate or replaced, long text cut off?, group layout | |
