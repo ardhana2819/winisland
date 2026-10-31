@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Phase 5: settings and finishing, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide), and a Settings window (tray > Settings) that also turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**MVP v1.0 complete.** All PRD v1.0 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide), and a Settings window (tray > Settings) that also turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 
@@ -17,15 +17,15 @@ Personal project, private repository.
 
 ## Install on another PC
 
-These steps apply once the first release exists.
-
 1. Sign in to GitHub in your browser (the repository is private).
-2. Open the repository's **Releases** page and download `WinIsland-vX.Y.Z-win-x64.zip`.
+2. Open the repository's **Releases** page and download `WinIsland-vX.Y.Z-win-x64.zip` (about 77 MB).
    Or, with GitHub CLI: `gh release download --repo ardhana2819/WinIsland --pattern "*.zip"`
-3. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
+3. Right-click the zip > **Properties** > tick **Unblock** > OK. Windows marks downloaded files, and without this the setup scripts in step 5 are refused.
+4. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
    No .NET install is needed. The build is self-contained.
-4. Run `WinIsland.App.exe`.
-5. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). If you move the WinIsland folder later, run the setup again.
+5. **Add WinIsland to the Start menu:** in that folder, open the `packaging` folder, right-click `Add-StartMenuShortcut.ps1` > **Run with PowerShell**. To pin it: Start > All, right-click WinIsland > Pin to Start.
+6. Start **WinIsland** from the Start menu. It starts with Windows from then on (switch it off in Settings).
+7. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). If you move the WinIsland folder later, run the setup again.
 
 ## First run
 
@@ -82,5 +82,5 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 - Music information comes only from the Windows media session. WinIsland never signs in to Spotify.
 - Notifications are read only through the Windows notification listener, and only after you allow it.
 - Message text stays **in memory only**. It is never written to disk or to logs. Logs hold event types and errors only.
-- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, start with Windows. Nothing else is written to disk.
+- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, start with Windows. Next to it, `winisland.log` (at most 256 KB) records event types and errors only, never message text. Nothing else is written to disk.
 - No screen capture, no reading other programs' memory, no injection or hooks into games.

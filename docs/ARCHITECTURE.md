@@ -107,6 +107,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/IslandHotkeys.cs` | The three island hotkeys: applied at start and from Settings, freed while Settings records a new combination. |
 | App | `Settings/SettingsController.cs` | Loads, checks, applies and saves settings; opens the Settings window. |
 | App | `Settings/SettingsWindow.xaml`, `Settings/HotkeyCapture.cs` | The Settings window from the design board, and turning a key press into a hotkey. |
+| App | `Diagnostics/ErrorLogFile.cs`, `Diagnostics/CrashGuard.cs` | The error log (`%USERPROFILE%.winislandwinisland.log`, 256 KB, errors and event types only) and catching unexpected errors so the island keeps running. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |
@@ -129,7 +130,7 @@ The island window never changes size. It is big enough for the largest island sh
 |---|---|
 | `tests/WinIsland.Core.Tests` | Unit tests for Core. |
 | `spikes/` | Throwaway Phase 1 test programs. See `spikes/README.md`. |
-| `packaging/` | Package identity manifest and scripts. See `packaging/README.md`. |
+| `packaging/` | Start menu shortcut script and the optional package identity scripts. Shipped inside the release zip. See `packaging/README.md`. |
 | `docs/` | PRD, backlog, engineering standards, this file, spike results. |
 | `.github/` | CI and release workflows, pull request template. |
 | `.githooks/` | Local Git hook that blocks pushes to `main`. |
