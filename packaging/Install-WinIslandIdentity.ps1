@@ -10,15 +10,14 @@
 # Needs no admin rights. If the certificate is missing, run New-DevCertificate.ps1 once in a
 # PowerShell opened with "Run as administrator" first.
 #
-# Example, from the repo after a Release build:
-#   .\Install-WinIslandIdentity.ps1
-# Example, for an unzipped release:
+# Without -AppFolder it finds WinIsland itself: the unzipped release this script came with, or the
+# repo's Release build. Example with a folder:
 #   .\Install-WinIslandIdentity.ps1 -AppFolder "$env:LOCALAPPDATA\Programs\WinIsland"
 # Restart WinIsland afterwards so it starts with its identity.
 
 [CmdletBinding()]
 param(
-    [string]$AppFolder = (Join-Path $PSScriptRoot "..\src\WinIsland.App\bin\Release\net10.0-windows10.0.26100.0")
+    [string]$AppFolder = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,10 +32,8 @@ $packageName = "WinIsland"
 $applicationId = "WinIsland"
 $executable = "WinIsland.App.exe"
 
-$resolvedFolder = (Resolve-Path $AppFolder -ErrorAction SilentlyContinue).Path
-if (-not $resolvedFolder -or -not (Test-Path (Join-Path $resolvedFolder $executable))) {
-    throw "Could not find $executable in '$AppFolder'. Build WinIsland in Release, or pass -AppFolder with the folder that holds $executable."
-}
+. (Join-Path $PSScriptRoot "WinIslandFolder.ps1")
+$resolvedFolder = Resolve-WinIslandFolder $AppFolder
 
 $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Subject -eq $publisher } | Select-Object -First 1
 $trusted = Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object { $_.Subject -eq $publisher } | Select-Object -First 1
