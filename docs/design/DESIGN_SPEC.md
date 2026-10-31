@@ -22,7 +22,7 @@ All sizes are in device-independent pixels (DIPs, what WPF uses), measured at th
 | Notification list, 2 or 3 items | 420 | 24 + 50 per item + 8 between items (190 for 3 items) | 28 |
 | Notification list, 1 item (full text) | 420 | 24 + 22 + 18 per text line (1 to 3 lines) + 6, for example 106 for three lines | 28 |
 
-The corner radius is half the height for the compact and banner states (a true pill). Hotkey conflict banner: 400 wide, 52 high, radius 26. A 20 warning icon in amber #FBBF24, the message at 13, then a Change button styled like the Allow button. It shows for 10 seconds. Text lines are estimated at about 44 characters per line.
+The corner radius is half the height for the compact and banner states (a true pill). Hotkey conflict banner: 400 wide, 52 high, radius 26. A 20 warning icon in amber #FBBF24, the message at 13, then a Change button styled like the Allow button. It shows for 10 seconds. The prototype estimates text lines at about 44 characters per line; the WPF app measures the real wrapped text instead and uses the same formula (88 for two lines, 106 for three). The "about 98" on design board 8 is superseded by this formula. [Confirmed by Diva, 31 Oct 2026]
 
 ## 3. Fonts and text
 
@@ -53,7 +53,7 @@ The prototype also draws a soft shadow under the pill (0 8 30, 40 percent black)
 ## 5. Layout of each state
 
 - **Compact, music:** left padding 6, right padding 12. Artwork 24 square, radius 6. 10 gap. Title fills the middle. Equalizer on the right: three bars, 3 wide, 3 gap, up to 16 high.
-- **Expanded:** padding 16, vertical gap 10. Top row: artwork 64 square, radius 12, 14 gap, then title and artist. Middle row: elapsed time, progress bar (4 high, radius 2), total time, 8 gap. Bottom row: previous, play or pause, next, centered, 16 gap. Each button is 44 across with a 22 icon. Play or pause is a white circle with a black icon. The other two have no background. Seek: the progress bar has a 16 high touch area. On hover it grows from 4 to 6 high and shows a white 10 round thumb at the end of the fill. Click or drag to seek, and the left and right arrow keys move 5 seconds. If seek is not supported, none of this appears and the bar stays 4 high.
+- **Expanded:** padding 16, vertical gap 10. Top row: artwork 64 square, radius 12, 14 gap, then title and artist. Middle row: elapsed time, progress bar (4 high, radius 2), total time, 8 gap. Bottom row: previous, play or pause, next, centered, 16 gap. Each button is 44 across with a 22 icon. Play or pause is a white circle with a black icon. The other two have no background. Seek: the progress bar has a 16 high touch area. On hover it grows from 4 to 6 high and shows a white 10 round thumb at the end of the fill. Click or drag to seek. Mouse only: no arrow keys, because the island never has keyboard focus (PRD FR-3, FR-11; confirmed by Diva 31 Oct 2026). If seek is not supported, none of this appears and the bar stays 4 high.
 - **Notification banner:** 16 side padding, 12 gap. Icon circle 40 with the app letter, centered bold 16. Sender above preview. Badge on the right (+N), radius 12, padding 3 by 9. The badge is hidden when there is only one.
 - **Notification list:** padding 12 by 16, 8 between rows. Each row 50 high with a 36 icon circle, 12 gap. Newest first.
 - **Permission prompt:** left padding 20, right padding 10, 12 gap. Allow button: white, black text, radius 16, padding 7 by 16.

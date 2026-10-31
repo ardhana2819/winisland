@@ -63,7 +63,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-3. Window must not take keyboard focus when shown or clicked. [Proposed technique: non-activating window style. Unverified in games.]
 - FR-4. Smooth morph animation between states, spring-like in the style of the iPhone Dynamic Island. [Confirmed]
 - FR-5. Hotkey 1 (Ctrl+Alt+I) toggles expanded state. Hotkey 2 (Ctrl+Alt+H) hides or shows the island. [Confirmed as defaults] Hotkey 3 (proposed Alt+X, a simple two-key combo) hides the notification banner. It does not delete notifications. [Proposed] Windows hands a global hotkey to this app only, so a common combo would stop working in other programs. The app reports a conflict and the key stays configurable. Both configurable. App reports a clear error if a hotkey is already taken: a conflict banner shows for 10 seconds at start, and the same error shows in Settings (see `docs/design/DESIGN_SPEC.md`). [Confirmed 31 Oct 2026]
-- FR-6. Tray menu: Pause for 1 hour (hides the island and stops showing notifications, then returns automatically), Settings, Quit. While paused, the Pause item becomes **Resume**, which ends the pause early. [Confirmed 31 Oct 2026] Notifications that arrive while paused are dropped: no banner, and they are not added to the last 3 list. [Confirmed 31 Oct 2026, follows the prototype] The tray icon is built with the WinForms `NotifyIcon` that ships with .NET, so no extra package is needed. [Confirmed 31 Oct 2026]
+- FR-6. Tray menu: Pause for 1 hour (hides the island and stops showing notifications, then returns automatically), Hide island (Ctrl+Alt+H, the same as hotkey 2; reads Show island while hidden), Settings, Quit. [Hide island item confirmed 31 Oct 2026, from the design boards] While paused, the tray icon switches to a dimmed variant so the paused state is visible. [Confirmed 31 Oct 2026] While paused, the Pause item becomes **Resume**, which ends the pause early. [Confirmed 31 Oct 2026] Notifications that arrive while paused are dropped: no banner, and they are not added to the last 3 list. [Confirmed 31 Oct 2026, follows the prototype] The tray icon is built with the WinForms `NotifyIcon` that ships with .NET, so no extra package is needed. [Confirmed 31 Oct 2026]
 - FR-6a. Hiding the island with hotkey 2 only hides it. Notifications are still processed in the background, so if you show the island again before the banner timer ends, the banner is there. [Confirmed 31 Oct 2026, follows the prototype]
 
 **Music**
@@ -72,7 +72,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-8. Controls: play/pause, next, previous.
 - FR-9. Progress bar updates smoothly between system updates.
 - FR-10. Handle no session, paused session, and session changes (for example Spotify closes) without errors.
-- FR-11. Seek by tapping the progress bar, only if the source app supports it. Hidden or disabled otherwise.
+- FR-11. Seek by tapping the progress bar, only if the source app supports it. Hidden or disabled otherwise. Mouse only: click or drag. No arrow keys, because the island never has keyboard focus (FR-3). [Confirmed 31 Oct 2026]
 
 **Notifications**
 
@@ -81,7 +81,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-14. Filter by app so only enabled apps show. WhatsApp and Discord on by default.
 - FR-15. Show newest, +N badge for the rest, tap to open the list. Tapping the banner opens a list of the last 3 notifications from all apps, newest first. With only one notification, it shows the full message, up to 3 lines. Items leave the list when Windows removes the notification, for example after you read it in the app. The list is kept in memory only. Swiping the banner sideways (mouse drag) hides the current banner and shows the next waiting one, if any. Hotkey 3 hides all waiting banners and also closes the list if it is open. Neither deletes anything from Windows or from the list. [Confirmed 31 Oct 2026, follows the prototype]
 - FR-16. Auto-dismiss after a configurable time (default 6 seconds, you asked for 5 to 6 seconds while music plays). [Confirmed] There is one timer for all waiting banners: each new notification restarts it, and when it ends, all waiting banners hide at once. Opening the list stops the timer. [Confirmed 31 Oct 2026, follows the prototype] Also dismiss when Windows removes the notification, which should happen if the source app clears it after you read the message. [Unverified per app]
-- FR-17. Hide-content setting: show only sender and app, or app only.
+- FR-17. Hide-content setting: one "Hide message text" switch. When on, the banner and the list show only the sender and the app, never the message text. [Confirmed 31 Oct 2026, replaces the earlier "app only" option]
 - FR-18. Message text is held in memory only. Never written to disk or logs.
 
 **Settings**
@@ -160,7 +160,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 ## 13. States and edge cases
 
 - No music session: show clock.
-- Spotify paused: show paused state for a short time, then clock. [Confirmed 31 Oct 2026] The exact time is still open.
+- Spotify paused: show the paused music state for 5 seconds, then the clock. [Confirmed 31 Oct 2026]
 - Notification permission denied: show a one-time hint and stay functional for music and clock.
 - Very long sender or message: truncate cleanly.
 - Notification with no text or image-only: show app and sender only.
