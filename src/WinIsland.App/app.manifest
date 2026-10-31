@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  app.manifest: makes WinIsland per-monitor DPI aware (PRD FR-1), so the island is sharp and
-  sized correctly at any Windows display scale.
+  app.manifest: settings Windows reads from WinIsland.App.exe.
+  - Per-monitor DPI aware (PRD FR-1), so the island is sharp and sized correctly at any scale.
+  - The msix element links the exe to WinIsland's identity package (packaging/, spike S1).
+    When that package is registered with this exe's folder, Windows gives WinIsland package
+    identity and notifications arrive instantly. When it is not registered, the exe runs as a
+    normal app and checks notifications once per second instead. publisher, packageName and
+    applicationId must match packaging/Install-WinIslandIdentity.ps1.
 -->
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="WinIsland.App" />
+  <msix xmlns="urn:schemas-microsoft-com:msix.v1"
+        publisher="CN=WinIsland Dev"
+        packageName="WinIsland"
+        applicationId="WinIsland" />
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
