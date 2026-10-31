@@ -105,10 +105,10 @@ public partial class IslandWindow : Window
         switch (action)
         {
             case HotkeyAction.Expand:
-                _island.ToggleExpanded();
+                _island.ToggleExpanded(DateTimeOffset.Now);
                 break;
             case HotkeyAction.HideShow:
-                _island.ToggleHidden();
+                _island.ToggleHidden(DateTimeOffset.Now);
                 break;
             case HotkeyAction.HideBanner:
                 // Not registered until notification banners exist (Phase 4).
@@ -143,7 +143,8 @@ public partial class IslandWindow : Window
             IslandView.Compact => ClockLayer,
             IslandView.HotkeyConflict => ConflictLayer,
             // The expanded island needs music, which arrives in Phase 3; until then it cannot be reached.
-            IslandView.Expanded => throw new InvalidOperationException("The expanded island has no content until music is built (Phase 3)."),
+            // The music views get their content in the music island pull request; until then no music reaches the island.
+            IslandView.Music or IslandView.Expanded => throw new InvalidOperationException("The music views have no content yet; they arrive in the music island pull request."),
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No layer exists for this view."),
         };
     }

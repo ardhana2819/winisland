@@ -1,7 +1,8 @@
-// PauseEndTimer.cs: ends "Pause for 1 hour" on time (PRD FR-6).
-// While the island is paused, it waits until the exact end time and then tells the island what
-// time it is, so the island returns on its own. The once-per-minute clock tick also does this,
-// which covers the case where the PC was asleep when the hour ended.
+// IslandTimeTimer.cs: wakes the island exactly when a time-based change is due.
+// Core says when that is (NextTimeCheckAt): the end of "Pause for 1 hour" (PRD FR-6), or paused
+// music going back to the clock after 5 seconds (section 13). One timer covers both, and nothing
+// runs while no change is due. The once-per-minute clock tick is a backup for when the PC slept
+// through the due time.
 
 using System.Windows.Threading;
 
@@ -9,12 +10,12 @@ using WinIsland.Core.Island;
 
 namespace WinIsland.App.Clock;
 
-internal sealed class PauseEndTimer : IDisposable
+internal sealed class IslandTimeTimer : IDisposable
 {
     private readonly IslandStateMachine _island;
     private readonly DispatcherTimer _timer;
 
-    public PauseEndTimer(IslandStateMachine island)
+    public IslandTimeTimer(IslandStateMachine island)
     {
         ArgumentNullException.ThrowIfNull(island);
         _island = island;
@@ -24,7 +25,7 @@ internal sealed class PauseEndTimer : IDisposable
             _timer.Stop();
             _island.UpdateTime(DateTimeOffset.Now);
         };
-        _island.Changed += (_, _) => FollowPause();
+        _island.Changed += (_, _) => FollowNextCheck();
     }
 
     public void Dispose()
@@ -32,15 +33,16 @@ internal sealed class PauseEndTimer : IDisposable
         _timer.Stop();
     }
 
-    private void FollowPause()
+    private void FollowNextCheck()
     {
-        if (_island.PausedUntil is not DateTimeOffset end)
+        if (_island.NextTimeCheckAt is not DateTimeOffset due)
         {
             _timer.Stop();
             return;
         }
 
-        TimeSpan remaining = end - DateTimeOffset.Now;
+        TimeSpan remaining = due - DateTimeOffset.Now;
+        _timer.Stop();
         _timer.Interval = remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
         _timer.Start();
     }
