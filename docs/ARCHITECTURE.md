@@ -65,6 +65,7 @@ In words:
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
 | `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
 | `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, and the read or replaced rule for removals. |
+| `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
 
@@ -82,6 +83,9 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |
+| Platform | `Settings/SettingsFile.cs` | Reads and safely writes `%USERPROFILE%.winislandsettings.json` (outside AppData, so package identity cannot hide it). |
+| Platform | `Startup/StartupRegistration.cs` | Turns "start with Windows" on or off in the per-user Run list. |
+| Platform | `Windows/DarkTitleBar.cs` | Dark title bar for the Settings window. |
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
@@ -100,6 +104,9 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Notifications/NotificationListView.xaml` | The last 3 notifications, or the full text of a single one (up to 3 lines, measured). |
 | App | `Notifications/PermissionPromptView.xaml`, `Notifications/PermissionPromptBehavior.cs` | "Allow notification access": opens the Windows settings page, hides itself after 10 seconds. |
 | App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and list up to date, with "Hide message text" applied. |
+| App | `Island/IslandHotkeys.cs` | The three island hotkeys: applied at start and from Settings, freed while Settings records a new combination. |
+| App | `Settings/SettingsController.cs` | Loads, checks, applies and saves settings; opens the Settings window. |
+| App | `Settings/SettingsWindow.xaml`, `Settings/HotkeyCapture.cs` | The Settings window from the design board, and turning a key press into a hotkey. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |
