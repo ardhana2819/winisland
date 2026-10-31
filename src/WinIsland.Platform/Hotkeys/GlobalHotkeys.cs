@@ -28,11 +28,15 @@ public sealed class GlobalHotkeys : IDisposable
 
     public event EventHandler<HotkeyAction>? Pressed;
 
-    /// <summary>Asks Windows for each hotkey. Every result is returned, including the ones that failed.</summary>
+    /// <summary>
+    /// Asks Windows for each hotkey, replacing the ones registered before (a change in Settings).
+    /// Every result is returned, including the ones that failed.
+    /// </summary>
     public IReadOnlyList<HotkeyRegistration> Register(IReadOnlyDictionary<HotkeyAction, Hotkey> hotkeys)
     {
         ArgumentNullException.ThrowIfNull(hotkeys);
 
+        Release();
         foreach ((HotkeyAction action, Hotkey hotkey) in hotkeys)
         {
             // The action's number doubles as the Windows hotkey id, so a message maps straight back to it.
@@ -109,7 +113,11 @@ public sealed class GlobalHotkeys : IDisposable
         return false;
     }
 
-    public void Dispose()
+    /// <summary>
+    /// Gives the island hotkeys back to Windows, for example while Settings records a new key
+    /// combination (otherwise pressing Ctrl+Alt+H there would hide the island instead).
+    /// </summary>
+    public void Release()
     {
         foreach (HotkeyRegistration registration in _registrations.Where(item => item.IsRegistered))
         {
@@ -117,6 +125,11 @@ public sealed class GlobalHotkeys : IDisposable
         }
 
         _registrations.Clear();
+    }
+
+    public void Dispose()
+    {
+        Release();
         UnregisterMusicShortcuts();
     }
 
