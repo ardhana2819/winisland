@@ -66,8 +66,12 @@ public partial class MarqueeText : UserControl
         Offset.X = 0;
 
         double available = Viewport.ActualWidth;
-        double textWidth = MeasureTextWidth();
+        Size textSize = MeasureText();
+        double textWidth = textSize.Width;
         bool overflows = available > 0 && textWidth > available;
+
+        // The Canvas reports no size of its own, so the visible area takes the text's height.
+        Viewport.Height = textSize.Height;
 
         if (!overflows || !_isActive || !Motion.IsEnabled)
         {
@@ -94,10 +98,10 @@ public partial class MarqueeText : UserControl
         Offset.BeginAnimation(TranslateTransform.XProperty, loop);
     }
 
-    private double MeasureTextWidth()
+    private Size MeasureText()
     {
         FirstCopy.MaxWidth = double.PositiveInfinity;
         FirstCopy.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        return FirstCopy.DesiredSize.Width;
+        return FirstCopy.DesiredSize;
     }
 }
