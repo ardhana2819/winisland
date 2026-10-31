@@ -5,6 +5,10 @@
   The files stay where they are; the package only points to them (AllowExternalContent).
   Build-IdentityPackage.ps1 fills in the {{...}} values and builds a signed .msix from it.
   The same values must appear in the exe's embedded app.manifest (msix element).
+  Virtualization is turned off: without this, Windows gives a packaged app a private copy of
+  AppData and the registry, and WinIsland could not see its own settings file or the "start with
+  Windows" entry (found while building Settings, 31 Oct 2026). With it off, WinIsland behaves the
+  same with or without identity.
 -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -12,7 +16,8 @@
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap uap3 uap10 rescap">
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+  IgnorableNamespaces="uap uap3 uap10 rescap desktop6">
 
   <Identity Name="{{PackageName}}" Publisher="{{Publisher}}" Version="{{Version}}" ProcessorArchitecture="x64" />
 
@@ -21,6 +26,8 @@
     <PublisherDisplayName>WinIsland Dev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
+    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
+    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
   </Properties>
 
   <Resources>
@@ -33,6 +40,7 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="unvirtualizedResources" />
     <uap3:Capability Name="userNotificationListener" />
   </Capabilities>
 

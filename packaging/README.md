@@ -23,6 +23,8 @@ To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland th
 | `Register-IdentityPackage.ps1` | Registers a signed package for your user, pointing at the exe's folder. | No |
 | `Unregister-IdentityPackage.ps1` | Removes a registered package again. | No |
 
+The package turns off Windows' file and registry virtualization (`unvirtualizedResources`), so WinIsland writes the start-with-Windows entry to the real registry. Raise `$packageVersion` in `Install-WinIslandIdentity.ps1` whenever the manifest template changes; with the same version Windows may keep the old manifest.
+
 WinIsland.App.exe embeds a matching `msix` element in `src/WinIsland.App/app.manifest` (publisher `CN=WinIsland Dev`, package `WinIsland`, application `WinIsland`). Without a registered package, Windows ignores it and WinIsland runs as a normal app.
 
 ## Keys and certificates
