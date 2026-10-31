@@ -1,5 +1,5 @@
 // App.xaml.cs: starts WinIsland. Makes sure only one copy runs (FR-6b), then shows the island
-// window and the tray icon (FR-6), connects Spotify (FR-7), and keeps the tray menu in step with
+// window and the tray icon (FR-6), connects Spotify (FR-7) and the notification listener (FR-12), and keeps the tray menu in step with
 // the island's state.
 
 using System.Windows;
@@ -9,6 +9,7 @@ using System.Windows.Media;
 using WinIsland.App.Clock;
 using WinIsland.App.Island;
 using WinIsland.App.Music;
+using WinIsland.App.Notifications;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Core.Tray;
@@ -23,6 +24,7 @@ public partial class App : Application
     private TrayIcon? _trayIcon;
     private IslandTimeTimer? _islandTimeTimer;
     private MusicController? _music;
+    private NotificationController? _notifications;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -44,7 +46,8 @@ public partial class App : Application
         IslandStateMachine island = new();
         _islandTimeTimer = new IslandTimeTimer(island);
         _music = new MusicController(island, Dispatcher);
-        _islandWindow = new IslandWindow(island, _music);
+        _notifications = new NotificationController(island, Dispatcher);
+        _islandWindow = new IslandWindow(island, _music, _notifications);
         _islandWindow.Show();
 
         _trayIcon = new TrayIcon();
@@ -54,15 +57,17 @@ public partial class App : Application
         island.Changed += (_, _) => UpdateTray(island);
         UpdateTray(island);
 
-        // Connect to Spotify last, so the island and tray are already up. StartAsync never throws:
-        // without a media session the island stays a clock (FR-10).
+        // Connect to Spotify and the notification listener last, so the island and tray are already
+        // up. Neither StartAsync throws: without them the island stays a clock (FR-10, section 13).
         await _music.StartAsync();
+        await _notifications.StartAsync();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         _trayIcon?.Dispose();
         _music?.Dispose();
+        _notifications?.Dispose();
         _islandTimeTimer?.Dispose();
         _islandWindow?.Close();
         _singleInstance?.Dispose();
