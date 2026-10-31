@@ -37,6 +37,70 @@ public static class NonActivatingWindow
     }
 
     /// <summary>
+    /// Checks that the window still has its on-top, no-activate and tool-window styles and still
+    /// sits among the always-on-top windows, and repairs what is wrong. Returns what was wrong, or
+    /// an empty list when everything was in place.
+    /// Found live on Diva's PC (31 Oct 2026): after WhatsApp desktop starts, the island keeps its
+    /// on-top style but Windows has moved it below ordinary windows (23 of them, including Chrome
+    /// and WhatsApp), so maximized apps cover it. One SetWindowPos(HWND_TOPMOST) puts it back.
+    /// </summary>
+    public static IReadOnlyList<string> RepairIfNeeded(IntPtr windowHandle)
+    {
+        if (windowHandle == IntPtr.Zero)
+        {
+            return [];
+        }
+
+        long style = NativeMethods.GetWindowLongPtr(windowHandle, NativeMethods.GwlExStyle).ToInt64();
+        List<string> missing = [];
+        if ((style & NativeMethods.WsExTopmost) != 0 && HasOrdinaryWindowAbove(windowHandle))
+        {
+            missing.Add("on-top position");
+        }
+
+        if ((style & NativeMethods.WsExTopmost) == 0)
+        {
+            missing.Add("topmost");
+        }
+
+        if ((style & NativeMethods.WsExNoActivate) == 0)
+        {
+            missing.Add("no-activate");
+        }
+
+        if ((style & NativeMethods.WsExToolWindow) == 0)
+        {
+            missing.Add("tool-window");
+        }
+
+        if (missing.Count > 0)
+        {
+            Apply(windowHandle);
+        }
+
+        return missing;
+    }
+
+    // Windows keeps every always-on-top window above every ordinary one. An ordinary window above
+    // ours means ours has slipped out of the on-top group, even if its style still says on-top.
+    private static bool HasOrdinaryWindowAbove(IntPtr windowHandle)
+    {
+        IntPtr above = NativeMethods.GetWindow(windowHandle, NativeMethods.GwHwndPrev);
+        while (above != IntPtr.Zero)
+        {
+            long aboveStyle = NativeMethods.GetWindowLongPtr(above, NativeMethods.GwlExStyle).ToInt64();
+            if ((aboveStyle & NativeMethods.WsExTopmost) == 0)
+            {
+                return true;
+            }
+
+            above = NativeMethods.GetWindow(above, NativeMethods.GwHwndPrev);
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Call from the window's message hook. Answers "do not activate me" when the mouse clicks
     /// the window, a second line of defence next to the NoActivate style.
     /// </summary>

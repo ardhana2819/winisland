@@ -1,8 +1,9 @@
 # release.yml: builds a downloadable WinIsland when a version tag like v1.0.0 is pushed.
 # Publishes a self-contained win-x64 build (no .NET install needed on the target PC),
 # zips it, and attaches it to a GitHub Release with notes generated from merged pull requests.
-# No certificates or secrets are used here. Package identity setup happens on the target PC
-# (see packaging/README.md).
+# The zip also holds the packaging scripts (Start menu shortcut, optional instant notifications),
+# but never packaging/out, certificates or keys. No certificates or secrets are used here; package
+# identity is set up on the target PC (see packaging/README.md).
 
 name: Release
 
@@ -38,6 +39,13 @@ jobs:
           dotnet publish src/WinIsland.App/WinIsland.App.csproj
           -c Release -r win-x64 --self-contained true
           -o "publish/WinIsland-$env:VERSION_TAG-win-x64"
+
+      - name: Add the packaging scripts
+        shell: pwsh
+        run: |
+          $target = "publish/WinIsland-$env:VERSION_TAG-win-x64/packaging"
+          New-Item -ItemType Directory -Force $target | Out-Null
+          Copy-Item packaging/*.ps1, packaging/*.xml, packaging/README.md $target
 
       - name: Zip the build
         shell: pwsh

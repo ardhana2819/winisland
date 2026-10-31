@@ -39,6 +39,7 @@ public partial class IslandWindow : Window
     private readonly PermissionPromptBehavior _permissionPrompt;
     private readonly HotkeySet _startHotkeys;
     private ExpandedMusicKeys? _expandedMusicKeys;
+    private TopmostGuard? _topmostGuard;
     private IslandView _shownView = IslandView.Compact;
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
@@ -83,6 +84,7 @@ public partial class IslandWindow : Window
     {
         IntPtr handle = new WindowInteropHelper(this).Handle;
         NonActivatingWindow.Apply(handle);
+        _topmostGuard = new TopmostGuard(handle);
         HwndSource.FromHwnd(handle).AddHook(OnWindowMessage);
 
         PlaceOnPrimaryDisplay();
@@ -238,6 +240,9 @@ public partial class IslandWindow : Window
         Height = layout.Height;
         Left = layout.Left;
         Top = layout.Top;
+
+        // Display changes are one moment Windows can rearrange windows; check the island is still on top.
+        _topmostGuard?.CheckNow();
     }
 
     private double PixelsPerDip()
@@ -277,6 +282,7 @@ public partial class IslandWindow : Window
         _permissionPrompt.Dispose();
         _expandedMusicKeys?.Dispose();
         _minuteTimer.Dispose();
+        _topmostGuard?.Dispose();
         Hotkeys?.Dispose();
     }
 }

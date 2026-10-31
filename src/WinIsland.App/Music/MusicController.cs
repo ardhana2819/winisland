@@ -17,6 +17,9 @@ internal sealed class MusicController : IDisposable
 {
     private readonly IslandStateMachine _island;
     private readonly Dispatcher _dispatcher;
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(30);
+
+    private readonly CancellationTokenSource _stop = new();
     private SpotifyMediaSession? _session;
 
     public MusicController(IslandStateMachine island, Dispatcher dispatcher)
@@ -32,20 +35,38 @@ internal sealed class MusicController : IDisposable
 
     public ImageSource? Artwork { get; private set; }
 
+    /// <summary>
+    /// Connects to the Windows media session. If Windows refuses (rare, for example right after
+    /// sign-in), it tries again every 30 seconds instead of giving up (PRD section 7: recover).
+    /// Without it the island still works as a clock (FR-10).
+    /// </summary>
     public async Task StartAsync()
     {
-        try
+        while (!_stop.IsCancellationRequested)
         {
-            _session = await SpotifyMediaSession.CreateAsync();
-            // Subscribe before connecting, so the first report (what is playing right now) is not lost.
-            _session.NowPlayingChanged += OnNowPlayingChanged;
-            _session.ArtworkChanged += OnArtworkChanged;
-            await _session.ConnectAsync();
-        }
-        catch (Exception error)
-        {
-            // Without the media session the island still works as a clock (FR-10).
-            Trace.TraceWarning("The Windows media session could not be started: {0} (HRESULT 0x{1:X8})", error.GetType().Name, error.HResult);
+            try
+            {
+                SpotifyMediaSession session = await SpotifyMediaSession.CreateAsync();
+                // Subscribe before connecting, so the first report (what is playing right now) is not lost.
+                session.NowPlayingChanged += OnNowPlayingChanged;
+                session.ArtworkChanged += OnArtworkChanged;
+                await session.ConnectAsync();
+                _session = session;
+                return;
+            }
+            catch (Exception error)
+            {
+                Trace.TraceWarning("The Windows media session could not be started, trying again in 30 s: {0} (HRESULT 0x{1:X8})", error.GetType().Name, error.HResult);
+            }
+
+            try
+            {
+                await Task.Delay(RetryInterval, _stop.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
         }
     }
 
@@ -59,7 +80,9 @@ internal sealed class MusicController : IDisposable
 
     public void Dispose()
     {
+        _stop.Cancel();
         _session?.Dispose();
+        _stop.Dispose();
     }
 
     private void OnNowPlayingChanged(object? sender, NowPlaying? music)
