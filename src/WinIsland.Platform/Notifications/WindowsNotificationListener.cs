@@ -61,6 +61,20 @@ public sealed class WindowsNotificationListener : IDisposable
         }
     }
 
+    /// <summary>Reads whether access is allowed right now, without asking (used for the regular check).</summary>
+    public bool IsAccessAllowed()
+    {
+        try
+        {
+            return _listener.GetAccessStatus() == UserNotificationListenerAccessStatus.Allowed;
+        }
+        catch (Exception error)
+        {
+            PlatformLog.Problem("Reading notification access failed", error);
+            return false;
+        }
+    }
+
     /// <summary>Takes note of what is already there, then starts reporting changes.</summary>
     public async Task StartAsync()
     {
@@ -208,7 +222,14 @@ public sealed class WindowsNotificationListener : IDisposable
         byte[]? logo = null;
         try
         {
-            RandomAccessStreamReference reference = notification.AppInfo.DisplayInfo.GetLogo(new global::Windows.Foundation.Size(LogoSizePixels, LogoSizePixels));
+            // Some desktop apps (Discord, seen in the v1.0.0 test) have no logo in Windows: null, not an error.
+            RandomAccessStreamReference? reference = notification.AppInfo.DisplayInfo.GetLogo(new global::Windows.Foundation.Size(LogoSizePixels, LogoSizePixels));
+            if (reference is null)
+            {
+                _logos[appId] = null;
+                return null;
+            }
+
             using IRandomAccessStreamWithContentType stream = await reference.OpenReadAsync();
             if (stream.Size > 0 && stream.Size <= MaxLogoBytes)
             {
