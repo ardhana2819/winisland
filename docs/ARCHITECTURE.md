@@ -45,7 +45,7 @@ In words:
 
 | Folder | File | What it decides |
 |---|---|---|
-| `Island/` | `IslandStateMachine.cs` | What the island is doing: compact or expanded, hidden, paused for an hour. Expanding only works while music is present. |
+| `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Expanding only works while music is present; paused music shows for 5 seconds (longer while expanded). It also says when the next time-based change is due. |
 | `Island/` | `IslandView.cs` | The shapes the island can show (compact, expanded; more arrive with music and notifications). |
 | `Island/` | `IslandScale.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
@@ -55,6 +55,9 @@ In words:
 | `Hotkeys/` | `HotkeyConflictMessage.cs` | The short text for the conflict banner, for example "Alt+X is used by another app". |
 | `Animation/` | `CubicBezier.cs` | The design's timing curves as math, including the spring curve that overshoots and settles. |
 | `Tray/` | `TrayMenuLabels.cs` | The tray menu wording, which changes while paused or hidden. |
+| `Music/` | `NowPlaying.cs`, `PlaybackStatus.cs` | What the music player reports: title, artist, playing or paused, position, length, whether seeking works. |
+| `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
+| `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
 
@@ -72,7 +75,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
-| App | `Clock/PauseEndTimer.cs` | Ends "Pause for 1 hour" on time. |
+| App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |
