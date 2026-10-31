@@ -8,6 +8,10 @@
   <PropertyGroup>
     <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
     <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+    <!-- The tray icon uses the WinForms NotifyIcon that ships with .NET (PRD FR-6), so no extra package. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs. Our own code has no unsafe blocks. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
