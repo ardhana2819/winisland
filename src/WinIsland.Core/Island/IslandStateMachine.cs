@@ -48,6 +48,9 @@ public sealed class IslandStateMachine
     /// <summary>The conflict banner text while it is showing, otherwise null.</summary>
     public string? HotkeyConflictText { get; private set; }
 
+    /// <summary>True while the "Allow notification access" prompt is showing (FR-12).</summary>
+    public bool IsPermissionPromptShown { get; private set; }
+
     public NotificationSettings NotificationSettings { get; private set; } = NotificationSettings.Defaults;
 
     /// <summary>The last 3 notifications, newest first (FR-15).</summary>
@@ -68,6 +71,11 @@ public sealed class IslandStateMachine
             if (HotkeyConflictText is not null)
             {
                 return IslandView.HotkeyConflict;
+            }
+
+            if (IsPermissionPromptShown)
+            {
+                return IslandView.PermissionPrompt;
             }
 
             return _overlay switch
@@ -318,6 +326,32 @@ public sealed class IslandStateMachine
         }
 
         HotkeyConflictText = null;
+        RaiseChanged();
+    }
+
+    /// <summary>
+    /// Shows "Allow notification access" once, when Windows did not give access (FR-12, section 13).
+    /// Clock and music keep working; the app hides the prompt again after a short while.
+    /// </summary>
+    public void ShowPermissionPrompt()
+    {
+        if (IsPermissionPromptShown)
+        {
+            return;
+        }
+
+        IsPermissionPromptShown = true;
+        RaiseChanged();
+    }
+
+    public void DismissPermissionPrompt()
+    {
+        if (!IsPermissionPromptShown)
+        {
+            return;
+        }
+
+        IsPermissionPromptShown = false;
         RaiseChanged();
     }
 
