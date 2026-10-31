@@ -89,7 +89,9 @@
                     </Grid.RenderTransform>
                     <StackPanel Margin="16,0,16,0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Viewbox Width="20" Height="20" VerticalAlignment="Center">
-                            <Path Fill="#FBBF24" Data="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z" />
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="#FBBF24" Data="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z" />
+                            </Canvas>
                         </Viewbox>
                         <TextBlock x:Name="ConflictLabel"
                                    AutomationProperties.AutomationId="ConflictText"

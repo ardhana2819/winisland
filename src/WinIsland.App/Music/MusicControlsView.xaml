@@ -8,7 +8,8 @@
       Play or pause is a white circle with a black icon; the others have no background.
   Section 3: title 16 semibold, artist 13, time labels 11 tabular.
   Section 4: secondary text #A6ABB6, track #3A3A3C, fill #FFFFFF.
-  Icons are the prototype's SVG paths.
+  Icons are the prototype's SVG paths, each inside a 24 x 24 Canvas like the SVG viewBox. Without
+  that frame, WPF sizes a Path from (0,0) to its far edge and the Viewbox pushes the icon off center.
   Buttons never take keyboard focus (FR-3).
 -->
 <UserControl x:Class="WinIsland.App.Music.MusicControlsView"
@@ -103,17 +104,23 @@
         <StackPanel Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="PreviousButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Previous track" Click="OnPreviousClick">
                 <Viewbox Width="22" Height="22">
-                    <Path Fill="#FFFFFF" Data="M6 5h2v14H6zM20 5v14L9 12z" />
+                    <Canvas Width="24" Height="24">
+                        <Path Fill="#FFFFFF" Data="M6 5h2v14H6zM20 5v14L9 12z" />
+                    </Canvas>
                 </Viewbox>
             </Button>
             <Button x:Name="PlayPauseButton" Style="{StaticResource IslandButton}" Margin="16,0,16,0" Background="#FFFFFF" AutomationProperties.Name="Pause" Click="OnPlayPauseClick">
                 <Viewbox Width="22" Height="22">
-                    <Path x:Name="PlayPauseIcon" Fill="#000000" Data="M7 5h4v14H7zM13 5h4v14h-4z" />
+                    <Canvas Width="24" Height="24">
+                        <Path x:Name="PlayPauseIcon" Fill="#000000" Data="M7 5h4v14H7zM13 5h4v14h-4z" />
+                    </Canvas>
                 </Viewbox>
             </Button>
             <Button x:Name="NextButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Next track" Click="OnNextClick">
                 <Viewbox Width="22" Height="22">
-                    <Path Fill="#FFFFFF" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
+                    <Canvas Width="24" Height="24">
+                        <Path Fill="#FFFFFF" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
+                    </Canvas>
                 </Viewbox>
             </Button>
         </StackPanel>
