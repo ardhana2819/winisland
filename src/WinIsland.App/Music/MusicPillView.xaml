@@ -1,0 +1,35 @@
+<!--
+  MusicPillView.xaml: the compact music pill, 280 x 36 (DESIGN_SPEC section 2).
+  Section 5: left padding 6, right padding 12, artwork 24 square with radius 6, 10 gap,
+  title fills the middle, equalizer on the right.
+  Section 3: title 13, regular, one line, cut with an ellipsis.
+-->
+<UserControl x:Class="WinIsland.App.Music.MusicPillView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:music="clr-namespace:WinIsland.App.Music"
+             Width="280"
+             Height="36"
+             Focusable="False">
+    <Grid Margin="6,0,12,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="Artwork" Grid.Column="0" Width="24" Height="24" CornerRadius="6" VerticalAlignment="Center" />
+
+        <TextBlock x:Name="TitleText"
+                   Grid.Column="1"
+                   Margin="10,0,10,0"
+                   VerticalAlignment="Center"
+                   Foreground="#FFFFFF"
+                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   AutomationProperties.AutomationId="MusicPillTitle" />
+
+        <music:EqualizerView x:Name="Equalizer" Grid.Column="2" VerticalAlignment="Center" />
+    </Grid>
+</UserControl>
