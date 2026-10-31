@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Phase 1: technical spike.** The repository, CI, and test programs are being set up. There is no usable app yet. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Phase 2: overlay shell, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen and a tray icon with Quit. Music, notifications, hotkeys and settings are not built yet. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 
@@ -24,7 +24,7 @@ These steps apply once the first release exists.
    Or, with GitHub CLI: `gh release download --repo ardhana2819/WinIsland --pattern "*.zip"`
 3. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
    No .NET install is needed. The build is self-contained.
-4. **Package identity (only if needed).** Windows may only let apps with package identity read notifications. Phase 1 spike S1 checks this. If it is needed, the release will include a setup script that creates a personal signing certificate on that PC, trusts it, and registers WinIsland's identity package. The exact steps will be added here from [packaging/README.md](packaging/README.md) after S1.
+4. **Package identity (optional).** Spike S1 showed WinIsland can read notifications without it (checking once per second). With it, notifications arrive instantly. The optional setup (a personal signing certificate, trusted once as administrator) will be described here when notifications are built in Phase 4; the scripts are in [packaging/README.md](packaging/README.md).
 5. Run `WinIsland.App.exe`.
 
 ## First run
