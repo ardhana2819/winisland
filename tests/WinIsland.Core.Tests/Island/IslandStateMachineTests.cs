@@ -1,6 +1,7 @@
-// IslandStateMachineTests.cs: checks the island rules from PRD FR-2, FR-5, FR-6 and section 12.
+// IslandStateMachineTests.cs: checks the island rules from PRD FR-2, FR-5, FR-6, FR-10 and sections 12 and 13.
 
 using WinIsland.Core.Island;
+using WinIsland.Core.Music;
 
 namespace WinIsland.Core.Tests.Island;
 
@@ -15,8 +16,12 @@ public class IslandStateMachineTests
 
         Assert.True(island.IsVisible);
         Assert.False(island.IsPaused);
+        Assert.False(island.IsMusicPresent);
         Assert.Equal(IslandView.Compact, island.View);
+        Assert.Null(island.NextTimeCheckAt);
     }
+
+    // ---- Expanding (FR-2) ----
 
     [Fact]
     public void Expand_does_nothing_without_music()
@@ -24,93 +29,79 @@ public class IslandStateMachineTests
         IslandStateMachine island = new();
         ChangeCounter changes = CountChanges(island);
 
-        island.ToggleExpanded();
+        island.ToggleExpanded(Now);
 
         Assert.Equal(IslandView.Compact, island.View);
         Assert.Equal(0, changes.Count);
     }
 
     [Fact]
-    public void Expand_toggles_while_music_is_present()
+    public void Expand_toggles_while_music_plays()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
+        IslandStateMachine island = WithMusicPlaying();
 
-        island.ToggleExpanded();
+        island.ToggleExpanded(Now);
         Assert.Equal(IslandView.Expanded, island.View);
 
-        island.ToggleExpanded();
-        Assert.Equal(IslandView.Compact, island.View);
+        island.ToggleExpanded(Now);
+        Assert.Equal(IslandView.Music, island.View);
     }
 
     [Fact]
-    public void Collapse_closes_the_expanded_island_and_is_safe_when_already_compact()
+    public void Collapse_closes_the_expanded_island_and_is_safe_when_already_closed()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleExpanded();
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
 
-        island.Collapse();
+        island.Collapse(Now);
         ChangeCounter changes = CountChanges(island);
-        island.Collapse();
+        island.Collapse(Now);
 
-        Assert.Equal(IslandView.Compact, island.View);
+        Assert.Equal(IslandView.Music, island.View);
         Assert.Equal(0, changes.Count);
     }
 
-    [Fact]
-    public void Music_stopping_closes_the_expanded_island()
-    {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleExpanded();
-
-        island.SetMusicPresent(false);
-
-        Assert.Equal(IslandView.Compact, island.View);
-    }
+    // ---- Hiding and pausing (FR-5, FR-6, section 12) ----
 
     [Fact]
     public void Hide_toggles_visibility_and_closes_the_expanded_island()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleExpanded();
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
 
-        island.ToggleHidden();
+        island.ToggleHidden(Now);
         Assert.False(island.IsVisible);
         Assert.Equal(IslandView.Compact, island.View);
 
-        island.ToggleHidden();
+        island.ToggleHidden(Now);
         Assert.True(island.IsVisible);
-        Assert.Equal(IslandView.Compact, island.View);
+        Assert.Equal(IslandView.Music, island.View);
     }
 
     [Fact]
     public void Expand_does_nothing_while_hidden()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleHidden();
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleHidden(Now);
 
-        island.ToggleExpanded();
-        island.ToggleHidden();
+        island.ToggleExpanded(Now);
+        island.ToggleHidden(Now);
 
-        Assert.Equal(IslandView.Compact, island.View);
+        Assert.Equal(IslandView.Music, island.View);
     }
 
     [Fact]
     public void Pause_hides_the_island_for_one_hour()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleExpanded();
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
 
         island.Pause(Now);
 
         Assert.True(island.IsPaused);
         Assert.False(island.IsVisible);
         Assert.Equal(Now.AddHours(1), island.PausedUntil);
+        Assert.Equal(Now.AddHours(1), island.NextTimeCheckAt);
         Assert.Equal(IslandView.Compact, island.View);
     }
 
@@ -126,6 +117,7 @@ public class IslandStateMachineTests
         island.UpdateTime(Now.AddHours(1));
         Assert.False(island.IsPaused);
         Assert.True(island.IsVisible);
+        Assert.Null(island.NextTimeCheckAt);
     }
 
     [Fact]
@@ -149,8 +141,7 @@ public class IslandStateMachineTests
         IslandStateMachine island = new();
         island.Pause(Now);
 
-        // Hiding during the pause is remembered for when the pause ends.
-        island.ToggleHidden();
+        island.ToggleHidden(Now);
         Assert.False(island.IsVisible);
 
         island.Resume();
@@ -161,32 +152,153 @@ public class IslandStateMachineTests
     [Fact]
     public void Expand_does_nothing_while_paused()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
+        IslandStateMachine island = WithMusicPlaying();
         island.Pause(Now);
 
-        island.ToggleExpanded();
+        island.ToggleExpanded(Now);
         island.Resume();
+
+        Assert.Equal(IslandView.Music, island.View);
+    }
+
+    // ---- Music (FR-7, FR-10, section 13) ----
+
+    [Fact]
+    public void Playing_music_shows_the_music_pill()
+    {
+        IslandStateMachine island = new();
+
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now);
+
+        Assert.True(island.IsMusicPresent);
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Equal("Like a Stone", island.Music?.Title);
+    }
+
+    [Fact]
+    public void Paused_music_shows_for_5_seconds_then_the_clock()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Equal(Now.AddSeconds(5), island.NextTimeCheckAt);
+
+        island.UpdateTime(Now.AddSeconds(4.9));
+        Assert.Equal(IslandView.Music, island.View);
+
+        island.UpdateTime(Now.AddSeconds(5));
+        Assert.Equal(IslandView.Compact, island.View);
+        Assert.False(island.IsMusicPresent);
+        Assert.Null(island.NextTimeCheckAt);
+    }
+
+    [Fact]
+    public void Music_that_appears_already_paused_also_shows_for_5_seconds()
+    {
+        IslandStateMachine island = new();
+
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        Assert.Equal(IslandView.Music, island.View);
+
+        island.UpdateTime(Now.AddSeconds(5));
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Paused_music_stays_while_expanded_and_the_5_seconds_start_on_close()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
+
+        // Pausing from the expanded island must not take the play button away.
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        island.UpdateTime(Now.AddMinutes(1));
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Null(island.NextTimeCheckAt);
+
+        DateTimeOffset closedAt = Now.AddMinutes(2);
+        island.Collapse(closedAt);
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Equal(closedAt.AddSeconds(5), island.NextTimeCheckAt);
+
+        island.UpdateTime(closedAt.AddSeconds(5));
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Expanding_paused_music_stops_the_countdown()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+
+        island.ToggleExpanded(Now.AddSeconds(2));
+        island.UpdateTime(Now.AddSeconds(10));
+
+        Assert.Equal(IslandView.Expanded, island.View);
+    }
+
+    [Fact]
+    public void Paused_music_after_the_5_seconds_cannot_be_expanded()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        island.UpdateTime(Now.AddSeconds(5));
+
+        island.ToggleExpanded(Now.AddSeconds(6));
 
         Assert.Equal(IslandView.Compact, island.View);
     }
 
     [Fact]
-    public void Changed_is_raised_for_each_real_change()
+    public void Playing_again_brings_the_music_back_and_stops_the_countdown()
     {
-        IslandStateMachine island = new();
-        int changes = 0;
-        island.Changed += (_, _) => changes++;
+        IslandStateMachine island = WithMusicPlaying();
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        island.UpdateTime(Now.AddSeconds(5));
 
-        island.SetMusicPresent(true);
-        island.SetMusicPresent(true); // no change
-        island.ToggleExpanded();
-        island.ToggleHidden();
-        island.Pause(Now);
-        island.Resume();
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now.AddSeconds(30));
 
-        Assert.Equal(5, changes);
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Null(island.NextTimeCheckAt);
     }
+
+    [Fact]
+    public void Music_session_closing_returns_to_the_clock_even_when_expanded()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
+
+        island.UpdateMusic(null, Now);
+
+        Assert.False(island.IsMusicPresent);
+        Assert.Null(island.Music);
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Next_time_check_is_the_earlier_of_pause_end_and_paused_music_end()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+
+        island.Pause(Now);
+
+        Assert.Equal(Now.AddSeconds(5), island.NextTimeCheckAt);
+    }
+
+    [Fact]
+    public void A_new_report_with_the_same_values_raises_no_change()
+    {
+        IslandStateMachine island = WithMusicPlaying();
+        ChangeCounter changes = CountChanges(island);
+
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now);
+
+        Assert.Equal(0, changes.Count);
+    }
+
+    // ---- Hotkey conflict banner (FR-5) ----
 
     [Fact]
     public void Hotkey_conflict_banner_shows_and_dismisses()
@@ -205,9 +317,8 @@ public class IslandStateMachineTests
     [Fact]
     public void Hotkey_conflict_banner_wins_over_expanded_and_returns_to_it()
     {
-        IslandStateMachine island = new();
-        island.SetMusicPresent(true);
-        island.ToggleExpanded();
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
 
         island.ShowHotkeyConflict("Ctrl+Alt+I is used by another app");
         Assert.Equal(IslandView.HotkeyConflict, island.View);
@@ -222,7 +333,7 @@ public class IslandStateMachineTests
         IslandStateMachine island = new();
         island.ShowHotkeyConflict("Alt+X is used by another app");
 
-        island.ToggleHidden();
+        island.ToggleHidden(Now);
 
         Assert.False(island.IsVisible);
         Assert.Equal(IslandView.Compact, island.View);
@@ -247,6 +358,37 @@ public class IslandStateMachineTests
         island.DismissHotkeyConflict();
 
         Assert.Equal(0, changes.Count);
+    }
+
+    // ---- Change notifications ----
+
+    [Fact]
+    public void Changed_is_raised_for_each_real_change()
+    {
+        IslandStateMachine island = new();
+        int changes = 0;
+        island.Changed += (_, _) => changes++;
+
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now);
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now); // no change
+        island.ToggleExpanded(Now);
+        island.ToggleHidden(Now);
+        island.Pause(Now);
+        island.Resume();
+
+        Assert.Equal(5, changes);
+    }
+
+    private static NowPlaying Track(PlaybackStatus status)
+    {
+        return new NowPlaying("Like a Stone", "Audioslave", status, TimeSpan.FromSeconds(285), TimeSpan.FromSeconds(147), Now, canSeek: true);
+    }
+
+    private static IslandStateMachine WithMusicPlaying()
+    {
+        IslandStateMachine island = new();
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now);
+        return island;
     }
 
     private static ChangeCounter CountChanges(IslandStateMachine island)
