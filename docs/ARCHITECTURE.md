@@ -96,6 +96,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Music/MusicControlsView.xaml` | The expanded island: artwork, title, artist, progress with seek, previous, play or pause, next. |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the design gradient) and the title shown when a song has none. |
 | App | `Island/IslandMusicPresenter.cs`, `Island/PointerLeaveCollapser.cs` | Keep the music views up to date, tick the progress once per second while expanded, and close the island 2 s after the pointer leaves. |
+| App | `Island/TopmostGuard.cs` | Every 2 s, checks the island window is still on top (and non-activating) and restores it if Windows took that away; each repair is logged. |
 | App | `Island/OutsideClickWatcher.cs` | While expanded, closes the island when a mouse button is pressed anywhere outside it. |
 | App | `Island/ExpandedMusicKeys.cs` | While expanded, turns on Space, Ctrl+Right and Ctrl+Left for play or pause, next and previous; off again when the island closes. |
 | App | `Music/MarqueeText.xaml` | A line of text that scrolls sideways when the song title does not fit. |

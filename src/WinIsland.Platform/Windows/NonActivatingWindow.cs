@@ -37,6 +37,44 @@ public static class NonActivatingWindow
     }
 
     /// <summary>
+    /// Checks that the window still has its on-top, no-activate and tool-window styles, and puts
+    /// back whatever is missing. Returns the names of the styles that were missing, or an empty
+    /// list when everything was in place. Diva saw the island fall behind Chrome and Spotify after
+    /// closing and reopening apps (31 Oct 2026); this is the repair for that.
+    /// </summary>
+    public static IReadOnlyList<string> RepairIfNeeded(IntPtr windowHandle)
+    {
+        if (windowHandle == IntPtr.Zero)
+        {
+            return [];
+        }
+
+        long style = NativeMethods.GetWindowLongPtr(windowHandle, NativeMethods.GwlExStyle).ToInt64();
+        List<string> missing = [];
+        if ((style & NativeMethods.WsExTopmost) == 0)
+        {
+            missing.Add("topmost");
+        }
+
+        if ((style & NativeMethods.WsExNoActivate) == 0)
+        {
+            missing.Add("no-activate");
+        }
+
+        if ((style & NativeMethods.WsExToolWindow) == 0)
+        {
+            missing.Add("tool-window");
+        }
+
+        if (missing.Count > 0)
+        {
+            Apply(windowHandle);
+        }
+
+        return missing;
+    }
+
+    /// <summary>
     /// Call from the window's message hook. Answers "do not activate me" when the mouse clicks
     /// the window, a second line of defence next to the NoActivate style.
     /// </summary>
