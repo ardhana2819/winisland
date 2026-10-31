@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  app.manifest: embedded in NotificationProbe.exe.
+  The msix element tells Windows which identity package this exe belongs to. When the package
+  from packaging/ is registered with this exe's folder as its external location, Windows gives
+  the exe package identity. When it is not registered, the exe runs as a normal unpackaged app.
+  publisher, packageName, and applicationId must match packaging/AppxManifest.template.xml.
+-->
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="WinIsland.NotificationProbe" />
+  <msix xmlns="urn:schemas-microsoft-com:msix.v1"
+        publisher="CN=WinIsland Dev"
+        packageName="WinIsland.Spike.NotificationProbe"
+        applicationId="NotificationProbe" />
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 and 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+    </application>
+  </compatibility>
+</assembly>
