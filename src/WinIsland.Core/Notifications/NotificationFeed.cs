@@ -80,6 +80,15 @@ public sealed class NotificationFeed
             return;
         }
 
+        // A newer message from the same chat is already here: WhatsApp swapped its notification.
+        // Polling sees the new one and the removal in the same check and reports the new one first
+        // (Diva's fast-message bug, 31 Oct 2026). Reading a chat removes its newest notification,
+        // which has nothing newer, so the read rule below still applies then.
+        if (HasNewerFromSameConversation(_recent, known) || HasNewerFromSameConversation(_waiting, known))
+        {
+            return;
+        }
+
         _pendingReads.Add(new PendingRead(known, now + ReplacementWindow));
     }
 
@@ -126,6 +135,13 @@ public sealed class NotificationFeed
     {
         _waiting.Clear();
         BannerEndsAt = null;
+    }
+
+    // Lists are newest first, so anything before the item is newer.
+    private static bool HasNewerFromSameConversation(List<IslandNotification> newestFirst, IslandNotification removed)
+    {
+        int index = newestFirst.FindIndex(item => item.WindowsId == removed.WindowsId);
+        return index > 0 && newestFirst.Take(index).Any(item => item.IsSameConversation(removed));
     }
 
     private sealed record PendingRead(IslandNotification Conversation, DateTimeOffset DecideAt);
