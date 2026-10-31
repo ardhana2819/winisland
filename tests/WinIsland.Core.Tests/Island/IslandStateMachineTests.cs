@@ -188,6 +188,67 @@ public class IslandStateMachineTests
         Assert.Equal(5, changes);
     }
 
+    [Fact]
+    public void Hotkey_conflict_banner_shows_and_dismisses()
+    {
+        IslandStateMachine island = new();
+
+        island.ShowHotkeyConflict("Alt+X is used by another app");
+        Assert.Equal(IslandView.HotkeyConflict, island.View);
+        Assert.Equal("Alt+X is used by another app", island.HotkeyConflictText);
+
+        island.DismissHotkeyConflict();
+        Assert.Equal(IslandView.Compact, island.View);
+        Assert.Null(island.HotkeyConflictText);
+    }
+
+    [Fact]
+    public void Hotkey_conflict_banner_wins_over_expanded_and_returns_to_it()
+    {
+        IslandStateMachine island = new();
+        island.SetMusicPresent(true);
+        island.ToggleExpanded();
+
+        island.ShowHotkeyConflict("Ctrl+Alt+I is used by another app");
+        Assert.Equal(IslandView.HotkeyConflict, island.View);
+
+        island.DismissHotkeyConflict();
+        Assert.Equal(IslandView.Expanded, island.View);
+    }
+
+    [Fact]
+    public void Hotkey_conflict_banner_is_not_visible_while_hidden()
+    {
+        IslandStateMachine island = new();
+        island.ShowHotkeyConflict("Alt+X is used by another app");
+
+        island.ToggleHidden();
+
+        Assert.False(island.IsVisible);
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Hotkey_conflict_banner_needs_a_message(string message)
+    {
+        IslandStateMachine island = new();
+
+        Assert.Throws<ArgumentException>(() => island.ShowHotkeyConflict(message));
+    }
+
+    [Fact]
+    public void Dismissing_when_no_conflict_banner_shows_changes_nothing()
+    {
+        IslandStateMachine island = new();
+        ChangeCounter changes = CountChanges(island);
+
+        island.DismissHotkeyConflict();
+
+        Assert.Equal(0, changes.Count);
+    }
+
     private static ChangeCounter CountChanges(IslandStateMachine island)
     {
         ChangeCounter counter = new();

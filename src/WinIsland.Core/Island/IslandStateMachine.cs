@@ -27,7 +27,26 @@ public sealed class IslandStateMachine
 
     public bool IsVisible => !IsHiddenByUser && !IsPaused;
 
-    public IslandView View => IsVisible && _isExpanded ? IslandView.Expanded : IslandView.Compact;
+    /// <summary>The conflict banner text while it is showing, otherwise null.</summary>
+    public string? HotkeyConflictText { get; private set; }
+
+    public IslandView View
+    {
+        get
+        {
+            if (!IsVisible)
+            {
+                return IslandView.Compact;
+            }
+
+            if (HotkeyConflictText is not null)
+            {
+                return IslandView.HotkeyConflict;
+            }
+
+            return _isExpanded ? IslandView.Expanded : IslandView.Compact;
+        }
+    }
 
     /// <summary>Hotkey 1 or a click on the compact island. Does nothing without music (FR-2).</summary>
     public void ToggleExpanded()
@@ -95,6 +114,29 @@ public sealed class IslandStateMachine
         {
             Resume();
         }
+    }
+
+    /// <summary>Shows the hotkey conflict banner (FR-5). The app hides it again after 10 seconds.</summary>
+    public void ShowHotkeyConflict(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            throw new ArgumentException("The conflict banner needs a message.", nameof(message));
+        }
+
+        HotkeyConflictText = message;
+        RaiseChanged();
+    }
+
+    public void DismissHotkeyConflict()
+    {
+        if (HotkeyConflictText is null)
+        {
+            return;
+        }
+
+        HotkeyConflictText = null;
+        RaiseChanged();
     }
 
     /// <summary>Set by the music feature (Phase 3). When music goes away, the expanded island closes.</summary>
