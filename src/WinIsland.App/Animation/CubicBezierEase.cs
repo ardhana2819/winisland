@@ -32,6 +32,9 @@ internal sealed class CubicBezierEase : EasingFunctionBase
     /// <summary>CSS "ease", which the prototype uses for its fades.</summary>
     public static CubicBezierEase Ease() => Create(0.25, 0.1, 0.25, 1);
 
+    /// <summary>CSS "ease-in-out", which the prototype uses for the equalizer bars.</summary>
+    public static CubicBezierEase EaseInOut() => Create(0.42, 0, 0.58, 1);
+
     public double X1 { get => (double)GetValue(X1Property); set => SetValue(X1Property, value); }
 
     public double Y1 { get => (double)GetValue(Y1Property); set => SetValue(Y1Property, value); }

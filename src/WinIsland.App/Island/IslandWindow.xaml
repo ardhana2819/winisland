@@ -7,6 +7,8 @@
     section 3: clock 15 semibold, tabular numbers; banner text 13; Segoe UI Variable then Segoe UI.
     section 4: pill #000000, text #FFFFFF, warning icon #FBBF24.
     section 5: conflict banner padding 16 on the left, 10 gap, 20 warning icon.
+  The compact music pill (280 x 36) and the expanded island (420 x 168) are their own controls in
+  the Music folder: MusicPillView and MusicControlsView.
   Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
   layer is visible; PillAnimator swaps them.
   Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1).
@@ -15,6 +17,7 @@
 <Window x:Class="WinIsland.App.Island.IslandWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:music="clr-namespace:WinIsland.App.Music"
         Title="WinIsland"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -41,7 +44,8 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Background="#000000"
-                RenderTransformOrigin="0.5,0.5">
+                RenderTransformOrigin="0.5,0.5"
+                MouseLeftButtonUp="OnPillClicked">
             <Border.RenderTransform>
                 <TransformGroup>
                     <TranslateTransform x:Name="PillOffset" />
@@ -98,6 +102,29 @@
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
                 </Grid>
+                <!-- Compact, music: artwork, title, equalizer. -->
+                <music:MusicPillView x:Name="MusicLayer"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Opacity="0"
+                                     IsHitTestVisible="False"
+                                     RenderTransformOrigin="0.5,0.5">
+                    <music:MusicPillView.RenderTransform>
+                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                    </music:MusicPillView.RenderTransform>
+                </music:MusicPillView>
+
+                <!-- Expanded: music controls. -->
+                <music:MusicControlsView x:Name="ExpandedLayer"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         Opacity="0"
+                                         IsHitTestVisible="False"
+                                         RenderTransformOrigin="0.5,0.5">
+                    <music:MusicControlsView.RenderTransform>
+                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                    </music:MusicControlsView.RenderTransform>
+                </music:MusicControlsView>
             </Grid>
         </Border>
     </Grid>
