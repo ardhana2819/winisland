@@ -47,6 +47,7 @@ In words:
 |---|---|---|
 | `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Expanding only works while music is present; paused music shows for 5 seconds (longer while expanded). It also says when the next time-based change is due. |
 | `Island/` | `IslandView.cs` | The shapes the island can show (compact, expanded; more arrive with music and notifications). |
+| `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island, a notification banner, or the list. The latest request wins. |
 | `Island/` | `IslandScale.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
 | `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
@@ -60,6 +61,10 @@ In words:
 | `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
 | `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
 | `Music/` | `MusicSource.cs` | Picks the Spotify media session and ignores browsers and other players. |
+| `Notifications/` | `RawNotification.cs`, `IslandNotification.cs`, `NotificationSource.cs` | A Windows notification as read, and as the island shows it: app, sender or chat, preview. Memory only. |
+| `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
+| `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
+| `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, and the read or replaced rule for removals. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
 
