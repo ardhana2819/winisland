@@ -33,6 +33,28 @@ internal static partial class NativeMethods
     /// <summary>ERROR_HOTKEY_ALREADY_REGISTERED: another program already owns this key combination.</summary>
     public const int ErrorHotkeyAlreadyRegistered = 1409;
 
+    public const uint VkSpace = 0x20;
+    public const uint VkLeft = 0x25;
+    public const uint VkRight = 0x27;
+    public const int VkLeftButton = 0x01;
+    public const int VkRightButton = 0x02;
+    public const int VkMiddleButton = 0x04;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Point
+    {
+        public int X;
+        public int Y;
+    }
+
+    /// <summary>Reads whether a key or mouse button is down right now. It only reads, it hooks nothing.</summary>
+    [LibraryImport("user32.dll")]
+    public static partial short GetAsyncKeyState(int virtualKey);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetCursorPos(out Point point);
+
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool RegisterHotKey(IntPtr windowHandle, int id, uint modifiers, uint virtualKey);

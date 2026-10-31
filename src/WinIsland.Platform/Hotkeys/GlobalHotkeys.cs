@@ -14,6 +14,7 @@ public sealed class GlobalHotkeys : IDisposable
 {
     private readonly IntPtr _windowHandle;
     private readonly List<HotkeyRegistration> _registrations = [];
+    private readonly HashSet<HotkeyAction> _musicShortcuts = [];
 
     public GlobalHotkeys(IntPtr windowHandle)
     {
@@ -45,6 +46,43 @@ public sealed class GlobalHotkeys : IDisposable
         return _registrations;
     }
 
+    /// <summary>
+    /// Takes the music keys (Space, Ctrl+Right, Ctrl+Left) while the island is expanded.
+    /// Returns the shortcuts another app already owns; those simply do not work this time.
+    /// </summary>
+    public IReadOnlyList<MusicShortcut> RegisterMusicShortcuts(IReadOnlyList<MusicShortcut> shortcuts)
+    {
+        ArgumentNullException.ThrowIfNull(shortcuts);
+
+        List<MusicShortcut> unavailable = [];
+        foreach (MusicShortcut shortcut in shortcuts.Where(item => !_musicShortcuts.Contains(item.Action)))
+        {
+            bool registered = NativeMethods.RegisterHotKey(
+                _windowHandle, (int)shortcut.Action, ToWindowsModifiers(shortcut.Modifiers) | NativeMethods.ModNoRepeat, ToVirtualKey(shortcut.Key));
+            if (registered)
+            {
+                _musicShortcuts.Add(shortcut.Action);
+            }
+            else
+            {
+                unavailable.Add(shortcut);
+            }
+        }
+
+        return unavailable;
+    }
+
+    /// <summary>Gives the music keys back to the game and other programs when the island closes.</summary>
+    public void UnregisterMusicShortcuts()
+    {
+        foreach (HotkeyAction action in _musicShortcuts)
+        {
+            NativeMethods.UnregisterHotKey(_windowHandle, (int)action);
+        }
+
+        _musicShortcuts.Clear();
+    }
+
     /// <summary>Call from the window's message hook. Returns true when the message was one of our hotkeys.</summary>
     public bool TryHandleMessage(int message, IntPtr wParam)
     {
@@ -55,13 +93,20 @@ public sealed class GlobalHotkeys : IDisposable
 
         int id = wParam.ToInt32();
         HotkeyRegistration? match = _registrations.FirstOrDefault(item => item.IsRegistered && (int)item.Action == id);
-        if (match is null)
+        if (match is not null)
         {
-            return false;
+            Pressed?.Invoke(this, match.Action);
+            return true;
         }
 
-        Pressed?.Invoke(this, match.Action);
-        return true;
+        HotkeyAction action = (HotkeyAction)id;
+        if (_musicShortcuts.Contains(action))
+        {
+            Pressed?.Invoke(this, action);
+            return true;
+        }
+
+        return false;
     }
 
     public void Dispose()
@@ -72,6 +117,7 @@ public sealed class GlobalHotkeys : IDisposable
         }
 
         _registrations.Clear();
+        UnregisterMusicShortcuts();
     }
 
     private static uint ToWindowsModifiers(HotkeyModifiers modifiers)
@@ -98,6 +144,17 @@ public sealed class GlobalHotkeys : IDisposable
         }
 
         return result;
+    }
+
+    private static uint ToVirtualKey(MusicKey key)
+    {
+        return key switch
+        {
+            MusicKey.Space => NativeMethods.VkSpace,
+            MusicKey.LeftArrow => NativeMethods.VkLeft,
+            MusicKey.RightArrow => NativeMethods.VkRight,
+            _ => throw new ArgumentOutOfRangeException(nameof(key), key, "Unknown music key."),
+        };
     }
 
     // For letters and digits, the Windows virtual key code is the upper-case ASCII code.
