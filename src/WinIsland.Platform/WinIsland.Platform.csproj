@@ -1,0 +1,17 @@
+<!--
+  WinIsland.Platform: thin wrappers around Windows APIs (media session,
+  notification listener, global hotkeys, tray, startup).
+  Targets a Windows SDK version so the Windows.* APIs are available.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
+    <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinIsland.Core\WinIsland.Core.csproj" />
+  </ItemGroup>
+
+</Project>

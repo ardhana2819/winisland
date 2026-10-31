@@ -1,0 +1,16 @@
+<!--
+  Shared build settings for every project in this repo.
+  Kept in one place so all projects follow the same rules: nullable checks on,
+  every compiler warning treated as an error, and code style enforced on build.
+-->
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Windows 11 (build 22000) is the lowest version WinIsland supports. -->
+    <WindowsTargetVersion>10.0.26100.0</WindowsTargetVersion>
+    <WindowsMinimumVersion>10.0.22000.0</WindowsMinimumVersion>
+  </PropertyGroup>
+</Project>

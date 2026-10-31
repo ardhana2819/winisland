@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WinIsland.App/WinIsland.App.csproj" />
+    <Project Path="src/WinIsland.Core/WinIsland.Core.csproj" />
+    <Project Path="src/WinIsland.Platform/WinIsland.Platform.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WinIsland.Core.Tests/WinIsland.Core.Tests.csproj" />
+  </Folder>
+</Solution>

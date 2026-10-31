@@ -1,0 +1,20 @@
+<!--
+  WinIsland.App: the WPF program the user runs.
+  Presentation only: windows, views, animations. Logic lives in Core,
+  Windows API access lives in Platform.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
+    <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinIsland.Core\WinIsland.Core.csproj" />
+    <ProjectReference Include="..\WinIsland.Platform\WinIsland.Platform.csproj" />
+  </ItemGroup>
+
+</Project>
