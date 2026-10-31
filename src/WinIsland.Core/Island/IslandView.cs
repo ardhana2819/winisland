@@ -1,5 +1,5 @@
 // IslandView.cs: which shape the island is showing when it is visible.
-// More views (notification banner, list, permission prompt) are added in Phase 4.
+// The permission prompt view joins with the notification listener.
 
 namespace WinIsland.Core.Island;
 
@@ -16,4 +16,10 @@ public enum IslandView
 
     /// <summary>The warning banner shown at start when a hotkey is taken by another app (FR-5).</summary>
     HotkeyConflict,
+
+    /// <summary>A notification banner: app, sender, preview, +N badge (FR-15).</summary>
+    Notification,
+
+    /// <summary>The last 3 notifications, or the full text of a single one (FR-15).</summary>
+    NotificationList,
 }
