@@ -65,7 +65,12 @@ public partial class IslandWindow : Window
         PlaceOnPrimaryDisplay();
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
 
-        _minuteTimer.MinuteChanged += (_, now) => ClockLabel.Text = ClockText.Format(now);
+        _minuteTimer.MinuteChanged += (_, now) =>
+        {
+            ClockLabel.Text = ClockText.Format(now);
+            // Backup for the pause timer: also ends a pause that ran out while the PC was asleep.
+            _island.UpdateTime(DateTimeOffset.Now);
+        };
         _minuteTimer.Start();
 
         _island.Changed += (_, _) => ShowCurrentState();

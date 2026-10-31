@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Phase 2: overlay shell, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon with Quit, and the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand, which needs music, so it does nothing yet). Music, notifications and settings are not built yet. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Phase 2: overlay shell, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Quit; dimmed while paused), and the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand, which needs music, so it does nothing yet). Music, notifications and settings are not built yet. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 

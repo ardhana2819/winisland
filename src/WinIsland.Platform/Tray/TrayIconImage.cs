@@ -1,6 +1,7 @@
 // TrayIconImage.cs: draws WinIsland's tray icon at run time: a small white pill on a clear
-// background, so it is visible on the dark Windows 11 taskbar.
-// Drawing it in code avoids keeping a binary .ico file in the repo.
+// background, so it is visible on the dark Windows 11 taskbar. While paused, the pill is drawn
+// dimmed, so the paused state is visible at a glance (PRD FR-6).
+// Drawing it in code avoids keeping binary .ico files in the repo.
 
 using System.Drawing.Drawing2D;
 
@@ -14,7 +15,10 @@ internal static class TrayIconImage
     private const int PillHeightPixels = 14;
     private const int SidePaddingPixels = 2;
 
-    public static Icon Create()
+    // About 40 percent opacity: clearly different from the normal icon, still visible.
+    private const int DimmedAlpha = 100;
+
+    public static Icon Create(bool dimmed)
     {
         using Bitmap bitmap = new(SizePixels, SizePixels);
         using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -22,7 +26,7 @@ internal static class TrayIconImage
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.Clear(Color.Transparent);
             using GraphicsPath pill = CreatePillPath();
-            using SolidBrush brush = new(Color.White);
+            using SolidBrush brush = new(dimmed ? Color.FromArgb(DimmedAlpha, Color.White) : Color.White);
             graphics.FillPath(brush, pill);
         }
 
