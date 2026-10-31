@@ -37,6 +37,44 @@ public sealed record Hotkey(HotkeyModifiers Modifiers, char Key)
         return string.Join("+", parts);
     }
 
+    /// <summary>Reads text like "Ctrl+Alt+I" (as written by ToString). Returns null when it is not a hotkey.</summary>
+    public static Hotkey? TryParse(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        string[] parts = text.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0 || parts[^1].Length != 1)
+        {
+            return null;
+        }
+
+        HotkeyModifiers modifiers = HotkeyModifiers.None;
+        foreach (string part in parts[..^1])
+        {
+            HotkeyModifiers? modifier = part.ToUpperInvariant() switch
+            {
+                "CTRL" => HotkeyModifiers.Ctrl,
+                "ALT" => HotkeyModifiers.Alt,
+                "SHIFT" => HotkeyModifiers.Shift,
+                "WIN" => HotkeyModifiers.Win,
+                _ => null,
+            };
+
+            if (modifier is null)
+            {
+                return null;
+            }
+
+            modifiers |= modifier.Value;
+        }
+
+        Hotkey hotkey = new(modifiers, char.ToUpperInvariant(parts[^1][0]));
+        return hotkey.HasValidKey ? hotkey : null;
+    }
+
     /// <summary>Two hotkeys are the same combination even if one key was typed in lower case.</summary>
     public bool IsSameCombinationAs(Hotkey other)
     {

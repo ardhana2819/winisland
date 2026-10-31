@@ -1,7 +1,6 @@
 // TrayIcon.cs: WinIsland's icon in the Windows notification area, with its menu (PRD FR-6).
 // Menu, in the design board's order: Pause for 1 hour (Resume while paused), Hide island
-// (Show island while hidden), Quit. Settings joins the menu when the Settings window exists
-// (Phase 5); until then there is nothing for it to open.
+// (Show island while hidden), Settings, Quit.
 // This class only shows the menu and reports clicks. The app decides what they do and tells
 // the tray what to show through Update.
 
@@ -26,6 +25,8 @@ public sealed class TrayIcon : IDisposable
 
         _pauseItem = CreateItem((_, _) => PauseOrResumeRequested?.Invoke(this, EventArgs.Empty));
         _hideItem = CreateItem((_, _) => HideOrShowRequested?.Invoke(this, EventArgs.Empty));
+        ToolStripMenuItem settingsItem = CreateItem((_, _) => SettingsRequested?.Invoke(this, EventArgs.Empty));
+        settingsItem.Text = "Settings";
         ToolStripMenuItem quitItem = CreateItem((_, _) => QuitRequested?.Invoke(this, EventArgs.Empty));
         quitItem.Text = "Quit";
 
@@ -37,7 +38,7 @@ public sealed class TrayIcon : IDisposable
             Font = MenuFont,
             ShowImageMargin = false,
         };
-        _menu.Items.AddRange([_pauseItem, _hideItem, quitItem]);
+        _menu.Items.AddRange([_pauseItem, _hideItem, settingsItem, quitItem]);
 
         _notifyIcon = new NotifyIcon
         {
@@ -51,6 +52,8 @@ public sealed class TrayIcon : IDisposable
     public event EventHandler? PauseOrResumeRequested;
 
     public event EventHandler? HideOrShowRequested;
+
+    public event EventHandler? SettingsRequested;
 
     public event EventHandler? QuitRequested;
 

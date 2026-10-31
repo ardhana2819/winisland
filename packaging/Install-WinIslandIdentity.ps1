@@ -23,6 +23,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Package version: raise it whenever AppxManifest.template.xml changes, otherwise Windows may keep
+# using the manifest of the earlier registration with the same version.
+$packageVersion = "1.0.1.0"
+
 # These must match the msix element in src/WinIsland.App/app.manifest.
 $publisher = "CN=WinIsland Dev"
 $packageName = "WinIsland"
@@ -45,6 +49,7 @@ if (-not $certificate -or -not $trusted) {
     -ApplicationId $applicationId `
     -Executable $executable `
     -DisplayName "WinIsland" `
+    -Version $packageVersion `
     -Publisher $publisher
 
 & (Join-Path $PSScriptRoot "Unregister-IdentityPackage.ps1") -PackageName $packageName

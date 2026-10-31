@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Phase 4: notifications, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, and WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide). Settings are not built yet. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Phase 5: settings and finishing, in progress.** Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide), and a Settings window (tray > Settings) that also turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 
@@ -82,4 +82,5 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 - Music information comes only from the Windows media session. WinIsland never signs in to Spotify.
 - Notifications are read only through the Windows notification listener, and only after you allow it.
 - Message text stays **in memory only**. It is never written to disk or to logs. Logs hold event types and errors only.
+- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, start with Windows. Nothing else is written to disk.
 - No screen capture, no reading other programs' memory, no injection or hooks into games.

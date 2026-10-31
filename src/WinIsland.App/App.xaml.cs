@@ -1,6 +1,6 @@
-// App.xaml.cs: starts WinIsland. Makes sure only one copy runs (FR-6b), then shows the island
-// window and the tray icon (FR-6), connects Spotify (FR-7) and the notification listener (FR-12), and keeps the tray menu in step with
-// the island's state.
+// App.xaml.cs: starts WinIsland. Makes sure only one copy runs (FR-6b), loads the saved settings
+// (FR-19), shows the island window and the tray icon (FR-6), connects Spotify (FR-7) and the
+// notification listener (FR-12), and keeps the tray menu in step with the island's state.
 
 using System.Windows;
 using System.Windows.Interop;
@@ -10,8 +10,9 @@ using WinIsland.App.Clock;
 using WinIsland.App.Island;
 using WinIsland.App.Music;
 using WinIsland.App.Notifications;
-using WinIsland.Core.Hotkeys;
+using WinIsland.App.Settings;
 using WinIsland.Core.Island;
+using WinIsland.Core.Settings;
 using WinIsland.Core.Tray;
 using WinIsland.Platform.Tray;
 
@@ -25,6 +26,7 @@ public partial class App : Application
     private IslandTimeTimer? _islandTimeTimer;
     private MusicController? _music;
     private NotificationController? _notifications;
+    private SettingsController? _settings;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -44,17 +46,28 @@ public partial class App : Application
         }
 
         IslandStateMachine island = new();
+        AppSettings saved = SettingsController.LoadSaved();
+        _settings = new SettingsController(island, saved);
+        _settings.ApplyAtStart();
+
         _islandTimeTimer = new IslandTimeTimer(island);
         _music = new MusicController(island, Dispatcher);
         _notifications = new NotificationController(island, Dispatcher);
-        _islandWindow = new IslandWindow(island, _music, _notifications);
+        _islandWindow = new IslandWindow(island, _music, _notifications, saved.Hotkeys);
+        _islandWindow.SettingsRequested += (_, _) => _settings.OpenWindow();
         _islandWindow.Show();
+        if (_islandWindow.Hotkeys is IslandHotkeys hotkeys)
+        {
+            _settings.AttachHotkeys(hotkeys, _islandWindow.StartHotkeyConflict);
+        }
 
         _trayIcon = new TrayIcon();
         _trayIcon.PauseOrResumeRequested += (_, _) => PauseOrResume(island);
         _trayIcon.HideOrShowRequested += (_, _) => island.ToggleHidden(DateTimeOffset.Now);
+        _trayIcon.SettingsRequested += (_, _) => _settings.OpenWindow();
         _trayIcon.QuitRequested += (_, _) => Shutdown();
         island.Changed += (_, _) => UpdateTray(island);
+        _settings.Changed += (_, _) => UpdateTray(island);
         UpdateTray(island);
 
         // Connect to Spotify and the notification listener last, so the island and tray are already
@@ -88,9 +101,14 @@ public partial class App : Application
 
     private void UpdateTray(IslandStateMachine island)
     {
+        if (_settings is null)
+        {
+            return;
+        }
+
         _trayIcon?.Update(
             TrayMenuLabels.PauseOrResume(island.IsPaused),
-            TrayMenuLabels.HideOrShow(island.IsHiddenByUser, HotkeySet.Defaults.HideShow),
+            TrayMenuLabels.HideOrShow(island.IsHiddenByUser, _settings.Current.Hotkeys.HideShow),
             island.IsPaused);
     }
 }

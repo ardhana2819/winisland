@@ -6,7 +6,8 @@
                12 from the top edge.
     section 3: clock 15 semibold, tabular numbers; banner text 13; Segoe UI Variable then Segoe UI.
     section 4: pill #000000, text #FFFFFF, warning icon #FBBF24.
-    section 5: conflict banner padding 16 on the left, 10 gap, 20 warning icon.
+    section 5: conflict banner padding 16 on the left and 10 on the right, 10 gap, 20 warning icon,
+               then a Change button styled like Allow.
   The compact music pill (280 x 36) and the expanded island (420 x 168) are their own controls in
   the Music folder: MusicPillView and MusicControlsView.
   The notification banner (420 x 72), the last 3 list and the permission prompt (360 x 52) are in
@@ -78,7 +79,7 @@
                                Typography.NumeralAlignment="Tabular" />
                 </Grid>
 
-                <!-- Hotkey conflict banner. Starts hidden. The design's Change button arrives with Settings (Phase 5). -->
+                <!-- Hotkey conflict banner. Starts hidden. Change opens Settings (DESIGN_SPEC section 2). -->
                 <Grid x:Name="ConflictLayer"
                       Width="400"
                       Height="52"
@@ -90,6 +91,10 @@
                     <Grid.RenderTransform>
                         <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
                     </Grid.RenderTransform>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <StackPanel Margin="16,0,16,0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Viewbox Width="20" Height="20" VerticalAlignment="Center">
                             <Canvas Width="24" Height="24">
@@ -99,13 +104,32 @@
                         <TextBlock x:Name="ConflictLabel"
                                    AutomationProperties.AutomationId="ConflictText"
                                    Margin="10,0,0,0"
-                                   MaxWidth="338"
+                                   MaxWidth="240"
                                    VerticalAlignment="Center"
                                    Foreground="#FFFFFF"
                                    FontFamily="Segoe UI Variable Text, Segoe UI"
                                    FontSize="13"
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
+                    <Button Grid.Column="1"
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center"
+                            Focusable="False"
+                            Cursor="Hand"
+                            AutomationProperties.Name="Change"
+                            Click="OnConflictChangeClicked">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="#FFFFFF" CornerRadius="16" Padding="16,7,16,7">
+                                    <TextBlock Text="Change"
+                                               Foreground="#000000"
+                                               FontFamily="Segoe UI Variable Text, Segoe UI"
+                                               FontSize="13"
+                                               FontWeight="SemiBold" />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </Grid>
                 <!-- Compact, music: artwork, title, equalizer. -->
                 <music:MusicPillView x:Name="MusicLayer"
