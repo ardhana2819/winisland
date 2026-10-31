@@ -1,35 +1,48 @@
 # Packaging
 
-Scripts and a manifest template that give a normal desktop exe **package identity**, using a "package with external location" (also called a sparse package). The exe stays a normal WPF or console program in its own folder; a small signed `.msix` registers an identity that points at that folder.
+Scripts and a manifest template that give WinIsland **package identity**, using a "package with external location" (also called a sparse package). WinIsland stays a normal WPF program in its own folder; a small signed `.msix` registers an identity that points at that folder.
 
-Why: some Windows APIs only work for apps with identity. Spike S1 checks whether WinIsland's notification listener needs it. The first unpackaged run showed that polling works without identity, but the push event does not (see `docs/spike-results.md`). If the event does not work with identity either, the product may not need this folder at all.
+**Why, and is it needed?** It is optional. Spike S1 showed WinIsland can read notifications without identity by checking once per second. With identity, Windows pushes each notification at once: measured on Diva's PC, banners appeared 0.07 to 0.11 s after the notification instead of up to 1 s. CPU use measured the same either way.
+
+## Set it up on this PC
+
+1. **Once per PC, as administrator:** open PowerShell with "Run as administrator" and run `.\New-DevCertificate.ps1`. It creates the signing certificate and trusts it. (Already done on Diva's PC during the spike.)
+2. **Each time WinIsland's folder changes:** in a normal PowerShell, run `.\Install-WinIslandIdentity.ps1`. Without arguments it uses the repo's Release build folder; for an unzipped release pass `-AppFolder "<folder with WinIsland.App.exe>"`.
+3. Quit WinIsland from the tray and start it again from that folder.
+
+To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland then simply checks notifications once per second again.
 
 ## Files
 
 | File | What it does | Needs admin? |
 |---|---|---|
+| `Install-WinIslandIdentity.ps1` | One step for WinIsland: checks the certificate, builds and signs the package, replaces an earlier registration, registers it for the folder with `WinIsland.App.exe`. | No |
 | `AppxManifest.template.xml` | Manifest with `{{...}}` placeholders. Declares external content, full trust, and the `userNotificationListener` capability. | |
 | `New-DevCertificate.ps1` | Creates a self-signed code signing certificate (`CN=WinIsland Dev`) in your certificate store and trusts it on this PC. | **Yes** |
 | `Build-IdentityPackage.ps1` | Fills in the template, packs it with `makeappx`, signs it with `signtool`. | No |
-| `Register-IdentityPackage.ps1` | Registers the signed package for your user, pointing at the exe's folder. | No |
-| `Unregister-IdentityPackage.ps1` | Removes the registered package again. | No |
+| `Register-IdentityPackage.ps1` | Registers a signed package for your user, pointing at the exe's folder. | No |
+| `Unregister-IdentityPackage.ps1` | Removes a registered package again. | No |
 
-The exe must embed a matching `app.manifest` with an `msix` element (same publisher, package name, and application id). See `spikes/NotificationProbe/app.manifest`.
+WinIsland.App.exe embeds a matching `msix` element in `src/WinIsland.App/app.manifest` (publisher `CN=WinIsland Dev`, package `WinIsland`, application `WinIsland`). Without a registered package, Windows ignores it and WinIsland runs as a normal app.
 
 ## Keys and certificates
 
 - The private key is created inside your Windows certificate store (`CurrentUser\My`) as **non-exportable**. It never exists as a file, so it cannot end up in the repo.
 - Signing uses the certificate's thumbprint from the store, so no `.pfx` file or password is involved.
 - The public certificate is exported to `packaging/out/WinIslandDev.cer`. Everything in `packaging/out/` is ignored by git, and `.gitignore` also blocks all certificate and key file types.
-- Requirements on this PC: Windows SDK (`makeappx.exe`, `signtool.exe`), installed with `winget install Microsoft.WindowsSDK.10.0.26100`.
+- Requirements on the PC that builds the package: Windows SDK (`makeappx.exe`, `signtool.exe`), installed with `winget install Microsoft.WindowsSDK.10.0.26100`.
 
-## What another PC needs
+## Another PC
 
-Only relevant if S1 shows identity is needed. Two options, to be decided when packaging the real app:
+Copy the `packaging` folder (or clone the repo) to the other PC, then pick one:
 
-- **Option A: reuse this PC's signature.** Copy `WinIslandDev.cer` (public certificate only) and the signed `.msix` to the other PC. There, in an admin PowerShell, trust the certificate:
+- **Option A: reuse this PC's signature (no Windows SDK there).** After running `Install-WinIslandIdentity.ps1` here, copy `packaging/out/WinIslandDev.cer` (public certificate only) and `packaging/out/WinIsland.msix` to the other PC. There, in PowerShell opened as administrator, trust the certificate once:
   `Import-Certificate -FilePath WinIslandDev.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople`
-  Then run `Register-IdentityPackage.ps1` pointing at the folder where WinIsland was unzipped. No Windows SDK needed there. The private key never leaves this PC. A new `.msix` has to be signed here whenever the manifest or version changes.
-- **Option B: sign on the other PC.** Install the Windows SDK there, then run `New-DevCertificate.ps1` (admin), `Build-IdentityPackage.ps1`, and `Register-IdentityPackage.ps1`. Each PC has its own certificate.
+  Then, in a normal PowerShell: `.\Register-IdentityPackage.ps1 -PackagePath WinIsland.msix -ExternalLocation "<folder with WinIsland.App.exe>"`. The private key never leaves this PC.
+- **Option B: sign on the other PC.** Install the Windows SDK there, run `New-DevCertificate.ps1` as administrator, then `Install-WinIslandIdentity.ps1 -AppFolder "<folder with WinIsland.App.exe>"`. Each PC has its own certificate.
 
 Both options need administrator rights once, to trust the certificate.
+
+## The spike package
+
+`WinIsland.Spike.NotificationProbe` was registered during spike S1. It is not used by WinIsland and can be removed with `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland.Spike.NotificationProbe`.

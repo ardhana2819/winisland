@@ -24,8 +24,8 @@ These steps apply once the first release exists.
    Or, with GitHub CLI: `gh release download --repo ardhana2819/WinIsland --pattern "*.zip"`
 3. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
    No .NET install is needed. The build is self-contained.
-4. **Package identity (optional).** Spike S1 showed WinIsland can read notifications without it (checking once per second). With it, notifications arrive instantly. The optional setup (a personal signing certificate, trusted once as administrator) will be described here when notifications are built in Phase 4; the scripts are in [packaging/README.md](packaging/README.md).
-5. Run `WinIsland.App.exe`.
+4. Run `WinIsland.App.exe`.
+5. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). If you move the WinIsland folder later, run the setup again.
 
 ## First run
 
