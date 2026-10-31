@@ -41,7 +41,7 @@ internal sealed class OutsideClickWatcher : IDisposable
 
     private void FollowIsland()
     {
-        bool isExpanded = _island.View == IslandView.Expanded;
+        bool isExpanded = _island.View is IslandView.Expanded or IslandView.NotificationList;
         if (isExpanded && !_timer.IsEnabled)
         {
             // The click that opened the island may still be held down; only a new press counts.

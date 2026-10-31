@@ -212,6 +212,31 @@ public class IslandNotificationRulesTests
         Assert.Equal(IslandView.Compact, island.View);
     }
 
+    [Fact]
+    public void Permission_prompt_shows_and_dismisses_and_the_clock_comes_back()
+    {
+        IslandStateMachine island = new();
+
+        island.ShowPermissionPrompt();
+        Assert.Equal(IslandView.PermissionPrompt, island.View);
+
+        island.DismissPermissionPrompt();
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Hotkey_conflict_banner_comes_before_the_permission_prompt()
+    {
+        IslandStateMachine island = new();
+        island.ShowPermissionPrompt();
+        island.ShowHotkeyConflict("Alt+X is used by another app");
+
+        Assert.Equal(IslandView.HotkeyConflict, island.View);
+
+        island.DismissHotkeyConflict();
+        Assert.Equal(IslandView.PermissionPrompt, island.View);
+    }
+
     private static IslandNotification Message(uint id, string sender)
     {
         return new IslandNotification(id, NotificationSource.WhatsApp, "WhatsApp", sender, "hello", Now);

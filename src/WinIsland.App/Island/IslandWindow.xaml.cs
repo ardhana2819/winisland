@@ -1,8 +1,9 @@
 // IslandWindow.xaml.cs: connects the island window to the island's rules.
 // Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1),
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
-// shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), and animates
-// whenever the island's state changes (FR-4).
+// shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), shows
+// notification banners and the last 3 list (FR-15), and animates whenever the island's state
+// changes (FR-4).
 
 using System.Windows;
 using System.Windows.Input;
@@ -14,6 +15,7 @@ using Microsoft.Win32;
 
 using WinIsland.App.Clock;
 using WinIsland.App.Music;
+using WinIsland.App.Notifications;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Platform.Hotkeys;
@@ -33,15 +35,19 @@ public partial class IslandWindow : Window
     private readonly IslandMusicPresenter _musicPresenter;
     private readonly PointerLeaveCollapser _leaveCollapser;
     private readonly OutsideClickWatcher _outsideClickWatcher;
+    private readonly IslandNotificationPresenter _notificationPresenter;
+    private readonly PermissionPromptBehavior _permissionPrompt;
     private GlobalHotkeys? _hotkeys;
     private ExpandedMusicKeys? _expandedMusicKeys;
     private IslandView _shownView = IslandView.Compact;
+    private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
 
-    internal IslandWindow(IslandStateMachine island, MusicController music)
+    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
+        ArgumentNullException.ThrowIfNull(notifications);
         _island = island;
         _music = music;
 
@@ -51,6 +57,8 @@ public partial class IslandWindow : Window
         _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer);
         _leaveCollapser = new PointerLeaveCollapser(island, Pill);
         _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
+        _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ListLayer);
+        _permissionPrompt = new PermissionPromptBehavior(island, PermissionLayer);
 
         _conflictTimer = new DispatcherTimer { Interval = ConflictBannerDuration };
         _conflictTimer.Tick += (_, _) =>
@@ -95,12 +103,11 @@ public partial class IslandWindow : Window
         _hotkeys = new GlobalHotkeys(handle);
         _hotkeys.Pressed += OnHotkeyPressed;
 
-        // Hotkey 3 (hide the notification banner) is registered once banners exist (Phase 4),
-        // so it does not take Alt+X away from games before it does anything.
         Dictionary<HotkeyAction, Hotkey> wanted = new()
         {
             [HotkeyAction.Expand] = HotkeySet.Defaults.Expand,
             [HotkeyAction.HideShow] = HotkeySet.Defaults.HideShow,
+            [HotkeyAction.HideBanner] = HotkeySet.Defaults.HideBanner,
         };
 
         IReadOnlyList<HotkeyRegistration> results = _hotkeys.Register(wanted);
@@ -125,7 +132,7 @@ public partial class IslandWindow : Window
                 _island.ToggleHidden(DateTimeOffset.Now);
                 break;
             case HotkeyAction.HideBanner:
-                // Not registered until notification banners exist (Phase 4).
+                _island.HideNotifications(DateTimeOffset.Now);
                 break;
             case HotkeyAction.MusicPlayPause:
                 _ = _music.TogglePlayPauseAsync();
@@ -142,8 +149,8 @@ public partial class IslandWindow : Window
     }
 
     /// <summary>
-    /// A click on the pill that no button or the progress bar took (FR-2): the compact music pill
-    /// opens, the open island closes. A click on the clock does nothing.
+    /// A click on the pill that no button, the progress bar or the banner took (FR-2): the compact
+    /// music pill opens, the open island or list closes. A click on the clock does nothing.
     /// </summary>
     private void OnPillClicked(object sender, MouseButtonEventArgs e)
     {
@@ -152,7 +159,7 @@ public partial class IslandWindow : Window
             case IslandView.Music:
                 _island.ToggleExpanded(DateTimeOffset.Now);
                 break;
-            case IslandView.Expanded:
+            case IslandView.Expanded or IslandView.NotificationList:
                 _island.Collapse(DateTimeOffset.Now);
                 break;
             default:
@@ -166,12 +173,24 @@ public partial class IslandWindow : Window
     {
         ConflictLabel.Text = _island.HotkeyConflictText ?? string.Empty;
         _musicPresenter.Refresh();
+        _notificationPresenter.Refresh();
 
-        if (_island.View != _shownView)
+        IslandView view = _island.View;
+        PillShape shape = view == IslandView.NotificationList
+            ? PillShape.ForList(_notificationPresenter.ListHeight)
+            : PillShape.For(view);
+
+        if (view != _shownView)
         {
-            _animator.MorphTo(PillShape.For(_island.View));
-            _animator.SwapContent(LayerFor(_shownView), LayerFor(_island.View));
-            _shownView = _island.View;
+            _animator.SwapContent(LayerFor(_shownView), LayerFor(view));
+            _shownView = view;
+        }
+
+        // The list can change height while open (an item read in the app), so compare the shape too.
+        if (shape != _shownShape)
+        {
+            _animator.MorphTo(shape);
+            _shownShape = shape;
         }
 
         if (_island.IsVisible != _shownVisible)
@@ -189,6 +208,9 @@ public partial class IslandWindow : Window
             IslandView.HotkeyConflict => ConflictLayer,
             IslandView.Music => MusicLayer,
             IslandView.Expanded => ExpandedLayer,
+            IslandView.Notification => BannerLayer,
+            IslandView.NotificationList => ListLayer,
+            IslandView.PermissionPrompt => PermissionLayer,
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No layer exists for this view."),
         };
     }
@@ -241,6 +263,7 @@ public partial class IslandWindow : Window
         _musicPresenter.Dispose();
         _leaveCollapser.Dispose();
         _outsideClickWatcher.Dispose();
+        _permissionPrompt.Dispose();
         _expandedMusicKeys?.Dispose();
         _minuteTimer.Dispose();
         _hotkeys?.Dispose();

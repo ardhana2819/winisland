@@ -1,0 +1,21 @@
+<!--
+  AppIconView.xaml: the round app icon on banners and list rows.
+  DESIGN_SPEC section 4: use the app logo from the notification when Windows provides it;
+  fallback is a colored circle with the app's first letter (WhatsApp #177A40, Discord #4752C4).
+  Section 5: letter bold 16, centered. The size (40 on the banner, 36 in the list) is set by the parent.
+-->
+<UserControl x:Class="WinIsland.App.Notifications.AppIconView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False">
+    <Grid>
+        <Ellipse x:Name="Circle" />
+        <TextBlock x:Name="Letter"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="#FFFFFF"
+                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                   FontSize="16"
+                   FontWeight="Bold" />
+    </Grid>
+</UserControl>

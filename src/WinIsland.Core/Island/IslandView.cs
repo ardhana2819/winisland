@@ -1,5 +1,4 @@
 // IslandView.cs: which shape the island is showing when it is visible.
-// The permission prompt view joins with the notification listener.
 
 namespace WinIsland.Core.Island;
 
@@ -22,4 +21,7 @@ public enum IslandView
 
     /// <summary>The last 3 notifications, or the full text of a single one (FR-15).</summary>
     NotificationList,
+
+    /// <summary>"Allow notification access", shown when Windows did not give access (FR-12, section 13).</summary>
+    PermissionPrompt,
 }

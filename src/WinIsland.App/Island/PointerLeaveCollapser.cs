@@ -31,7 +31,7 @@ internal sealed class PointerLeaveCollapser : IDisposable
         pill.MouseEnter += (_, _) => _timer.Stop();
         pill.MouseLeave += (_, _) =>
         {
-            if (_island.View == IslandView.Expanded)
+            if (_island.View is IslandView.Expanded or IslandView.NotificationList)
             {
                 _timer.Start();
             }

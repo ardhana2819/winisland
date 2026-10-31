@@ -81,6 +81,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Media/SpotifyMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to Spotify through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
 | Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
+| Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
@@ -94,6 +95,11 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/OutsideClickWatcher.cs` | While expanded, closes the island when a mouse button is pressed anywhere outside it. |
 | App | `Island/ExpandedMusicKeys.cs` | While expanded, turns on Space, Ctrl+Right and Ctrl+Left for play or pause, next and previous; off again when the island closes. |
 | App | `Music/MarqueeText.xaml` | A line of text that scrolls sideways when the song title does not fit. |
+| App | `Notifications/NotificationController.cs` | Asks for notification access, moves new and removed notifications to the UI thread, hands them to Core, keeps app logos. |
+| App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner: app logo or letter circle, sender, preview, +N badge; tap opens the list, a sideways drag swipes it away. |
+| App | `Notifications/NotificationListView.xaml` | The last 3 notifications, or the full text of a single one (up to 3 lines, measured). |
+| App | `Notifications/PermissionPromptView.xaml`, `Notifications/PermissionPromptBehavior.cs` | "Allow notification access": opens the Windows settings page, hides itself after 10 seconds. |
+| App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and list up to date, with "Hide message text" applied. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |

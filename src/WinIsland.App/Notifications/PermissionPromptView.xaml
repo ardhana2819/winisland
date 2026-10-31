@@ -1,0 +1,43 @@
+<!--
+  PermissionPromptView.xaml: "Allow notification access", 360 x 52 (DESIGN_SPEC section 2).
+  Section 5: left padding 20, right padding 10, 12 gap; Allow button white with black text,
+  radius 16, padding 7 by 16. Section 3: text 13, button text 13 semibold.
+  Allow opens the Windows notification settings page, where access is turned on (FR-12).
+-->
+<UserControl x:Class="WinIsland.App.Notifications.PermissionPromptView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="360"
+             Height="52"
+             Focusable="False">
+    <Grid Margin="20,0,10,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0"
+                   VerticalAlignment="Center"
+                   Text="Allow notification access"
+                   Foreground="#FFFFFF"
+                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                   FontSize="13" />
+        <Button Grid.Column="1"
+                Margin="12,0,0,0"
+                Focusable="False"
+                Cursor="Hand"
+                AutomationProperties.Name="Allow"
+                Click="OnAllowClick">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="#FFFFFF" CornerRadius="16" Padding="16,7,16,7">
+                        <TextBlock Text="Allow"
+                                   Foreground="#000000"
+                                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                                   FontSize="13"
+                                   FontWeight="SemiBold" />
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</UserControl>
