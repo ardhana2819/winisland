@@ -1,0 +1,25 @@
+<!--
+  MarqueeText.xaml: one line of text that scrolls sideways when it is too long to fit
+  (Diva's request, 31 Oct 2026, for song titles). Two copies of the text sit side by side, so the
+  loop is seamless. Font, size, weight and color come from the parent (FontSize, FontWeight, Foreground).
+  The text sits in a Canvas on purpose: a Canvas never cuts its content to its own size, so the
+  full title can move through the visible area. Inside a normal panel, WPF would cut the text to
+  the visible width first and then move the cut piece (the bug Diva found: titles ended mid-word).
+  Only the outer Viewport cuts, at the visible area. The motion is in MarqueeText.xaml.cs.
+-->
+<UserControl x:Class="WinIsland.App.Music.MarqueeText"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False">
+    <Grid x:Name="Viewport" ClipToBounds="True">
+        <Canvas>
+            <StackPanel x:Name="Strip" Orientation="Horizontal">
+                <StackPanel.RenderTransform>
+                    <TranslateTransform x:Name="Offset" />
+                </StackPanel.RenderTransform>
+                <TextBlock x:Name="FirstCopy" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="SecondCopy" Visibility="Collapsed" />
+            </StackPanel>
+        </Canvas>
+    </Grid>
+</UserControl>

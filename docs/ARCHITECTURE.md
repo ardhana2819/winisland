@@ -53,11 +53,13 @@ In words:
 | `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
 | `Hotkeys/` | `HotkeyAction.cs` | What each hotkey does: expand, hide or show, hide the banner. |
 | `Hotkeys/` | `HotkeyConflictMessage.cs` | The short text for the conflict banner, for example "Alt+X is used by another app". |
+| `Hotkeys/` | `MusicShortcut.cs`, `MusicKey.cs` | The music keys that work while the island is expanded: Space, Ctrl+Right, Ctrl+Left. |
 | `Animation/` | `CubicBezier.cs` | The design's timing curves as math, including the spring curve that overshoots and settles. |
 | `Tray/` | `TrayMenuLabels.cs` | The tray menu wording, which changes while paused or hidden. |
 | `Music/` | `NowPlaying.cs`, `PlaybackStatus.cs` | What the music player reports: title, artist, playing or paused, position, length, whether seeking works. |
 | `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
 | `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
+| `Music/` | `MusicSource.cs` | Picks the Spotify media session and ignores browsers and other players. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
 
@@ -71,11 +73,22 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (a white pill drawn in code, dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |
 | Platform | `Tray/DarkMenuColors.cs`, `Tray/DarkMenuRenderer.cs` | Draw the tray menu in the dark colors of the design board. |
 | Platform | `Hotkeys/GlobalHotkeys.cs`, `Hotkeys/HotkeyRegistration.cs` | Registers the global hotkeys with Windows, reports which ones another app already owns, and says when one is pressed. |
+| Platform | `Media/SpotifyMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to Spotify through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
+| Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
+| Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
+| App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
+| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer. |
+| App | `Music/MusicControlsView.xaml` | The expanded island: artwork, title, artist, progress with seek, previous, play or pause, next. |
+| App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the design gradient) and the title shown when a song has none. |
+| App | `Island/IslandMusicPresenter.cs`, `Island/PointerLeaveCollapser.cs` | Keep the music views up to date, tick the progress once per second while expanded, and close the island 2 s after the pointer leaves. |
+| App | `Island/OutsideClickWatcher.cs` | While expanded, closes the island when a mouse button is pressed anywhere outside it. |
+| App | `Island/ExpandedMusicKeys.cs` | While expanded, turns on Space, Ctrl+Right and Ctrl+Left for play or pause, next and previous; off again when the island closes. |
+| App | `Music/MarqueeText.xaml` | A line of text that scrolls sideways when the song title does not fit. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |

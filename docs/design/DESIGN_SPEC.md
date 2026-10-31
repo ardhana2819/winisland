@@ -28,7 +28,7 @@ The corner radius is half the height for the compact and banner states (a true p
 
 - Font: Segoe UI Variable, falling back to Segoe UI, then the system font.
 - Clock: 15, semibold (600), tabular numbers, 24-hour HH:MM with no seconds, centered.
-- Music title in compact: 13, regular, one line, cut with an ellipsis.
+- Music title in compact: 13, regular, one line, cut with an ellipsis. Changed 31 Oct 2026 (Diva's request): a title that does not fit scrolls sideways instead, in the compact and the expanded view, after a 1.5 s pause at the start of each loop, at about 30 DIPs per second. With Windows animation effects off it is cut with an ellipsis as before.
 - Expanded: title 16 semibold, artist 13, time labels 11 with tabular numbers.
 - Notification and list: sender 14 semibold, preview 13 (one line with ellipsis, except the single full-text view: up to 3 lines, line height 18). Badge text 12 semibold.
 - Permission prompt: text 13. Allow button text 13 semibold.

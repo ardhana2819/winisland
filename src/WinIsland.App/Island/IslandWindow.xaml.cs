@@ -1,9 +1,11 @@
 // IslandWindow.xaml.cs: connects the island window to the island's rules.
 // Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1),
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
-// shows the clock (AC-1), and animates whenever the island's state changes (FR-4).
+// shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), and animates
+// whenever the island's state changes (FR-4).
 
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -11,6 +13,7 @@ using System.Windows.Threading;
 using Microsoft.Win32;
 
 using WinIsland.App.Clock;
+using WinIsland.App.Music;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Platform.Hotkeys;
@@ -26,18 +29,28 @@ public partial class IslandWindow : Window
     private readonly MinuteTimer _minuteTimer = new();
     private readonly DispatcherTimer _conflictTimer;
     private readonly PillAnimator _animator;
+    private readonly MusicController _music;
+    private readonly IslandMusicPresenter _musicPresenter;
+    private readonly PointerLeaveCollapser _leaveCollapser;
+    private readonly OutsideClickWatcher _outsideClickWatcher;
     private GlobalHotkeys? _hotkeys;
+    private ExpandedMusicKeys? _expandedMusicKeys;
     private IslandView _shownView = IslandView.Compact;
     private bool _shownVisible = true;
 
-    public IslandWindow(IslandStateMachine island)
+    internal IslandWindow(IslandStateMachine island, MusicController music)
     {
         ArgumentNullException.ThrowIfNull(island);
+        ArgumentNullException.ThrowIfNull(music);
         _island = island;
+        _music = music;
 
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
         _animator.SetShape(PillShape.For(IslandView.Compact));
+        _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer);
+        _leaveCollapser = new PointerLeaveCollapser(island, Pill);
+        _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
 
         _conflictTimer = new DispatcherTimer { Interval = ConflictBannerDuration };
         _conflictTimer.Tick += (_, _) =>
@@ -91,6 +104,7 @@ public partial class IslandWindow : Window
         };
 
         IReadOnlyList<HotkeyRegistration> results = _hotkeys.Register(wanted);
+        _expandedMusicKeys = new ExpandedMusicKeys(_island, _hotkeys);
         List<Hotkey> unavailable = results.Where(result => !result.IsRegistered).Select(result => result.Hotkey).ToList();
         string? conflictMessage = HotkeyConflictMessage.Describe(unavailable);
         if (conflictMessage is not null)
@@ -113,14 +127,45 @@ public partial class IslandWindow : Window
             case HotkeyAction.HideBanner:
                 // Not registered until notification banners exist (Phase 4).
                 break;
+            case HotkeyAction.MusicPlayPause:
+                _ = _music.TogglePlayPauseAsync();
+                break;
+            case HotkeyAction.MusicNext:
+                _ = _music.NextAsync();
+                break;
+            case HotkeyAction.MusicPrevious:
+                _ = _music.PreviousAsync();
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown hotkey action.");
         }
     }
 
+    /// <summary>
+    /// A click on the pill that no button or the progress bar took (FR-2): the compact music pill
+    /// opens, the open island closes. A click on the clock does nothing.
+    /// </summary>
+    private void OnPillClicked(object sender, MouseButtonEventArgs e)
+    {
+        switch (_island.View)
+        {
+            case IslandView.Music:
+                _island.ToggleExpanded(DateTimeOffset.Now);
+                break;
+            case IslandView.Expanded:
+                _island.Collapse(DateTimeOffset.Now);
+                break;
+            default:
+                return;
+        }
+
+        e.Handled = true;
+    }
+
     private void ShowCurrentState()
     {
         ConflictLabel.Text = _island.HotkeyConflictText ?? string.Empty;
+        _musicPresenter.Refresh();
 
         if (_island.View != _shownView)
         {
@@ -142,9 +187,8 @@ public partial class IslandWindow : Window
         {
             IslandView.Compact => ClockLayer,
             IslandView.HotkeyConflict => ConflictLayer,
-            // The expanded island needs music, which arrives in Phase 3; until then it cannot be reached.
-            // The music views get their content in the music island pull request; until then no music reaches the island.
-            IslandView.Music or IslandView.Expanded => throw new InvalidOperationException("The music views have no content yet; they arrive in the music island pull request."),
+            IslandView.Music => MusicLayer,
+            IslandView.Expanded => ExpandedLayer,
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No layer exists for this view."),
         };
     }
@@ -194,6 +238,10 @@ public partial class IslandWindow : Window
         // SystemEvents keeps static references, so unsubscribe to avoid keeping the window alive.
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         _conflictTimer.Stop();
+        _musicPresenter.Dispose();
+        _leaveCollapser.Dispose();
+        _outsideClickWatcher.Dispose();
+        _expandedMusicKeys?.Dispose();
         _minuteTimer.Dispose();
         _hotkeys?.Dispose();
     }
