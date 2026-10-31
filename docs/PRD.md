@@ -15,7 +15,7 @@ The problem: in a game, music and message alerts either do not show at all (Wind
 - G1. See what is playing and control it without leaving the game. Success: play/pause/next/previous work from the island in windowed and borderless games.
 - G2. Know a WhatsApp or Discord message arrived without leaving the game. Success: a preview shows in the island within about 2 seconds of the Windows notification.
 - G3. Never get in the way. Success: the island does not take keyboard focus, and you can hide it instantly.
-- G4. Stay light. Proposed target: under 100 MB RAM and near-zero CPU when idle. [Proposed]
+- G4. Stay light. Proposed target: under 100 MB RAM and near-zero CPU when idle. [Proposed] RAM is measured as working set. [Confirmed 31 Oct 2026] The spike's bare test window already used about 101 MB working set, so the real number is measured in Phase 2 and the target is decided then. [Confirmed 31 Oct 2026]
 
 ## 3. Users
 
@@ -59,11 +59,12 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 **Overlay**
 
 - FR-1. Topmost, borderless, transparent window, top center of the primary monitor, fixed default size. The size follows the display automatically so it suits 24 to 32 inch monitors: per-monitor DPI aware, with a scale of display width in DIPs divided by 2560, limited to 0.85 to 1.25. No manual size setting. [Confirmed]
-- FR-2. Three visual states: compact (clock or music), expanded (music controls), notification (preview). Expanding: click the compact island with the mouse, or press hotkey 1. A click only expands. Play/pause, next and previous work only once it is expanded. With nothing playing, neither the click nor the hotkey does anything. [Confirmed] Clicking the open island outside its buttons closes it immediately, and it also closes about 2 seconds after the pointer leaves. [Confirmed]
+- FR-2. Three visual states: compact (clock or music), expanded (music controls), notification (preview). Expanding: click the compact island with the mouse, or press hotkey 1. A click only expands. Play/pause, next and previous work only once it is expanded. With nothing playing, neither the click nor the hotkey does anything. [Confirmed] Clicking the open island outside its buttons closes it immediately, and it also closes about 2 seconds after the pointer leaves. [Confirmed] There is no Escape key to close it: the island never has keyboard focus (FR-3), so keys go to the game. [Confirmed 31 Oct 2026] If a notification arrives while the island is expanded, the banner replaces the expanded view. [Confirmed 31 Oct 2026, follows the prototype]
 - FR-3. Window must not take keyboard focus when shown or clicked. [Proposed technique: non-activating window style. Unverified in games.]
 - FR-4. Smooth morph animation between states, spring-like in the style of the iPhone Dynamic Island. [Confirmed]
-- FR-5. Hotkey 1 (Ctrl+Alt+I) toggles expanded state. Hotkey 2 (Ctrl+Alt+H) hides or shows the island. [Confirmed as defaults] Hotkey 3 (proposed Alt+X, a simple two-key combo) hides the notification banner. It does not delete notifications. [Proposed] Windows hands a global hotkey to this app only, so a common combo would stop working in other programs. The app reports a conflict and the key stays configurable. Both configurable. App reports a clear error if a hotkey is already taken.
-- FR-6. Tray menu: Pause for 1 hour (hides the island and stops showing notifications, then returns automatically), Settings, Quit.
+- FR-5. Hotkey 1 (Ctrl+Alt+I) toggles expanded state. Hotkey 2 (Ctrl+Alt+H) hides or shows the island. [Confirmed as defaults] Hotkey 3 (proposed Alt+X, a simple two-key combo) hides the notification banner. It does not delete notifications. [Proposed] Windows hands a global hotkey to this app only, so a common combo would stop working in other programs. The app reports a conflict and the key stays configurable. Both configurable. App reports a clear error if a hotkey is already taken: a conflict banner shows for 10 seconds at start, and the same error shows in Settings (see `docs/design/DESIGN_SPEC.md`). [Confirmed 31 Oct 2026]
+- FR-6. Tray menu: Pause for 1 hour (hides the island and stops showing notifications, then returns automatically), Settings, Quit. While paused, the Pause item becomes **Resume**, which ends the pause early. [Confirmed 31 Oct 2026] Notifications that arrive while paused are dropped: no banner, and they are not added to the last 3 list. [Confirmed 31 Oct 2026, follows the prototype] The tray icon is built with the WinForms `NotifyIcon` that ships with .NET, so no extra package is needed. [Confirmed 31 Oct 2026]
+- FR-6a. Hiding the island with hotkey 2 only hides it. Notifications are still processed in the background, so if you show the island again before the banner timer ends, the banner is there. [Confirmed 31 Oct 2026, follows the prototype]
 
 **Music**
 
@@ -78,8 +79,8 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-12. Ask for notification access once, with clear in-app explanation, and handle denial gracefully.
 - FR-13. Read toast notifications and extract app name, title, and body text.
 - FR-14. Filter by app so only enabled apps show. WhatsApp and Discord on by default.
-- FR-15. Show newest, +N badge for the rest, tap to open the list. Tapping the banner opens a list of the last 3 notifications from all apps, newest first. With only one notification, it shows the full message, up to 3 lines. Items leave the list when Windows removes the notification, for example after you read it in the app. The list is kept in memory only. Swiping the island sideways (mouse drag) or hotkey 3 only hides the banner. It does not delete anything from Windows or from the list. [Confirmed, hotkey 3 proposed]
-- FR-16. Auto-dismiss after a configurable time (default 6 seconds, you asked for 5 to 6 seconds while music plays). [Confirmed] Also dismiss when Windows removes the notification, which should happen if the source app clears it after you read the message. [Unverified per app]
+- FR-15. Show newest, +N badge for the rest, tap to open the list. Tapping the banner opens a list of the last 3 notifications from all apps, newest first. With only one notification, it shows the full message, up to 3 lines. Items leave the list when Windows removes the notification, for example after you read it in the app. The list is kept in memory only. Swiping the banner sideways (mouse drag) hides the current banner and shows the next waiting one, if any. Hotkey 3 hides all waiting banners and also closes the list if it is open. Neither deletes anything from Windows or from the list. [Confirmed 31 Oct 2026, follows the prototype]
+- FR-16. Auto-dismiss after a configurable time (default 6 seconds, you asked for 5 to 6 seconds while music plays). [Confirmed] There is one timer for all waiting banners: each new notification restarts it, and when it ends, all waiting banners hide at once. Opening the list stops the timer. [Confirmed 31 Oct 2026, follows the prototype] Also dismiss when Windows removes the notification, which should happen if the source app clears it after you read the message. [Unverified per app]
 - FR-17. Hide-content setting: show only sender and app, or app only.
 - FR-18. Message text is held in memory only. Never written to disk or logs.
 
@@ -94,11 +95,13 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - Reliability: no crash if Spotify, WhatsApp, or Discord are closed. Recover if the notification listener or media session drops.
 - Privacy: no network calls in MVP. No message content stored. No screen capture, process inspection, or memory reading.
 - Safety with games: no injection, no hooks into game processes, so anti-cheat should have nothing to flag. We still cannot promise this for every game.
-- Accessibility: keyboard-operable settings, readable contrast. The island itself is glanceable, not a full accessibility surface.
+- Accessibility: keyboard-operable settings, readable contrast. The island itself is glanceable, not a full accessibility surface. Animations follow the Windows "Animation effects" setting: when it is off, states change instantly. [Confirmed 31 Oct 2026, from the design spec]
 
 ## 8. UI and UX direction
 
 [Confirmed] Close to the iPhone Dynamic Island: pure black pill, rounded, smooth morphing, dark only.
+
+Design sources, in `docs/design/` [Confirmed 31 Oct 2026]: `prototype.html` is the source of truth for look and motion, `DESIGN_SPEC.md` holds the exact values, and `winisland-design-boards.html` is a static snapshot of every state. This PRD is the source of truth for behavior. Differences between them are reported to you, not decided silently.
 
 States to prototype first:
 
@@ -109,7 +112,7 @@ States to prototype first:
 5. Hidden and paused (nothing visible, tray only).
 6. Empty or error: no permission for notifications, hotkey conflict.
 
-The clock uses 24-hour format, hours and minutes only (no seconds, no AM/PM). [Confirmed] Exact sizes, fonts, and easing are open and will be settled in the prototype. [Proposed] Prototype lives in Claude as an interactive HTML mock. It can show look, animation, and states with fake data. It cannot prove overlay-over-game behavior, Spotify control, or notification reading. Those get proven in Claude Code.
+The clock uses 24-hour format, hours and minutes only (no seconds, no AM/PM). [Confirmed] Exact sizes, fonts, and easing were settled in the prototype and are listed in `docs/design/DESIGN_SPEC.md`. [Confirmed 31 Oct 2026] Prototype lives in Claude as an interactive HTML mock. It can show look, animation, and states with fake data. It cannot prove overlay-over-game behavior, Spotify control, or notification reading. Those get proven in Claude Code.
 
 ## 9. Technology stack (proposal)
 
@@ -157,7 +160,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 ## 13. States and edge cases
 
 - No music session: show clock.
-- Spotify paused: show paused state for a short time, then clock.
+- Spotify paused: show paused state for a short time, then clock. [Confirmed 31 Oct 2026] The exact time is still open.
 - Notification permission denied: show a one-time hint and stay functional for music and clock.
 - Very long sender or message: truncate cleanly.
 - Notification with no text or image-only: show app and sender only.
