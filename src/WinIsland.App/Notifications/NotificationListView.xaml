@@ -1,0 +1,15 @@
+<!--
+  NotificationListView.xaml: the last 3 notifications, newest first, or the full text of a
+  single one (PRD FR-15). DESIGN_SPEC section 2: 420 wide; height 24 + 50 per row + 8 between
+  rows, or 24 + 22 + 18 per text line (1 to 3) + 6 for the single full-text view.
+  Section 5: padding 12 by 16, 8 between rows, rows 50 high with a 36 icon circle and 12 gap.
+  Section 3: sender 14 semibold, preview 13; single view wraps up to 3 lines, line height 18.
+  Rows are built in NotificationListView.xaml.cs.
+-->
+<UserControl x:Class="WinIsland.App.Notifications.NotificationListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="420"
+             Focusable="False">
+    <StackPanel x:Name="Rows" Margin="16,12,16,12" VerticalAlignment="Center" />
+</UserControl>
