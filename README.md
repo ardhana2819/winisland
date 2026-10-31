@@ -32,6 +32,8 @@ These steps apply once the first release exists.
 1. **Allow notification access.** WinIsland asks once. You can change it later in Windows Settings > Privacy & security > Notifications.
 2. **Turn off Windows banners for WhatsApp and Discord**, so you do not see each message twice. Keep the notification center on, because that is where WinIsland reads them from.
    Windows Settings > System > Notifications > WhatsApp (and then Discord) > turn off **Show notification banners**, keep **Show notifications in notification center** on.
+   Do this in **Windows Settings only**. Keep notifications turned on inside WhatsApp and Discord themselves (in WhatsApp: Settings > Notifications > Show notification banner = Always). If an app's own setting is off, it never sends the notification to Windows, so WinIsland cannot see it either.
+   Alternative: Windows **Do not disturb** also hides the banners while WinIsland still receives the notifications.
 
 ## Build from source
 
