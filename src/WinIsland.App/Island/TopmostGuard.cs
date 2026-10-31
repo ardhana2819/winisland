@@ -1,12 +1,13 @@
 // TopmostGuard.cs: keeps the island on top (PRD FR-1, FR-3).
-// Diva found that after closing and reopening Spotify, WhatsApp or Discord, the island could fall
-// behind maximized Chrome and Spotify windows until WinIsland was restarted (31 Oct 2026). The
-// exact Windows trigger could not be reproduced on demand, so every 2 seconds this checks that
-// the island window still has its on-top, no-activate and tool-window styles and puts back
-// whatever is missing. Each repair is logged with the missing style names (no other data), so
-// the log shows whether and when it happens.
+// Diva found that after WhatsApp desktop starts, the island fell behind maximized Chrome and
+// Spotify windows until WinIsland was restarted (31 Oct 2026). Checked live: the island kept its
+// on-top style, but Windows had moved it below ordinary windows. Every 2 seconds this checks the
+// island's on-top, no-activate and tool-window styles and its place among the on-top windows,
+// and puts back whatever is wrong. Each repair is logged with what was wrong (no other data),
+// so the log shows whether and when it happens.
 // It does not push the island above other always-on-top windows (for example Snipping Tool's
-// toolbar); it only repairs the island's own styles. The check is one Windows call: cheap.
+// toolbar); it only acts when an ordinary window sits above the island. The check reads a few
+// window styles: cheap.
 
 using System.Diagnostics;
 using System.Windows.Threading;

@@ -37,10 +37,12 @@ public static class NonActivatingWindow
     }
 
     /// <summary>
-    /// Checks that the window still has its on-top, no-activate and tool-window styles, and puts
-    /// back whatever is missing. Returns the names of the styles that were missing, or an empty
-    /// list when everything was in place. Diva saw the island fall behind Chrome and Spotify after
-    /// closing and reopening apps (31 Oct 2026); this is the repair for that.
+    /// Checks that the window still has its on-top, no-activate and tool-window styles and still
+    /// sits among the always-on-top windows, and repairs what is wrong. Returns what was wrong, or
+    /// an empty list when everything was in place.
+    /// Found live on Diva's PC (31 Oct 2026): after WhatsApp desktop starts, the island keeps its
+    /// on-top style but Windows has moved it below ordinary windows (23 of them, including Chrome
+    /// and WhatsApp), so maximized apps cover it. One SetWindowPos(HWND_TOPMOST) puts it back.
     /// </summary>
     public static IReadOnlyList<string> RepairIfNeeded(IntPtr windowHandle)
     {
@@ -51,6 +53,11 @@ public static class NonActivatingWindow
 
         long style = NativeMethods.GetWindowLongPtr(windowHandle, NativeMethods.GwlExStyle).ToInt64();
         List<string> missing = [];
+        if ((style & NativeMethods.WsExTopmost) != 0 && HasOrdinaryWindowAbove(windowHandle))
+        {
+            missing.Add("on-top position");
+        }
+
         if ((style & NativeMethods.WsExTopmost) == 0)
         {
             missing.Add("topmost");
@@ -72,6 +79,25 @@ public static class NonActivatingWindow
         }
 
         return missing;
+    }
+
+    // Windows keeps every always-on-top window above every ordinary one. An ordinary window above
+    // ours means ours has slipped out of the on-top group, even if its style still says on-top.
+    private static bool HasOrdinaryWindowAbove(IntPtr windowHandle)
+    {
+        IntPtr above = NativeMethods.GetWindow(windowHandle, NativeMethods.GwHwndPrev);
+        while (above != IntPtr.Zero)
+        {
+            long aboveStyle = NativeMethods.GetWindowLongPtr(above, NativeMethods.GwlExStyle).ToInt64();
+            if ((aboveStyle & NativeMethods.WsExTopmost) == 0)
+            {
+                return true;
+            }
+
+            above = NativeMethods.GetWindow(above, NativeMethods.GwHwndPrev);
+        }
+
+        return false;
     }
 
     /// <summary>

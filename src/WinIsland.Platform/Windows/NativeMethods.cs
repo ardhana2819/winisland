@@ -23,6 +23,12 @@ internal static partial class NativeMethods
 
     public const int SmCxScreen = 0;
 
+    /// <summary>GW_HWNDPREV: the window just above in the z-order.</summary>
+    public const uint GwHwndPrev = 3;
+
+    [LibraryImport("user32.dll")]
+    public static partial IntPtr GetWindow(IntPtr windowHandle, uint command);
+
     public const int WmHotkey = 0x0312;
     public const uint ModAlt = 0x0001;
     public const uint ModControl = 0x0002;
