@@ -2,9 +2,13 @@
   IslandWindow.xaml: the island itself. A transparent, borderless, always-on-top window at the
   top center of the primary monitor, holding the black pill.
   Look and sizes follow docs/design/DESIGN_SPEC.md:
-    section 2: compact idle pill 120 x 34, corner radius 17, 12 from the top edge.
-    section 3: clock 15, semibold, tabular numbers, Segoe UI Variable then Segoe UI.
-    section 4: pill #000000, text #FFFFFF.
+    section 2: compact idle pill 120 x 34 (radius 17); hotkey conflict banner 400 x 52 (radius 26);
+               12 from the top edge.
+    section 3: clock 15 semibold, tabular numbers; banner text 13; Segoe UI Variable then Segoe UI.
+    section 4: pill #000000, text #FFFFFF, warning icon #FBBF24.
+    section 5: conflict banner padding 16 on the left, 10 gap, 20 warning icon.
+  Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
+  layer is visible; PillAnimator swaps them.
   Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1).
   No drop shadow: DESIGN_SPEC section 4 makes it optional, and leaving it out keeps the window light.
 -->
@@ -36,16 +40,65 @@
                 Margin="0,12,0,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
-                Background="#000000">
-            <TextBlock x:Name="ClockLabel"
-                       AutomationProperties.AutomationId="ClockText"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Foreground="#FFFFFF"
-                       FontFamily="Segoe UI Variable Text, Segoe UI"
-                       FontSize="15"
-                       FontWeight="SemiBold"
-                       Typography.NumeralAlignment="Tabular" />
+                Background="#000000"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <TranslateTransform x:Name="PillOffset" />
+                    <ScaleTransform x:Name="PillScale" />
+                </TransformGroup>
+            </Border.RenderTransform>
+
+            <Grid>
+                <!-- Compact, idle: the clock. -->
+                <Grid x:Name="ClockLayer"
+                      Width="120"
+                      Height="34"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <ScaleTransform />
+                    </Grid.RenderTransform>
+                    <TextBlock x:Name="ClockLabel"
+                               AutomationProperties.AutomationId="ClockText"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="#FFFFFF"
+                               FontFamily="Segoe UI Variable Text, Segoe UI"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Typography.NumeralAlignment="Tabular" />
+                </Grid>
+
+                <!-- Hotkey conflict banner. Starts hidden. The design's Change button arrives with Settings (Phase 5). -->
+                <Grid x:Name="ConflictLayer"
+                      Width="400"
+                      Height="52"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Opacity="0"
+                      IsHitTestVisible="False"
+                      RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                    </Grid.RenderTransform>
+                    <StackPanel Margin="16,0,16,0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Viewbox Width="20" Height="20" VerticalAlignment="Center">
+                            <Path Fill="#FBBF24" Data="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z" />
+                        </Viewbox>
+                        <TextBlock x:Name="ConflictLabel"
+                                   AutomationProperties.AutomationId="ConflictText"
+                                   Margin="10,0,0,0"
+                                   MaxWidth="338"
+                                   VerticalAlignment="Center"
+                                   Foreground="#FFFFFF"
+                                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                                   FontSize="13"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Border>
     </Grid>
 </Window>
