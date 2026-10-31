@@ -37,19 +37,21 @@ public partial class IslandWindow : Window
     private readonly OutsideClickWatcher _outsideClickWatcher;
     private readonly IslandNotificationPresenter _notificationPresenter;
     private readonly PermissionPromptBehavior _permissionPrompt;
-    private GlobalHotkeys? _hotkeys;
+    private readonly HotkeySet _startHotkeys;
     private ExpandedMusicKeys? _expandedMusicKeys;
     private IslandView _shownView = IslandView.Compact;
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
 
-    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications)
+    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
         ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(startHotkeys);
         _island = island;
         _music = music;
+        _startHotkeys = startHotkeys;
 
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
@@ -98,27 +100,36 @@ public partial class IslandWindow : Window
         RegisterHotkeys(handle);
     }
 
+    /// <summary>Raised when the conflict banner's Change button is clicked (open Settings).</summary>
+    public event EventHandler? SettingsRequested;
+
+    /// <summary>The island's hotkeys; Settings changes them. Available once the window is shown.</summary>
+    internal IslandHotkeys? Hotkeys { get; private set; }
+
+    /// <summary>The conflict found when the hotkeys were first registered, for the Settings window.</summary>
+    internal string? StartHotkeyConflict { get; private set; }
+
     private void RegisterHotkeys(IntPtr handle)
     {
-        _hotkeys = new GlobalHotkeys(handle);
-        _hotkeys.Pressed += OnHotkeyPressed;
+        Hotkeys = new IslandHotkeys(handle);
+        Hotkeys.Global.Pressed += OnHotkeyPressed;
+        _expandedMusicKeys = new ExpandedMusicKeys(_island, Hotkeys.Global);
 
-        Dictionary<HotkeyAction, Hotkey> wanted = new()
-        {
-            [HotkeyAction.Expand] = HotkeySet.Defaults.Expand,
-            [HotkeyAction.HideShow] = HotkeySet.Defaults.HideShow,
-            [HotkeyAction.HideBanner] = HotkeySet.Defaults.HideBanner,
-        };
-
-        IReadOnlyList<HotkeyRegistration> results = _hotkeys.Register(wanted);
-        _expandedMusicKeys = new ExpandedMusicKeys(_island, _hotkeys);
-        List<Hotkey> unavailable = results.Where(result => !result.IsRegistered).Select(result => result.Hotkey).ToList();
-        string? conflictMessage = HotkeyConflictMessage.Describe(unavailable);
+        // At start a taken hotkey shows the conflict banner for 10 seconds (FR-5); Settings shows it too.
+        string? conflictMessage = Hotkeys.Apply(_startHotkeys);
+        StartHotkeyConflict = conflictMessage;
         if (conflictMessage is not null)
         {
             _island.ShowHotkeyConflict(conflictMessage);
             _conflictTimer.Start();
         }
+    }
+
+    private void OnConflictChangeClicked(object sender, RoutedEventArgs e)
+    {
+        _conflictTimer.Stop();
+        _island.DismissHotkeyConflict();
+        SettingsRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnHotkeyPressed(object? sender, HotkeyAction action)
@@ -247,7 +258,7 @@ public partial class IslandWindow : Window
             return result;
         }
 
-        if (_hotkeys is not null && _hotkeys.TryHandleMessage(message, wParam))
+        if (Hotkeys is not null && Hotkeys.Global.TryHandleMessage(message, wParam))
         {
             handled = true;
         }
@@ -266,6 +277,6 @@ public partial class IslandWindow : Window
         _permissionPrompt.Dispose();
         _expandedMusicKeys?.Dispose();
         _minuteTimer.Dispose();
-        _hotkeys?.Dispose();
+        Hotkeys?.Dispose();
     }
 }
