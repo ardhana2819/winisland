@@ -1,0 +1,19 @@
+<!--
+  OverlayProbe: throwaway Phase 1 spike (U4, U5, idle CPU and memory).
+  A black pill window at the top center that stays on top, does not take keyboard focus,
+  and registers the three WinIsland hotkeys, so Diva can test it over her games.
+  Not part of WinIsland.slnx and never referenced by product code.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
+    <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs. Our own code has no unsafe blocks. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

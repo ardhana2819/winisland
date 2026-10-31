@@ -1,0 +1,9 @@
+<!--
+  App.xaml: OverlayProbe application entry point. Opens the pill window on startup.
+-->
+<Application x:Class="OverlayProbe.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="PillWindow.xaml">
+    <Application.Resources />
+</Application>

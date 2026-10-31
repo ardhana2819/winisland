@@ -1,0 +1,33 @@
+<!--
+  PillWindow.xaml: the test island. A black rounded pill with a few lines of test status:
+  click count, whether the game kept focus after the last click, and each hotkey's status.
+  Right-click the pill to close OverlayProbe.
+-->
+<Window x:Class="OverlayProbe.PillWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="OverlayProbe"
+        Width="440"
+        Height="96"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Focusable="False">
+    <Border x:Name="Pill"
+            Background="Black"
+            CornerRadius="48"
+            Padding="28,10"
+            MouseEnter="OnPillMouseEnter"
+            MouseLeftButtonUp="OnPillClicked"
+            MouseRightButtonUp="OnPillRightClicked">
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock x:Name="ClickStatus" Foreground="White" FontSize="13" Text="Clicks: 0 | Focus kept: (click me)" />
+            <TextBlock x:Name="HotkeyStatus" Foreground="#CCCCCC" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap" />
+            <TextBlock x:Name="ModeStatus" Foreground="#888888" FontSize="11" Margin="0,4,0,0" />
+        </StackPanel>
+    </Border>
+</Window>
