@@ -7,6 +7,8 @@
 //   swaps it for each new message (spike U7). So a removal followed within 1 second by a new
 //   notification from the same conversation is a replacement: the older message stays. A removal
 //   with nothing after it means the chat was read: every item from that conversation leaves.
+//   Repost rule (Diva's bug, 1 Nov 2026): the same text from the same conversation within a minute
+//   is one message that WhatsApp posted twice, so it stays one item.
 // Time is passed in; NextTimeCheckAt says when the next time-based change is due.
 
 namespace WinIsland.Core.Notifications;
@@ -15,6 +17,9 @@ public sealed class NotificationFeed
 {
     public const int RecentLimit = 3;
     public static readonly TimeSpan ReplacementWindow = TimeSpan.FromSeconds(1);
+
+    /// <summary>The same text from the same chat within this time is one message posted twice.</summary>
+    public static readonly TimeSpan RepostWindow = TimeSpan.FromMinutes(1);
 
     private readonly List<IslandNotification> _recent = [];
     private readonly List<IslandNotification> _waiting = [];
@@ -58,6 +63,23 @@ public sealed class NotificationFeed
 
         // A removal just before, from the same conversation, was WhatsApp swapping its notification.
         _pendingReads.RemoveAll(pending => pending.Conversation.IsSameConversation(notification));
+
+        // WhatsApp sometimes posts the same message again under a new Windows id (Diva's bug,
+        // 1 Nov 2026: one message showed as two cards). Same chat, same text, within a minute:
+        // keep one item, under the new id so a later removal still finds it, and show no new banner.
+        int repost = _recent.FindIndex(item => IsRepost(item, notification));
+        if (repost >= 0)
+        {
+            uint oldId = _recent[repost].WindowsId;
+            _recent[repost] = notification;
+            int waiting = _waiting.FindIndex(item => item.WindowsId == oldId);
+            if (waiting >= 0)
+            {
+                _waiting[waiting] = notification;
+            }
+
+            return false;
+        }
 
         _recent.Insert(0, notification);
         if (_recent.Count > RecentLimit)
@@ -135,6 +157,13 @@ public sealed class NotificationFeed
     {
         _waiting.Clear();
         BannerEndsAt = null;
+    }
+
+    private static bool IsRepost(IslandNotification known, IslandNotification incoming)
+    {
+        return known.IsSameConversation(incoming)
+            && string.Equals(known.Preview, incoming.Preview, StringComparison.Ordinal)
+            && (incoming.ReceivedAt - known.ReceivedAt).Duration() <= RepostWindow;
     }
 
     // Lists are newest first, so anything before the item is newer.

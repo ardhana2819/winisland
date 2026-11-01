@@ -3,6 +3,7 @@
 // message (in WhatsApp groups the message starts with "sender: "). Discord uses the same order.
 //   Section 13: a notification with no text shows the app only; one with a single line (for
 //   example a WhatsApp photo) shows that line as the sender and no preview.
+//   Line breaks inside a text become spaces, so a card never shows more lines than it has room for.
 
 namespace WinIsland.Core.Notifications;
 
@@ -15,13 +16,21 @@ public static class NotificationParser
         string appName = string.IsNullOrWhiteSpace(raw.AppName) ? "App" : raw.AppName.Trim();
         List<string> lines = (raw.Texts ?? [])
             .Where(text => !string.IsNullOrWhiteSpace(text))
-            .Select(text => text.Trim())
+            .Select(OneLine)
             .ToList();
 
         string sender = lines.Count > 0 ? lines[0] : appName;
         string preview = lines.Count > 1 ? string.Join(" ", lines.Skip(1)) : string.Empty;
 
         return new IslandNotification(raw.WindowsId, SourceOf(raw), appName, sender, preview, raw.CreatedAt);
+    }
+
+    // A long WhatsApp group message can carry its own line breaks. The island shows one line per
+    // text (Diva's bug, 1 Nov 2026: the extra lines spilled out of the card), so every run of
+    // spaces, tabs and line breaks becomes one space.
+    private static string OneLine(string text)
+    {
+        return string.Join(' ', text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 
     public static NotificationSource SourceOf(RawNotification raw)
