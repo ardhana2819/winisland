@@ -10,7 +10,10 @@ public enum IslandView
     /// <summary>The compact music pill: artwork, song title, equalizer (DESIGN_SPEC section 5).</summary>
     Music,
 
-    /// <summary>The large island with music controls: playing, paused, or the empty view when there is no music session.</summary>
+    /// <summary>
+    /// The large island with two pages (FR-21): music controls (playing, paused, or the empty view
+    /// without a music session) and the last 3 notifications. IslandStateMachine.Page says which.
+    /// </summary>
     Expanded,
 
     /// <summary>The warning banner shown at start when a hotkey is taken by another app (FR-5).</summary>
@@ -18,9 +21,6 @@ public enum IslandView
 
     /// <summary>A notification banner: app, sender, preview, +N badge (FR-15).</summary>
     Notification,
-
-    /// <summary>The last 3 notifications, or the full text of a single one (FR-15).</summary>
-    NotificationList,
 
     /// <summary>"Allow notification access", shown when Windows did not give access (FR-12, section 13).</summary>
     PermissionPrompt,

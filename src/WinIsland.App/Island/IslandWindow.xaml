@@ -8,10 +8,11 @@
     section 4: pill #000000, text #FFFFFF, warning icon #FBBF24.
     section 5: conflict banner padding 16 on the left and 10 on the right, 10 gap, 20 warning icon,
                then a Change button styled like Allow.
-  The compact music pill (280 x 36) and the expanded island (420 x 168) are their own controls in
-  the Music folder: MusicPillView and MusicControlsView.
-  The notification banner (420 x 72), the last 3 list and the permission prompt (360 x 52) are in
-  the Notifications folder.
+  The compact music pill (280 x 36) is MusicPillView in the Music folder. The expanded island
+  (420 x 190, v1.1) is ExpandedIslandView next to this file: two pages, MusicControlsView and
+  NotificationsPageView, with page dots (FR-21).
+  The notification banner (420 x 72) and the permission prompt (360 x 52) are in the
+  Notifications folder.
   Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
   layer is visible; PillAnimator swaps them.
   Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1).
@@ -20,6 +21,7 @@
 <Window x:Class="WinIsland.App.Island.IslandWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:island="clr-namespace:WinIsland.App.Island"
         xmlns:music="clr-namespace:WinIsland.App.Music"
         xmlns:notifications="clr-namespace:WinIsland.App.Notifications"
         Title="WinIsland"
@@ -49,7 +51,8 @@
                 VerticalAlignment="Top"
                 Background="#000000"
                 RenderTransformOrigin="0.5,0.5"
-                MouseLeftButtonUp="OnPillClicked">
+                MouseLeftButtonUp="OnPillClicked"
+                MouseWheel="OnPillMouseWheel">
             <Border.RenderTransform>
                 <TransformGroup>
                     <TranslateTransform x:Name="PillOffset" />
@@ -143,17 +146,17 @@
                     </music:MusicPillView.RenderTransform>
                 </music:MusicPillView>
 
-                <!-- Expanded: music controls. -->
-                <music:MusicControlsView x:Name="ExpandedLayer"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         Opacity="0"
-                                         IsHitTestVisible="False"
-                                         RenderTransformOrigin="0.5,0.5">
-                    <music:MusicControlsView.RenderTransform>
+                <!-- Expanded: the music and notifications pages. -->
+                <island:ExpandedIslandView x:Name="ExpandedLayer"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Opacity="0"
+                                           IsHitTestVisible="False"
+                                           RenderTransformOrigin="0.5,0.5">
+                    <island:ExpandedIslandView.RenderTransform>
                         <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </music:MusicControlsView.RenderTransform>
-                </music:MusicControlsView>
+                    </island:ExpandedIslandView.RenderTransform>
+                </island:ExpandedIslandView>
 
                 <!-- Notification banner. -->
                 <notifications:NotificationBannerView x:Name="BannerLayer"
@@ -166,18 +169,6 @@
                         <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
                     </notifications:NotificationBannerView.RenderTransform>
                 </notifications:NotificationBannerView>
-
-                <!-- The last 3 notifications. -->
-                <notifications:NotificationListView x:Name="ListLayer"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Opacity="0"
-                                                    IsHitTestVisible="False"
-                                                    RenderTransformOrigin="0.5,0.5">
-                    <notifications:NotificationListView.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </notifications:NotificationListView.RenderTransform>
-                </notifications:NotificationListView>
 
                 <!-- Permission prompt. -->
                 <notifications:PermissionPromptView x:Name="PermissionLayer"

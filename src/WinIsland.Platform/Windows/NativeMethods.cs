@@ -41,7 +41,9 @@ internal static partial class NativeMethods
 
     public const uint VkSpace = 0x20;
     public const uint VkLeft = 0x25;
+    public const uint VkUp = 0x26;
     public const uint VkRight = 0x27;
+    public const uint VkDown = 0x28;
     public const int VkLeftButton = 0x01;
     public const int VkRightButton = 0x02;
     public const int VkMiddleButton = 0x04;

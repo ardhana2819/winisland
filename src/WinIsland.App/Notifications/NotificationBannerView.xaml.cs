@@ -1,5 +1,5 @@
 // NotificationBannerView.xaml.cs: fills the banner and turns mouse input into tap or swipe.
-// Tap (no real sideways movement) opens the last 3 list (FR-15). A sideways drag of more than 40
+// Tap (no real sideways movement) opens the notifications page (FR-15, FR-21). A sideways drag of more than 40
 // slides the banner 90 to that side while it fades, over 0.2 s (DESIGN_SPEC section 6), then
 // reports the swipe so the island shows the next waiting banner.
 
