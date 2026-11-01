@@ -1,6 +1,6 @@
 # WinIsland PRD (v1.2)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`); details marked [Proposed] still need your yes.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed].
 
 ### What v1.2 adds, in short
 
@@ -360,3 +360,4 @@ v1.1 [Confirmed 1 Nov 2026]:
 11. Found in your v1.1 tests and fixed before release, 1 Nov 2026: WhatsApp posts the same notification again when its window is opened or minimized, which showed one message as two cards; the same text from the same chat within a minute now counts as one message. Line breaks inside a long group message now become spaces, so a card keeps one line. Notification events (app, Windows id, time, how many items the page holds; never sender or text) are now logged, to diagnose a "messages vanished" report that did not come back.
 12. v1.1 released as v1.1.0-beta.1 on 1 Nov 2026.
 13. v1.2, 1 Nov 2026 [Confirmed]: add WhatsApp Web; Web comes first; decide from the notifications themselves (matching chat and text) instead of checking whether WhatsApp desktop runs, which would be process inspection. Spike W1 to W7 in `docs/spike-results.md`.
+14. v1.2, 1 Nov 2026: WhatsApp Web notifications show the WhatsApp logo, borrowed from WhatsApp desktop, because the Chrome app sends none (your request). Released as v1.2.0-beta.1 the same day.
