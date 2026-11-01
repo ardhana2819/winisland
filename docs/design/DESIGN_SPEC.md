@@ -1,6 +1,6 @@
-# WinIsland Design Spec (MVP v1.0)
+# WinIsland Design Spec (v1.1)
 
-Save as `docs/design/DESIGN_SPEC.md`. Save the prototype next to it as `docs/design/prototype.html` (open it in a browser to see and try the real motion). Source: the approved prototype, 30 Oct 2026. If this spec and the prototype disagree, the prototype wins for look and motion, and the PRD wins for behavior rules. Report the difference to Diva.
+Save as `docs/design/DESIGN_SPEC.md`. Save the prototype next to it as `docs/design/prototype.html` (open it in a browser to see and try the real motion). Source: the approved prototype, 30 Oct 2026, updated for v1.1 on 1 Nov 2026 (section 9, waiting for Diva's review). If this spec and the prototype disagree, the prototype wins for look and motion, and the PRD wins for behavior rules. Report the difference to Diva. `winisland-design-boards.html` is a snapshot of v1.0 only; for v1.1 states use the prototype.
 
 All sizes are in device-independent pixels (DIPs, what WPF uses), measured at the base scale for a 2560 DIP wide display. Values were read from the prototype code, so they are exact for the prototype. How well they carry over to WPF is not yet tested.
 
@@ -80,3 +80,74 @@ The whole feel is a spring-like morph, similar to the iPhone Dynamic Island.
 ## 8. What the prototype shows that is placeholder only
 
 Track names, artist names, sender names, message text, and album art are fake. The monitor selector and the readable zoom view are prototype tools, not part of the app.
+
+## 9. v1.1 changes (PRD FR-21 to FR-26)
+
+Waiting for Diva's review of the prototype. Where this section and sections 1 to 8 differ, this section wins for v1.1.
+
+### Sizes
+
+| State | Width | Height | Corner radius |
+| --- | --- | --- | --- |
+| Expanded, music page | 420 | 190 | 28 |
+| Expanded, notifications page | 420 | 190 | 28 |
+| Notification banner | 420 | 72 | 36 (unchanged) |
+
+The separate notification list from v1.0 (the two "Notification list" rows in section 2) is replaced by the notifications page. Both pages are the same size, so switching pages never changes the island's shape.
+
+### Page track and dots
+
+- The two pages sit on a vertical track inside the island, each 190 high. Page 1 (music) is on top, page 2 (notifications) below. Switching moves the track up or down by 190; the island clips what is outside.
+- Page dots: at the right edge, 11 from the right, centered vertically, 5 apart. Each dot is 6 wide; the current one is 14 high and white, the other 6 high and white at 35 percent. The click area reaches 5 beyond each dot.
+- Content on both pages keeps 30 free on the right for the dots (16 on the left).
+
+### Music page
+
+- Rows centered vertically with a 14 gap: top row (artwork 64, radius 12, 14 gap, title 16 semibold and artist 13, equalizer on the right), progress row (unchanged from v1.0), controls row (unchanged sizes: three 44 buttons with 22 icons, 16 apart).
+- New: the equalizer moves into the top row on the right, in the accent colour. The compact pill keeps its green equalizer.
+- New look of the controls: play or pause is a 44 circle filled with the accent at 22 percent, with the icon in the accent. Previous and next have no background and the icon in the accent. Progress fill and the seek thumb use the accent; the track is white at 18 percent.
+- Secondary text (artist, time labels) is white at 68 percent over the background colour.
+- Paused: same layout, play icon, equalizer stopped.
+- Empty view (Spotify closed): artwork placeholder (`#2C2C2E` square with a `#8E8E93` music note), title "Not playing", second line "Spotify is closed", no progress row, no equalizer, controls at 35 percent opacity and not clickable. Background black.
+- Missing artwork while a song plays: the same placeholder, black background, white accent.
+
+### Colours from the artwork
+
+The prototype works these out from the real cover pixels with the steps below; the app does the same in Core.
+
+1. Read the artwork at 64 x 64. For each pixel, colourfulness = saturation x (1 - |2 x lightness - 1|). Each pixel votes for its hue (36 buckets of 10 degrees) with its colourfulness squared, so a small strong colour beats a large pale area.
+2. If the average colourfulness is under 0.06 (black and white or grey artwork), the cover is neutral: background hue 240, saturation 0.04, accent white.
+3. Otherwise take the winning bucket's weighted hue and saturation.
+4. Background: that hue, saturation at most 0.55, lightness 0.16. Darken in steps of 0.01 until the secondary text (white at 68 percent over the background) reaches 4.5 to 1.
+5. Accent: same hue, saturation between 0.6 and 0.9, lightness 0.62. Lighten in steps of 0.02 (up to 0.9) until it reaches 3 to 1 against the background.
+6. Accent soft (play button fill): the accent at 22 percent.
+
+Results with the prototype's sample covers: red cover gives background `#3F1216` and accent `#E85461`; blue gives `#12273F` and `#5498E8`; a pink shape on cream gives `#3F121D` and `#E15B7B`; black and white stripes give `#27272A` and white. Title contrast is 14.9:1 or more, grey text 7.7:1 or more and accent 4.5:1 or more in all four.
+
+Only the open music page is coloured. The compact pill, banner and notifications page stay black. When the song changes, the background and accents fade over 0.45 seconds; moving between pages fades the background between the colour and black over the same 0.45 seconds.
+
+### Notification cards
+
+- Card: `#1C1C1E`, radius 14, 50 high, padding 0 by 12, 10 gap. App icon circle 32 (letter 14 bold). Top line: sender 14 semibold (ellipsis) and, on the right, the arrival time 11 in `#A6ABB6`, 24-hour HH:MM. Second line: preview 13 in `#A6ABB6`, one line with ellipsis.
+- Notifications page: up to 3 cards, 6 apart, centered vertically, newest first.
+- One notification: the card sits at the top (14 from the top), grows to fit, padding 12, and shows up to 3 lines of preview at line height 18.
+- None: "No notifications", 13, `#A6ABB6`, centered.
+- Banner: the 420 x 72 black pill holds one card inset by 8: 56 high, radius 28, padding 0 14 0 10, icon circle 36 (letter 16 bold), the same text lines, and the +N badge on the right (`#3A3A3C` so it stands out on the card, radius 12, padding 3 by 9, text 12 semibold).
+- Clicking a card does nothing.
+
+### Motion
+
+- Page switch: the track moves 190 over 0.5 seconds with cubic-bezier(0.3, 1.12, 0.5, 1), a softer spring than the shape change, so the next page does not visibly bounce past the edge. The current dot grows from 6 to 14 over 0.3 seconds.
+- One gesture moves one page: scroll steps less than 300 ms apart count as one gesture. Down goes to notifications, up to music. Sideways scrolling is ignored.
+- With Windows animation effects off, the page switch and colour fades are instant.
+
+### Colours added in v1.1
+
+| Use | Color |
+| --- | --- |
+| Notification card | `#1C1C1E` |
+| Badge on a banner card | `#3A3A3C` |
+| Artwork placeholder | `#2C2C2E` with a `#8E8E93` note (replaces the v1.0 gradient) |
+| Progress track on the music page | white at 18 percent |
+| Secondary text on the music page | white at 68 percent over the background |
+| Page dots | white, and white at 35 percent |
