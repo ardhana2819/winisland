@@ -108,7 +108,7 @@ The separate notification list from v1.0 (the two "Notification list" rows in se
 - New look of the controls: play or pause is a 44 circle filled with the accent at 22 percent, with the icon in the accent. Previous and next have no background and the icon in the accent. Progress fill and the seek thumb use the accent; the track is white at 18 percent.
 - Secondary text (artist, time labels) is white at 68 percent over the background colour.
 - Paused: same layout, play icon, equalizer stopped.
-- Empty view (Spotify closed): artwork placeholder (`#2C2C2E` square with a `#8E8E93` music note), title "Not playing", second line "Spotify is closed", no progress row, no equalizer, controls at 35 percent opacity and not clickable. Background black.
+- Empty view (Spotify closed): artwork placeholder (`#2C2C2E` square with a `#8E8E93` music note), title "Not playing" and no second line (Diva, 1 Nov 2026: cleaner), no progress row, no equalizer, controls at 35 percent opacity and not clickable. Background black.
 - Missing artwork while a song plays: the same placeholder, black background, white accent.
 
 ### Colours from the artwork

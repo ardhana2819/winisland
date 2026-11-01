@@ -223,7 +223,7 @@ function render(){
   $("pm").inert=S.page!==0;$("pn").inert=S.page!==1;
   setArt($("mart"));setArt($("xart"));
   $("mt").textContent=tr.t;
-  $("xt").textContent=empty?"Not playing":tr.t;$("xa").textContent=empty?"Spotify is closed":tr.a;
+  $("xt").textContent=empty?"Not playing":tr.t;$("xa").textContent=empty?"":tr.a;
   $("xd").textContent=fmt(tr.d);$("xf").style.width=(S.pos/tr.d*100)+"%";$("xc").textContent=fmt(S.pos);
   ["bprev","bpp","bnext"].forEach(id=>$(id).disabled=empty);
   $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
