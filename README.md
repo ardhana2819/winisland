@@ -36,6 +36,30 @@ Personal project, private repository.
    Do this in **Windows Settings only**. Keep notifications turned on inside WhatsApp and Discord themselves (in WhatsApp: Settings > Notifications > Show notification banner = Always). If an app's own setting is off, it never sends the notification to Windows, so WinIsland cannot see it either.
    Alternative: Windows **Do not disturb** also hides the banners while WinIsland still receives the notifications.
 
+## Uninstall
+
+WinIsland has no installer, so there is no entry in Windows Settings > Apps. Deleting the folder removes the program, but a few small things outside the folder stay behind. Do the steps in this order:
+
+1. **Turn off start with Windows:** tray icon > Settings > switch off start with Windows > Save. This removes WinIsland from the startup list. If you skip it, Windows keeps a startup entry that points at a missing file. It does no harm, but it stays in Settings > Apps > Startup.
+2. **Quit WinIsland:** tray icon > Quit.
+3. **Remove the Start menu shortcut:** open PowerShell in the WinIsland folder's `packaging` folder (in File Explorer: right-click the folder > Open in Terminal) and run:
+   `.\Add-StartMenuShortcut.ps1 -Remove`
+4. **Only if you set up instant notifications (step 7 of the install):** in the same folder, in a normal PowerShell, run:
+   `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`
+5. **Delete the WinIsland folder**, for example `%LOCALAPPDATA%\Programs\WinIsland`.
+6. **Delete the settings and log folder** `%USERPROFILE%\.winisland` (it holds `settings.json` and `winisland.log`, never message text).
+7. **Optional, only if you trusted the signing certificate:** in PowerShell opened as administrator, run:
+   `Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
+   If you created the certificate on that PC (packaging option B), also remove its private key, in a normal PowerShell:
+   `Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
+   Do not do this on the PC you build WinIsland on if you still want to sign new packages there.
+
+If you already deleted the folder first, the startup entry can be removed in PowerShell:
+`Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name WinIsland`
+and the shortcut by deleting `WinIsland` from `%APPDATA%\Microsoft\Windows\Start Menu\Programs`. An identity package can still be removed with `Get-AppxPackage WinIsland | Remove-AppxPackage`.
+
+Windows may still list WinIsland under Settings > Privacy & security > Notifications. That entry is only the permission you gave and does nothing without the app.
+
 ## Build from source
 
 You need git, the .NET 10 SDK, and (for the identity package) the Windows SDK.
