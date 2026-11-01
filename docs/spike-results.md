@@ -25,6 +25,20 @@ Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650
 | B3 (backlog, observe only). Spotify shuffle and repeat | **Pass** (observe only) | Diva ran the interactive probe, screenshot: shuffle off ACCEPTED and read back `Shuffle on: False`; repeat cycled None, List, Track, None, each ACCEPTED and read back with the new value. | Backlog F3 (shuffle and repeat buttons) is technically possible with the Spotify desktop app. Not in v1.0. |
 | Idle CPU and memory of the test window | **Pass for CPU, borderline for memory** | Claude ran `measure-idle.ps1 -ProcessName OverlayProbe -Seconds 60` (6 logical cores, Release build, desktop idle): CPU average 0.01 %, peak 0.50 %. Working set average 101.3 MB, peak 101.4 MB. Private memory average 52.7 MB. | CPU meets G4. Working set is just over the proposed 100 MB target. Most of it is shared WPF and .NET libraries; private memory is about half. Phase 2 should measure the real app and decide whether the target means working set or private memory. |
 
+### v1.2 spike: WhatsApp Web in Chrome (1 Nov 2026)
+
+Branch `feat/whatsapp-web`. NotificationProbe with identity, without `--show-text`: it printed app, AUMID, ids and text lengths only, plus any line that is a bare site address (none were). Diva ran the four steps; Claude ran the probe and read the output. Diva uses WhatsApp Web installed as an app from Chrome. Brave: not tested (Diva uses Chrome only).
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| W1. WhatsApp Web reaches the listener and can be told apart | **Pass** | App name `WhatsApp Web`, AUMID `Chrome._crx_hnpfjngllnfapefoaidbinmjnm` (the installed Chrome app), `via=event`, delay 0.0 to 0.1 s. Notification center shows `web.whatsapp.com` under the message, but it is not one of the text lines. | Recognise WhatsApp Web by the app name containing "WhatsApp" when the AUMID is not the WhatsApp desktop one. Other Chrome sites have other names and stay ignored. |
+| W2. Text layout | **Pass** | Two lines, same as the desktop app: chat name, then the message; a group message has the same lengths from Web and desktop (12 and 33). | The existing parser works unchanged. |
+| W3. One notification per chat | **Pass** | Each new message in a chat removed the previous Web notification and added a new one about 70 ms later (`REMOVED 849`, `ADDED 851`; `REMOVED 851`, `ADDED 854`). | The replacement rule (FR-15) applies to Web as it is. |
+| W4. Desktop closed | **Pass, with a catch** | With WhatsApp desktop fully closed, Web sent the real message, and Windows still showed a one-line notification from the desktop app: "You may have new messages" (Diva's screenshot, 25 characters in the probe), every time. | That desktop line has no message in it; it must be ignored, or it shows as an extra card. |
+| W5. Both open | **Pass** | Desktop and Web each sent the same message, same lengths, 10 to 80 ms apart, in either order. | Matching by chat and text stops the double card. |
+| W6. Read in WhatsApp Web | **Pass** | The Web notification was removed right after reading (`REMOVED 861 via=event`). | Dismiss on read (FR-16) works for Web. |
+| W7. Read in WhatsApp desktop | **Observed** | Opening and reading in desktop removed the Web notification, then desktop added one notification with a much longer text (611 characters) for the same group. | A desktop notification for a chat that Web recently covered must be ignored, or this re-sent text shows as a new card. |
+
 ### Extra findings
 
 - **Media "current session" is not Spotify.** Windows reported 3 sessions (Spotify.exe, Chrome, Brave) and chose Brave as the current one. The product must pick the Spotify session by its app id (`Spotify.exe`), not use Windows' current session (FR-7, FR-10).

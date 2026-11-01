@@ -138,7 +138,7 @@ internal sealed class NotificationController : IDisposable
         _dispatcher.BeginInvoke(() =>
         {
             DateTimeOffset now = DateTimeOffset.Now;
-            Trace.TraceInformation("Notification added: {0}, id {1}, at {2:HH:mm:ss.fff}", notification.Source, notification.WindowsId, now);
+            Trace.TraceInformation("Notification added: {0}{1}, id {2}, at {3:HH:mm:ss.fff}", notification.Source, notification.FromBrowser ? " Web" : string.Empty, notification.WindowsId, now);
             _logos[LogoKey(notification)] = logo;
             _island.AddNotification(notification, now);
         });

@@ -1,6 +1,11 @@
-# WinIsland PRD (v1.1)
+# WinIsland PRD (v1.2)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`); details marked [Proposed] still need your yes.
+
+### What v1.2 adds, in short
+
+- WhatsApp Web, installed as an app from Chrome, as a notification source next to WhatsApp desktop (FR-28).
+- WhatsApp Web comes first: the same message from both shows once, from Web, and desktop's "You may have new messages" line is ignored (FR-29).
 
 Labels used below: **[Confirmed]** you decided it. **[Verified]** I checked it against Microsoft docs or another source this session. **[Proposed]** my recommendation, needs your yes. **[Unverified]** I believe it but it must be tested before we rely on it. **[v1.1]** new or changed in v1.1.
 
@@ -51,6 +56,10 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - Colours from the artwork on the music page: solid dark background and accent colours for the controls.
 - Notifications shown on grey cards, on the notifications page and in the banner.
 - Fix for the artwork that sometimes does not show for the first song after start.
+
+### In scope for v1.2 [Confirmed 1 Nov 2026]
+
+- WhatsApp Web notifications from Chrome, because WhatsApp desktop has become heavy and you plan to use Web. No new look: Web messages show like desktop ones.
 
 ### Out of scope for MVP
 
@@ -151,6 +160,19 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Used on the notifications page and in the banner, so both look the same. [Confirmed 1 Nov 2026]
   - Card colour, radius and spacing are set in the prototype design pass. The card colour must keep the sender and preview text readable (at least 4.5 to 1).
 
+**WhatsApp Web [v1.2]**
+
+- FR-28. WhatsApp Web is a notification source (spike W1, W2). [Confirmed 1 Nov 2026]
+  - A notification counts as WhatsApp Web when its app name contains "WhatsApp" and it does not come from the WhatsApp desktop app (desktop's app id contains "WhatsApp"; the Chrome app's id does not). Other Chrome sites have other app names and stay ignored.
+  - It counts as WhatsApp: the WhatsApp switch in Settings covers both, "Hide message text" applies, and the replacement and read rules of FR-15 apply (spike W3, W6).
+  - Tested with WhatsApp Web installed as an app from Chrome. A plain Chrome tab and Brave are not tested (U11).
+- FR-29. WhatsApp Web comes first, so one message never shows twice (spike W4, W5, W7). [Confirmed 1 Nov 2026: "prioritaskan notif WA Web"]
+  - WinIsland does not check whether WhatsApp desktop is running: that would mean inspecting other processes, which section 7 rules out. It decides from the notifications themselves.
+  - The same message from desktop and Web (same chat, same text, within a minute) shows once, as the Web one.
+  - A desktop notification for a chat that WhatsApp Web sent a notification for in the last 10 minutes is ignored. [Proposed: 10 minutes]
+  - Desktop's one-line "You may have new messages", which it sends while it is closed, is always ignored.
+  - With WhatsApp Web not in use, desktop notifications show as before.
+
 **Fixes [v1.1]**
 
 - FR-27. The artwork shows for the first song after WinIsland starts, not only from the second song on. Seen in your v1.0 tests. This is what AC-2 already asks for. [Confirmed]
@@ -227,6 +249,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - U8. What Spotify's media session reports while Spotify is open but stopped, including right after it starts with nothing played yet. Decides whether FR-23 shows a last song or FR-24 shows the empty view in that case.
 - U9. Whether the island receives the mouse wheel and touchpad scrolling without being the active window. Windows sends the wheel to the window under the pointer when "Scroll inactive windows when I hover over them" is on (the Windows default). To test over your games, and to check the game keeps keyboard focus. **Result (you, 1 Nov 2026):** scrolling and clicking the open island worked while playing a game.
 - U10. Whether Alt+Up and Alt+Down can be registered while a game runs and whether any of your four games use them. They are only taken while the island is open. **Result (you, 1 Nov 2026):** Alt+Up and Alt+Down worked while playing a game, with no problem in the game.
+- U11. [v1.2] WhatsApp Web in a plain Chrome tab, and in Brave. Not tested; you use the Chrome app.
 - U8 was not tested on its own; paused and closed Spotify (FR-23, FR-24) worked in your Phase 7 test.
 
 ## 11. Data and integrations
@@ -288,6 +311,12 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-15. The artwork shows for the first song after WinIsland starts, within 2 seconds.
 - AC-16. Idle memory stays under 150 MB working set with the v1.1 features (G4).
 
+### Acceptance criteria (v1.2)
+
+- AC-17. With WhatsApp desktop fully closed and WhatsApp Web open, a message shows sender and preview within 2 seconds, and "You may have new messages" never shows.
+- AC-18. With both open, each message shows once (one banner, one card), from WhatsApp Web; reading it in Web or in desktop removes it.
+- AC-19. Notifications from other Chrome sites do not show.
+
 ## 16. Phased plan
 
 - Phase 0: Prototype in Claude chat (visual states and animation), then your design approval.
@@ -330,3 +359,4 @@ v1.1 [Confirmed 1 Nov 2026]:
 10. The detailed v1.1 proposals in FR-2, FR-15, FR-21, FR-22, FR-25 and the phase plan were all approved by you on 1 Nov 2026.
 11. Found in your v1.1 tests and fixed before release, 1 Nov 2026: WhatsApp posts the same notification again when its window is opened or minimized, which showed one message as two cards; the same text from the same chat within a minute now counts as one message. Line breaks inside a long group message now become spaces, so a card keeps one line. Notification events (app, Windows id, time, how many items the page holds; never sender or text) are now logged, to diagnose a "messages vanished" report that did not come back.
 12. v1.1 released as v1.1.0-beta.1 on 1 Nov 2026.
+13. v1.2, 1 Nov 2026 [Confirmed]: add WhatsApp Web; Web comes first; decide from the notifications themselves (matching chat and text) instead of checking whether WhatsApp desktop runs, which would be process inspection. Spike W1 to W7 in `docs/spike-results.md`.

@@ -5,6 +5,10 @@ namespace NotificationProbe;
 
 internal sealed class ConsoleReport(bool showText)
 {
+    // A bare site address such as web.whatsapp.com: letters, digits, dots and dashes, no spaces.
+    private static readonly System.Text.RegularExpressions.Regex SiteAddress =
+        new(@"^[a-z0-9-]+(\.[a-z0-9-]+)+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
     private readonly Lock _gate = new();
 
     public void Line(string message)
@@ -50,6 +54,24 @@ internal sealed class ConsoleReport(bool showText)
                 for (int index = 0; index < snapshot.Texts.Count; index++)
                 {
                     Console.WriteLine($"           text[{index}]: {snapshot.Texts[index]}");
+                }
+
+                return;
+            }
+
+            // v1.2 spike (WhatsApp Web in Chrome): without --show-text, only lines that are a site
+            // address (like web.whatsapp.com) are printed in full; a line that merely mentions
+            // WhatsApp is flagged without its text. Senders and messages are never printed.
+            for (int index = 0; index < snapshot.Texts.Count; index++)
+            {
+                string text = snapshot.Texts[index].Trim();
+                if (SiteAddress.IsMatch(text))
+                {
+                    Console.WriteLine($"           text[{index}] is a site address: {text}");
+                }
+                else if (text.Contains("whatsapp", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"           text[{index}] mentions WhatsApp (text not shown)");
                 }
             }
         }

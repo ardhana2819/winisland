@@ -43,6 +43,30 @@ public class NotificationParserTests
     }
 
     [Fact]
+    public void WhatsApp_Web_from_Chrome_counts_as_WhatsApp_from_a_browser()
+    {
+        // Spike W1 and W2: the installed Chrome app, two lines like the desktop app.
+        IslandNotification web = NotificationParser.Parse(Raw("Chrome._crx_hnpfjngllnfapefoaidbinmjnm", "WhatsApp Web", "Sam", "See you at 8"));
+        IslandNotification desktop = NotificationParser.Parse(Raw(WhatsAppId, "WhatsApp", "Sam", "See you at 8"));
+
+        Assert.Equal(NotificationSource.WhatsApp, web.Source);
+        Assert.True(web.FromBrowser);
+        Assert.Equal("Sam", web.Sender);
+        Assert.Equal("See you at 8", web.Preview);
+        Assert.False(desktop.FromBrowser);
+        Assert.True(web.IsSameConversation(desktop));
+    }
+
+    [Fact]
+    public void Other_Chrome_sites_stay_other()
+    {
+        IslandNotification parsed = NotificationParser.Parse(Raw("Chrome._crx_abcdefghijklmnop", "YouTube", "New video", "Something"));
+
+        Assert.Equal(NotificationSource.Other, parsed.Source);
+        Assert.False(parsed.FromBrowser);
+    }
+
+    [Fact]
     public void Other_apps_are_marked_as_other()
     {
         IslandNotification parsed = NotificationParser.Parse(Raw("Microsoft.ScreenSketch_8wekyb3d8bbwe!App", "Snipping Tool", "Screenshot copied"));
