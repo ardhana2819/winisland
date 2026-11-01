@@ -138,7 +138,7 @@ The island window never changes size. It is big enough for the largest island sh
 | `tests/WinIsland.Core.Tests` | Unit tests for Core. |
 | `spikes/` | Throwaway Phase 1 test programs. See `spikes/README.md`. |
 | `packaging/` | Start menu shortcut script and the optional package identity scripts. Shipped inside the release zip. See `packaging/README.md`. |
-| `docs/` | PRD, backlog, engineering standards, this file, spike results. |
+| `docs/` | PRD, backlog, engineering standards, this file, spike results, performance results. |
 | `.github/` | CI and release workflows, pull request template. |
 | `.githooks/` | Local Git hook that blocks pushes to `main`. |
 
