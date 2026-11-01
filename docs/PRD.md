@@ -1,6 +1,6 @@
-# WinIsland PRD (v1.1 draft)
+# WinIsland PRD (v1.1)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 is a draft** (written 1 Nov 2026 from the backlog), waiting for your approval and for the prototype design pass. Until v1.1 is approved, the v1.0 requirements are what the app does.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), to be released as v1.1.0-beta.1. The look of the new states is still to be settled in the prototype design pass (Phase 6) before any v1.1 code.
 
 Labels used below: **[Confirmed]** you decided it. **[Verified]** I checked it against Microsoft docs or another source this session. **[Proposed]** my recommendation, needs your yes. **[Unverified]** I believe it but it must be tested before we rely on it. **[v1.1]** new or changed in v1.1.
 
@@ -84,7 +84,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-1. Topmost, borderless, transparent window, top center of the primary monitor, fixed default size. The size follows the display automatically so it suits 24 to 32 inch monitors: per-monitor DPI aware, with a scale of display width in DIPs divided by 2560, limited to 0.85 to 1.25. No manual size setting. [Confirmed]
 - FR-2. Three visual states: compact (clock or music), expanded (music controls), notification (preview). Expanding: click the compact island with the mouse, or press hotkey 1. A click only expands. Play/pause, next and previous work only once it is expanded. With nothing playing, neither the click nor the hotkey does anything. [Confirmed] Clicking the open island outside its buttons closes it immediately, and it also closes about 2 seconds after the pointer leaves. [Confirmed] There is no Escape key to close it: the island never has keyboard focus (FR-3), so keys go to the game. [Confirmed 31 Oct 2026] If a notification arrives while the island is expanded, the banner replaces the expanded view. [Confirmed 31 Oct 2026, follows the prototype] A mouse click anywhere outside the open island (for example in the game) also closes it right away; the click still reaches the game. WinIsland checks the mouse buttons only while the island is open and uses no mouse hook. [Confirmed 31 Oct 2026, Diva's request]
   - [v1.1] Changed: the click and hotkey 1 always expand the island, also from the idle clock. The expanded island opens on the music page, which shows the playing song, the paused song (FR-23) or the empty view (FR-24). This replaces "with nothing playing, neither the click nor the hotkey does anything". [Confirmed 1 Nov 2026]
-  - [v1.1] The expanded state now has two pages (FR-21). A notification that arrives while the island is open on the music page replaces it with the banner, as in v1.0. On the notifications page no banner shows: the new notification appears at the top of the page. [Proposed]
+  - [v1.1] The expanded state now has two pages (FR-21). A notification that arrives while the island is open on the music page replaces it with the banner, as in v1.0. On the notifications page no banner shows: the new notification appears at the top of the page. [Confirmed 1 Nov 2026]
 - FR-3. Window must not take keyboard focus when shown or clicked. [Proposed technique: non-activating window style. Unverified in games.]
 - FR-4. Smooth morph animation between states, spring-like in the style of the iPhone Dynamic Island. [Confirmed]
 - FR-5. Hotkey 1 (Ctrl+Alt+I) toggles expanded state. Hotkey 2 (Ctrl+Alt+H) hides or shows the island. [Confirmed as defaults] Hotkey 3 (proposed Alt+X, a simple two-key combo) hides the notification banner. It does not delete notifications. [Proposed] Windows hands a global hotkey to this app only, so a common combo would stop working in other programs. The app reports a conflict and the key stays configurable. Both configurable. App reports a clear error if a hotkey is already taken: a conflict banner shows for 10 seconds at start, and the same error shows in Settings (see `docs/design/DESIGN_SPEC.md`). [Confirmed 31 Oct 2026]
@@ -106,7 +106,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-13. Read toast notifications and extract app name, title, and body text.
 - FR-14. Filter by app so only enabled apps show. WhatsApp and Discord on by default.
 - FR-15. Show newest, +N badge for the rest, tap to open the list. Tapping the banner opens a list of the last 3 notifications from all apps, newest first. With only one notification, it shows the full message, up to 3 lines. Items leave the list when Windows removes the notification, for example after you read it in the app. The list is kept in memory only. Swiping the banner sideways (mouse drag) hides the current banner and shows the next waiting one, if any. Hotkey 3 hides all waiting banners and also closes the list if it is open. Neither deletes anything from Windows or from the list. [Confirmed 31 Oct 2026, follows the prototype] WhatsApp keeps one Windows notification per chat and swaps it for each new message (spike U7). So when Windows removes a notification and a new one from the same app and chat follows within 1 second, it is a replacement: the older message stays in the list. A removal with nothing after it means the chat was read, and every item from that chat leaves the list. [Confirmed 31 Oct 2026]
-  - [v1.1] Changed: tapping the banner opens the expanded island on the notifications page (FR-22) instead of a separate list. The list rules above (last 3, newest first, full text for one, removal and replacement, memory only) carry over to that page. Swiping the banner sideways stays as it is; it does not clash with the vertical page switch. Hotkey 3 also closes the island when it is open on the notifications page. [Proposed]
+  - [v1.1] Changed: tapping the banner opens the expanded island on the notifications page (FR-22) instead of a separate list. The list rules above (last 3, newest first, full text for one, removal and replacement, memory only) carry over to that page. Swiping the banner sideways stays as it is; it does not clash with the vertical page switch. Hotkey 3 also closes the island when it is open on the notifications page. [Confirmed 1 Nov 2026]
 - FR-16. Auto-dismiss after a configurable time (default 6 seconds, you asked for 5 to 6 seconds while music plays). [Confirmed] There is one timer for all waiting banners: each new notification restarts it, and when it ends, all waiting banners hide at once. Opening the list stops the timer. [Confirmed 31 Oct 2026, follows the prototype] Also dismiss when Windows removes the notification, which should happen if the source app clears it after you read the message. [Unverified per app]
 - FR-17. Hide-content setting: one "Hide message text" switch. When on, the banner and the list show only the sender and the app, never the message text. [Confirmed 31 Oct 2026, replaces the earlier "app only" option]
 - FR-18. Message text is held in memory only. Never written to disk or logs.
@@ -120,15 +120,15 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 
 - FR-21. The expanded island has two pages: music first, notifications second. [Confirmed 1 Nov 2026]
   - Both pages are 420 x 190 (times the auto scale), so switching pages slides the content and the island never changes size. The music view grows from 168 to 190 high. [Confirmed 1 Nov 2026]
-  - Switching is vertical: the mouse scroll wheel or a two-finger swipe on a touchpad, down for notifications and up for music. [Confirmed 1 Nov 2026] One gesture moves one page; the many small scroll steps a touchpad sends count as one gesture. [Proposed]
-  - Alt+Down shows the notifications page and Alt+Up the music page. Like the music keys (FR-8), they are registered only while the island is open, so the rest of the time they belong to the game. [Confirmed 1 Nov 2026] They are fixed, not set in Settings, like the music keys. If another app already owns one, it just does not work and the error goes to the log. [Proposed]
-  - Small page dots at the right edge show which page is open. [Confirmed 1 Nov 2026] Clicking a dot opens that page. [Proposed]
+  - Switching is vertical: the mouse scroll wheel or a two-finger swipe on a touchpad, down for notifications and up for music. [Confirmed 1 Nov 2026] One gesture moves one page; the many small scroll steps a touchpad sends count as one gesture. [Confirmed 1 Nov 2026]
+  - Alt+Down shows the notifications page and Alt+Up the music page. Like the music keys (FR-8), they are registered only while the island is open, so the rest of the time they belong to the game. [Confirmed 1 Nov 2026] They are fixed, not set in Settings, like the music keys. If another app already owns one, it just does not work and the error goes to the log. [Confirmed 1 Nov 2026]
+  - Small page dots at the right edge show which page is open. [Confirmed 1 Nov 2026] Clicking a dot opens that page. [Confirmed 1 Nov 2026]
   - The content slides vertically with the same spring as other changes; with Windows animation effects off it switches at once (section 7). The exact motion is set in the prototype.
   - Expanding by click or hotkey 1 opens the music page. Tapping a notification banner opens the notifications page. The island closes as in FR-2 (click outside, 2 seconds after the pointer leaves).
   - Scrolling must not take keyboard focus from the game (FR-3).
 - FR-22. The notifications page shows the last 3 notifications from all enabled apps, newest first, with the rules from FR-15: memory only, items leave when Windows removes them, WhatsApp replacements kept, "Hide message text" respected, nothing kept while paused. [Confirmed 1 Nov 2026]
-  - With one notification its card shows the full text, up to 3 lines. [Proposed]
-  - With none, the page says "No notifications". [Proposed]
+  - With one notification its card shows the full text, up to 3 lines. [Confirmed 1 Nov 2026]
+  - With none, the page says "No notifications". [Confirmed 1 Nov 2026]
   - Clicking a card does nothing: it never opens WhatsApp or Discord. [Confirmed 1 Nov 2026]
 
 **Music states [v1.1]**
@@ -142,10 +142,10 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-25. Colours from the artwork on the music page. [Confirmed 1 Nov 2026]
   - The background is a solid dark colour taken from the artwork's main colour, not see-through. Similar to your reference picture, not a copy of it.
   - The play or pause button, previous and next, the progress bar and the equalizer use an accent colour: a brighter version of the same colour.
-  - Text stays white and light grey. The background is darkened until text meets the normal contrast rule for small text (at least 4.5 to 1), and the accent is kept at least 3 to 1 against the background. [Proposed]
-  - No artwork, or the empty view, means black, as in v1.0. Grey or black-and-white artwork gives a neutral dark grey. [Proposed]
-  - When the song changes, the colours fade over (about 0.4 seconds). [Proposed]
-  - Only the expanded music page is coloured. The compact pill, banner and notifications page stay black, like the iPhone. While sliding between pages the background fades between the two. [Proposed]
+  - Text stays white and light grey. The background is darkened until text meets the normal contrast rule for small text (at least 4.5 to 1), and the accent is kept at least 3 to 1 against the background. [Confirmed 1 Nov 2026]
+  - No artwork, or the empty view, means black, as in v1.0. Grey or black-and-white artwork gives a neutral dark grey. [Confirmed 1 Nov 2026]
+  - When the song changes, the colours fade over (about 0.4 seconds). [Confirmed 1 Nov 2026]
+  - Only the expanded music page is coloured. The compact pill, banner and notifications page stay black, like the iPhone. While sliding between pages the background fades between the two. [Confirmed 1 Nov 2026]
   - The colour is worked out once per song, in memory, from the artwork WinIsland already has. The picking logic lives in Core with unit tests.
 - FR-26. Notification cards. Each notification sits on its own rounded grey card inside the black island: app icon, sender in bold, preview below, and the time it arrived on the right (24-hour, like the clock). [Confirmed 1 Nov 2026]
   - Used on the notifications page and in the banner, so both look the same. [Confirmed 1 Nov 2026]
@@ -296,7 +296,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - Phase 4: Notifications, filtering, badge, auto-dismiss, read-dismiss.
 - Phase 5: Settings, startup, pause, hardening, tests in real games.
 
-v1.1 [Proposed]:
+v1.1 [Confirmed 1 Nov 2026]:
 
 - Phase 6: Prototype design pass for the new states (section 8), then your approval. The new values go into the design spec.
 - Phase 7: Fix the first-song artwork (FR-27), paused music one click away (FR-23), empty music view (FR-24). Small and testable on its own.
@@ -325,5 +325,5 @@ v1.1 [Proposed]:
 6. MVP v1.0 approved by you on 30 Oct 2026 after the prototype review. Not in v1.0, see the backlog doc: shuffle and repeat, opening the source app from a notification, recent notifications when idle or together with the music controls, glass or blur look, grouping by category.
 7. v1.0 released as v1.0.0-beta.1 on 1 Nov 2026, marked beta because more features are planned.
 8. v1.1 decisions, 1 Nov 2026 [Confirmed]: paused music reachable from the idle island; empty view once Spotify is closed, even if a last song is remembered; two vertical pages switched by scroll wheel, touchpad, or Alt+Up and Alt+Down; both pages 420 x 190; the pages replace the old "recent notifications when idle" and "music plus notifications" ideas; solid (not see-through) artwork colours, with accent colours for the controls in the same step; grey cards for both the page and the banner; shuffle and repeat and opening the app from a notification removed.
-9. Open: the release name for v1.1. [Proposed] `v1.1.0-beta.1`, so the version number shows the new features; `v1.0.0-beta.2` also works if you prefer to stay on 1.0 until it is final.
-10. Open: the [Proposed] details in FR-2, FR-15, FR-21, FR-22 and FR-25 (banner while open, hotkey 3 on the notifications page, one gesture per page, fixed Alt+arrow keys, clickable dots, single and empty notifications page, contrast numbers, colour fallbacks, fade, coloured music page only).
+9. Release name for v1.1: `v1.1.0-beta.1`, so the version number shows the new features. [Confirmed 1 Nov 2026]
+10. The detailed v1.1 proposals in FR-2, FR-15, FR-21, FR-22, FR-25 and the phase plan were all approved by you on 1 Nov 2026.

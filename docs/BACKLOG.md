@@ -8,7 +8,7 @@ Size rule [Confirmed]: the island may change size for these features, but every 
 
 ## Features you want next
 
-F1 to F5 and the first-song artwork issue moved into the v1.1 draft of `docs/PRD.md` on 1 Nov 2026 (FR-21 to FR-27). The PRD is now the source of truth for them; the notes below stay for history. F6 stays here.
+F1 to F5 and the first-song artwork issue moved into v1.1 of `docs/PRD.md` on 1 Nov 2026 (FR-21 to FR-27). The PRD is now the source of truth for them; the notes below stay for history. F6 stays here.
 
 ### F1. Paused music stays one click away [Confirmed]
 
