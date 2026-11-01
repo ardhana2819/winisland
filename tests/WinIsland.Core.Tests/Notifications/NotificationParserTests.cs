@@ -79,6 +79,16 @@ public class NotificationParserTests
     }
 
     [Fact]
+    public void Line_breaks_inside_a_message_become_single_spaces()
+    {
+        // Diva's bug, 1 Nov 2026: a long group message with its own line breaks spilled out of its card.
+        IslandNotification parsed = NotificationParser.Parse(Raw(WhatsAppId, "WhatsApp", "Runners\r\n", "Alex: jam 5 sore\n\nsetuju?\r\n  @Kai   @Sam\t"));
+
+        Assert.Equal("Runners", parsed.Sender);
+        Assert.Equal("Alex: jam 5 sore setuju? @Kai @Sam", parsed.Preview);
+    }
+
+    [Fact]
     public void A_long_message_arrives_complete()
     {
         // Spike U7: WhatsApp sent a 3,214 character message in full; the island cuts it, not the parser.

@@ -206,6 +206,53 @@ public class NotificationFeedTests
         Assert.Equal(Now.AddSeconds(2), feed.NextTimeCheckAt);
     }
 
+    [Fact]
+    public void WhatsApp_posting_the_same_message_again_keeps_one_item_under_the_new_id()
+    {
+        // Diva's bug, 1 Nov 2026: one message showed as two cards.
+        NotificationFeed feed = new();
+        feed.Add(Message(1, "Diva", "alright"), Now, Six);
+        feed.HideAllBanners();
+
+        feed.MarkRemoved(1, Now.AddSeconds(1));
+        bool added = feed.Add(Message(2, "Diva", "alright") with { ReceivedAt = Now.AddSeconds(1) }, Now.AddSeconds(1), Six);
+        feed.UpdateTime(Now.AddSeconds(3));
+
+        Assert.False(added);
+        Assert.Single(feed.Recent);
+        Assert.Equal(2u, feed.Recent[0].WindowsId);
+        Assert.Empty(feed.Waiting);
+
+        // Reading the chat later still finds the message under its new id.
+        feed.MarkRemoved(2, Now.AddSeconds(10));
+        feed.UpdateTime(Now.AddSeconds(11));
+        Assert.Empty(feed.Recent);
+    }
+
+    [Fact]
+    public void A_repost_while_the_banner_shows_keeps_one_banner()
+    {
+        NotificationFeed feed = new();
+        feed.Add(Message(1, "Diva", "alright"), Now, Six);
+
+        feed.Add(Message(2, "Diva", "alright"), Now.AddSeconds(1), Six);
+
+        Assert.Single(feed.Waiting);
+        Assert.Equal(2u, feed.Waiting[0].WindowsId);
+    }
+
+    [Fact]
+    public void The_same_text_after_a_minute_or_with_other_words_is_a_new_message()
+    {
+        NotificationFeed feed = new();
+        feed.Add(Message(1, "Diva", "ok"), Now, Six);
+
+        feed.Add(Message(2, "Diva", "ok") with { ReceivedAt = Now.AddMinutes(2) }, Now.AddMinutes(2), Six);
+        feed.Add(Message(3, "Diva", "ok!") with { ReceivedAt = Now.AddMinutes(2) }, Now.AddMinutes(2), Six);
+
+        Assert.Equal(3, feed.Recent.Count);
+    }
+
     private static IslandNotification Message(uint id, string sender, string text = "hello")
     {
         return new IslandNotification(id, NotificationSource.WhatsApp, "WhatsApp", sender, text, Now);

@@ -29,6 +29,12 @@ internal sealed class CubicBezierEase : EasingFunctionBase
     /// <summary>DESIGN_SPEC section 6 spring curve: cubic-bezier(0.34, 1.4, 0.56, 1).</summary>
     public static CubicBezierEase Spring() => Create(0.34, 1.4, 0.56, 1);
 
+    /// <summary>
+    /// DESIGN_SPEC section 9 page slide: cubic-bezier(0.3, 1.12, 0.5, 1), a softer spring so the next
+    /// page does not visibly bounce past the island's edge.
+    /// </summary>
+    public static CubicBezierEase PageSlide() => Create(0.3, 1.12, 0.5, 1);
+
     /// <summary>CSS "ease", which the prototype uses for its fades.</summary>
     public static CubicBezierEase Ease() => Create(0.25, 0.1, 0.25, 1);
 

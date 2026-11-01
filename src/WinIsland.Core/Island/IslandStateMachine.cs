@@ -11,7 +11,11 @@
 //   FR-6a while hidden, notifications are still processed.
 //   FR-10 music can appear, pause, change and disappear at any time.
 //   FR-14 only enabled apps show.
-//   FR-15 banners, +N, tap for the last 3; FR-16 banner timer and dismiss on read.
+//   FR-15 banners, +N; tapping a banner opens the notifications page (v1.1); FR-16 banner timer
+//         and dismiss on read.
+//   FR-21 the expanded island has two pages, music and notifications; it opens on music.
+//   FR-22 on the notifications page a new notification goes straight onto the page, no banner;
+//         hotkey 3 closes the island there.
 //   12    paused wins over everything.
 //   13    paused music shows for 5 seconds, then the clock; while the island is expanded the
 //         music stays, and the 5 seconds start when it closes.
@@ -46,6 +50,9 @@ public sealed class IslandStateMachine
     public bool IsMusicPresent { get; private set; }
 
     public bool IsPaused => PausedUntil is not null;
+
+    /// <summary>The page of the expanded island (FR-21). Only meaningful while View is Expanded.</summary>
+    public ExpandedPage Page { get; private set; } = ExpandedPage.Music;
 
     public bool IsVisible => !IsHiddenByUser && !IsPaused;
 
@@ -86,7 +93,6 @@ public sealed class IslandStateMachine
             {
                 IslandOverlay.Expanded => IslandView.Expanded,
                 IslandOverlay.Banner => IslandView.Notification,
-                IslandOverlay.List => IslandView.NotificationList,
                 _ => IsMusicPresent ? IslandView.Music : IslandView.Compact,
             };
         }
@@ -127,20 +133,29 @@ public sealed class IslandStateMachine
             return;
         }
 
-        _overlay = IslandOverlay.Expanded;
-        // A paused song counts as present again, so closing shows it for 5 seconds before the clock.
-        IsMusicPresent = Music is not null;
-        _pausedMusicEndsAt = null;
+        OpenExpanded(ExpandedPage.Music);
+        RaiseChanged();
+    }
+
+    /// <summary>Scroll, Alt+Up or Alt+Down, or a page dot on the open island (FR-21).</summary>
+    public void ShowPage(ExpandedPage page)
+    {
+        if (_overlay != IslandOverlay.Expanded || Page == page)
+        {
+            return;
+        }
+
+        Page = page;
         RaiseChanged();
     }
 
     /// <summary>
-    /// Closes the expanded island or the notification list: click outside, or 2 s after the
-    /// pointer leaves (FR-2). Banners close on their own timer instead.
+    /// Closes the expanded island: click outside, or 2 s after the pointer leaves (FR-2).
+    /// Banners close on their own timer instead.
     /// </summary>
     public void Collapse(DateTimeOffset now)
     {
-        if (_overlay is not (IslandOverlay.Expanded or IslandOverlay.List))
+        if (_overlay != IslandOverlay.Expanded)
         {
             return;
         }
@@ -153,8 +168,8 @@ public sealed class IslandStateMachine
     public void ToggleHidden(DateTimeOffset now)
     {
         IsHiddenByUser = !IsHiddenByUser;
-        // A hidden island cannot be pointed at, so an open island or list would close anyway.
-        if (_overlay is IslandOverlay.Expanded or IslandOverlay.List)
+        // A hidden island cannot be pointed at, so an open island would close anyway.
+        if (_overlay == IslandOverlay.Expanded)
         {
             CloseOverlay(now);
         }
@@ -251,6 +266,14 @@ public sealed class IslandStateMachine
             return;
         }
 
+        if (IsVisible && _overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications)
+        {
+            // Already looking at the notifications: it goes to the top of the page, no banner (FR-2, FR-22).
+            _notifications.HideAllBanners();
+            RaiseChanged();
+            return;
+        }
+
         // The banner replaces whatever was open, including the expanded island (FR-2).
         CloseOverlay(now);
         _overlay = IslandOverlay.Banner;
@@ -265,16 +288,19 @@ public sealed class IslandStateMachine
         RaiseChanged();
     }
 
-    /// <summary>Tap on the banner: opens the last 3 list and stops the banner timer (FR-15, FR-16).</summary>
-    public void OpenNotificationList()
+    /// <summary>
+    /// Tap on the banner: opens the expanded island on the notifications page and stops the banner
+    /// timer (FR-15, FR-16, FR-21).
+    /// </summary>
+    public void OpenNotificationsPage()
     {
-        if (_overlay != IslandOverlay.Banner || _notifications.Recent.Count == 0)
+        if (_overlay != IslandOverlay.Banner)
         {
             return;
         }
 
         _notifications.HideAllBanners();
-        _overlay = IslandOverlay.List;
+        OpenExpanded(ExpandedPage.Notifications);
         RaiseChanged();
     }
 
@@ -291,11 +317,15 @@ public sealed class IslandStateMachine
         RaiseChanged();
     }
 
-    /// <summary>Hotkey 3: hides all waiting banners and closes the list. Nothing is deleted (FR-15).</summary>
+    /// <summary>
+    /// Hotkey 3: hides all waiting banners, and closes the island when it is open on the
+    /// notifications page. Nothing is deleted (FR-15, FR-22).
+    /// </summary>
     public void HideNotifications(DateTimeOffset now)
     {
         _notifications.HideAllBanners();
-        if (_overlay is IslandOverlay.Banner or IslandOverlay.List)
+        bool onNotificationsPage = _overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications;
+        if (_overlay == IslandOverlay.Banner || onNotificationsPage)
         {
             CloseOverlay(now);
         }
@@ -360,14 +390,23 @@ public sealed class IslandStateMachine
         RaiseChanged();
     }
 
+    // An empty notifications page stays open and says "No notifications" (FR-22); only a banner
+    // with nothing left to show closes.
     private void CloseNotificationOverlayIfEmpty(DateTimeOffset now)
     {
-        bool bannerGone = _overlay == IslandOverlay.Banner && _notifications.CurrentBanner is null;
-        bool listEmpty = _overlay == IslandOverlay.List && _notifications.Recent.Count == 0;
-        if (bannerGone || listEmpty)
+        if (_overlay == IslandOverlay.Banner && _notifications.CurrentBanner is null)
         {
             CloseOverlay(now);
         }
+    }
+
+    private void OpenExpanded(ExpandedPage page)
+    {
+        _overlay = IslandOverlay.Expanded;
+        Page = page;
+        // A paused song counts as present again, so closing shows it for 5 seconds before the clock.
+        IsMusicPresent = Music is not null;
+        _pausedMusicEndsAt = null;
     }
 
     private void CloseOverlay(DateTimeOffset now)

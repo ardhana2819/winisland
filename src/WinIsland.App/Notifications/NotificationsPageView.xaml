@@ -1,0 +1,28 @@
+<!--
+  NotificationsPageView.xaml: the notifications page of the expanded island, 420 x 190
+  (PRD FR-22, DESIGN_SPEC section 9). Replaces the v1.0 list, which had its own height.
+    Up to 3 cards, newest first, 6 apart, centered vertically. The cards run edge to edge, 10 from
+    the island's sides, so their radius 18 follows the island's 28.
+    One notification: the card sits 10 from the top and grows to fit up to 3 lines.
+    None: "No notifications", 13, #A6ABB6, centered.
+  Cards are built in NotificationCard.cs. Clicking a card does nothing (FR-22).
+-->
+<UserControl x:Class="WinIsland.App.Notifications.NotificationsPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="420"
+             Height="190"
+             Focusable="False">
+    <Grid>
+        <StackPanel x:Name="Cards" Margin="10,0,10,0" VerticalAlignment="Center" />
+        <TextBlock x:Name="EmptyText"
+                   Text="No notifications"
+                   AutomationProperties.AutomationId="NoNotifications"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="#A6ABB6"
+                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                   FontSize="13"
+                   Visibility="Collapsed" />
+    </Grid>
+</UserControl>

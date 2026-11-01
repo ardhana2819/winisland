@@ -14,7 +14,7 @@ public sealed class GlobalHotkeys : IDisposable
 {
     private readonly IntPtr _windowHandle;
     private readonly List<HotkeyRegistration> _registrations = [];
-    private readonly HashSet<HotkeyAction> _musicShortcuts = [];
+    private readonly HashSet<HotkeyAction> _expandedShortcuts = [];
 
     public GlobalHotkeys(IntPtr windowHandle)
     {
@@ -51,21 +51,22 @@ public sealed class GlobalHotkeys : IDisposable
     }
 
     /// <summary>
-    /// Takes the music keys (Space, Ctrl+Right, Ctrl+Left) while the island is expanded.
+    /// Takes the expanded island's keys (music: Space, Ctrl+Right, Ctrl+Left; pages: Alt+Down, Alt+Up)
+    /// while the island is expanded.
     /// Returns the shortcuts another app already owns; those simply do not work this time.
     /// </summary>
-    public IReadOnlyList<MusicShortcut> RegisterMusicShortcuts(IReadOnlyList<MusicShortcut> shortcuts)
+    public IReadOnlyList<ExpandedShortcut> RegisterExpandedShortcuts(IReadOnlyList<ExpandedShortcut> shortcuts)
     {
         ArgumentNullException.ThrowIfNull(shortcuts);
 
-        List<MusicShortcut> unavailable = [];
-        foreach (MusicShortcut shortcut in shortcuts.Where(item => !_musicShortcuts.Contains(item.Action)))
+        List<ExpandedShortcut> unavailable = [];
+        foreach (ExpandedShortcut shortcut in shortcuts.Where(item => !_expandedShortcuts.Contains(item.Action)))
         {
             bool registered = NativeMethods.RegisterHotKey(
                 _windowHandle, (int)shortcut.Action, ToWindowsModifiers(shortcut.Modifiers) | NativeMethods.ModNoRepeat, ToVirtualKey(shortcut.Key));
             if (registered)
             {
-                _musicShortcuts.Add(shortcut.Action);
+                _expandedShortcuts.Add(shortcut.Action);
             }
             else
             {
@@ -76,15 +77,15 @@ public sealed class GlobalHotkeys : IDisposable
         return unavailable;
     }
 
-    /// <summary>Gives the music keys back to the game and other programs when the island closes.</summary>
-    public void UnregisterMusicShortcuts()
+    /// <summary>Gives the expanded island's keys back to the game and other programs when the island closes.</summary>
+    public void UnregisterExpandedShortcuts()
     {
-        foreach (HotkeyAction action in _musicShortcuts)
+        foreach (HotkeyAction action in _expandedShortcuts)
         {
             NativeMethods.UnregisterHotKey(_windowHandle, (int)action);
         }
 
-        _musicShortcuts.Clear();
+        _expandedShortcuts.Clear();
     }
 
     /// <summary>Call from the window's message hook. Returns true when the message was one of our hotkeys.</summary>
@@ -104,7 +105,7 @@ public sealed class GlobalHotkeys : IDisposable
         }
 
         HotkeyAction action = (HotkeyAction)id;
-        if (_musicShortcuts.Contains(action))
+        if (_expandedShortcuts.Contains(action))
         {
             Pressed?.Invoke(this, action);
             return true;
@@ -130,7 +131,7 @@ public sealed class GlobalHotkeys : IDisposable
     public void Dispose()
     {
         Release();
-        UnregisterMusicShortcuts();
+        UnregisterExpandedShortcuts();
     }
 
     private static uint ToWindowsModifiers(HotkeyModifiers modifiers)
@@ -159,14 +160,16 @@ public sealed class GlobalHotkeys : IDisposable
         return result;
     }
 
-    private static uint ToVirtualKey(MusicKey key)
+    private static uint ToVirtualKey(ShortcutKey key)
     {
         return key switch
         {
-            MusicKey.Space => NativeMethods.VkSpace,
-            MusicKey.LeftArrow => NativeMethods.VkLeft,
-            MusicKey.RightArrow => NativeMethods.VkRight,
-            _ => throw new ArgumentOutOfRangeException(nameof(key), key, "Unknown music key."),
+            ShortcutKey.Space => NativeMethods.VkSpace,
+            ShortcutKey.LeftArrow => NativeMethods.VkLeft,
+            ShortcutKey.RightArrow => NativeMethods.VkRight,
+            ShortcutKey.UpArrow => NativeMethods.VkUp,
+            ShortcutKey.DownArrow => NativeMethods.VkDown,
+            _ => throw new ArgumentOutOfRangeException(nameof(key), key, "Unknown shortcut key."),
         };
     }
 

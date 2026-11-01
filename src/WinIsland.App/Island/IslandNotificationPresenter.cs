@@ -1,7 +1,7 @@
 // IslandNotificationPresenter.cs: keeps the notification views on the island up to date.
-// Fills the banner (newest waiting notification and the +N badge) and the last 3 list from the
-// island's state, with "Hide message text" applied (FR-17), and passes tap and swipe back to the
-// island's rules (FR-15).
+// Fills the banner (newest waiting notification and the +N badge) and the notifications page
+// (the last 3 on cards, or "No notifications") from the island's state, with "Hide message text"
+// applied (FR-17), and passes tap and swipe on the banner back to the island's rules (FR-15, FR-22).
 
 using WinIsland.App.Notifications;
 using WinIsland.Core.Island;
@@ -14,25 +14,22 @@ internal sealed class IslandNotificationPresenter
     private readonly IslandStateMachine _island;
     private readonly NotificationController _notifications;
     private readonly NotificationBannerView _banner;
-    private readonly NotificationListView _list;
+    private readonly NotificationsPageView _page;
 
     public IslandNotificationPresenter(
         IslandStateMachine island,
         NotificationController notifications,
         NotificationBannerView banner,
-        NotificationListView list)
+        NotificationsPageView page)
     {
         _island = island;
         _notifications = notifications;
         _banner = banner;
-        _list = list;
+        _page = page;
 
-        _banner.Tapped += (_, _) => _island.OpenNotificationList();
+        _banner.Tapped += (_, _) => _island.OpenNotificationsPage();
         _banner.Swiped += (_, _) => _island.SwipeBanner(DateTimeOffset.Now);
     }
-
-    /// <summary>The island height the list needs right now.</summary>
-    public double ListHeight => _list.RequiredHeight;
 
     /// <summary>Call after every island change.</summary>
     public void Refresh()
@@ -46,9 +43,6 @@ internal sealed class IslandNotificationPresenter
             _banner.Show(newest, settings.PreviewFor(newest), waiting.Count, _notifications.LogoFor(newest));
         }
 
-        if (_island.RecentNotifications.Count > 0)
-        {
-            _list.Show(_island.RecentNotifications, settings, _notifications.LogoFor);
-        }
+        _page.Show(_island.RecentNotifications, settings, _notifications.LogoFor);
     }
 }

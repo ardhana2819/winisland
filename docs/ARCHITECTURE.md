@@ -23,7 +23,7 @@ The code is split into three parts so that each part has one job:
  | (Spotify desktop)     |--->|  Platform         Core              App         |
  |                       |    |  (wrappers)  -->  (decides)   -->   (draws)     |
  | Notification listener |--->|  turns Windows    island state,     pill window, |
- | (WhatsApp, Discord)   |    |  events into      last 3 list,      animations,  |
+ | (WhatsApp, Discord)   |    |  events into      last 3,           animations,  |
  |                       |    |  plain C# data    timers            tray, settings
  | Hotkeys, tray         |--->|                                                 |
  +-----------------------+    |        ^                               |        |
@@ -37,7 +37,7 @@ In words:
 
 1. Something happens in Windows: a song changes, a WhatsApp message arrives, you press a hotkey.
 2. **Platform** picks it up and turns it into simple C# data, for example "new notification from Discord, sender X, text Y".
-3. **Core** decides what that means for the island: show a banner, add it to the list, start the 6 second timer, ignore it because the app is turned off in settings.
+3. **Core** decides what that means for the island: show a banner, add it to the last 3, start the 6 second timer, ignore it because the app is turned off in settings.
 4. **App** draws the new state and animates the change.
 5. When you click a button, App asks Core what to do, and Platform sends the command to Windows (for example "next track").
 
@@ -45,16 +45,18 @@ In words:
 
 | Folder | File | What it decides |
 |---|---|---|
-| `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Expanding only works while music is present; paused music shows for 5 seconds (longer while expanded). It also says when the next time-based change is due. |
-| `Island/` | `IslandView.cs` | The shapes the island can show (compact, expanded; more arrive with music and notifications). |
-| `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island, a notification banner, or the list. The latest request wins. |
+| `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Clicking or hotkey 1 always opens it, also from the clock (paused song or empty view); paused music shows for 5 seconds (longer while expanded). The expanded island has two pages, music and notifications. It also says when the next time-based change is due. |
+| `Island/` | `IslandView.cs` | The shapes the island can show: clock, music pill, expanded, banner, permission prompt, hotkey conflict. |
+| `Island/` | `ExpandedPage.cs` | The two pages of the expanded island: music and notifications. |
+| `Island/` | `PageScroll.cs` | Turns mouse wheel and touchpad scrolling into page changes, one gesture per page. |
+| `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island or a notification banner. The latest request wins. |
 | `Island/` | `IslandScale.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
 | `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
 | `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
 | `Hotkeys/` | `HotkeyAction.cs` | What each hotkey does: expand, hide or show, hide the banner. |
 | `Hotkeys/` | `HotkeyConflictMessage.cs` | The short text for the conflict banner, for example "Alt+X is used by another app". |
-| `Hotkeys/` | `MusicShortcut.cs`, `MusicKey.cs` | The music keys that work while the island is expanded: Space, Ctrl+Right, Ctrl+Left. |
+| `Hotkeys/` | `ExpandedShortcut.cs`, `ShortcutKey.cs` | The keys that work while the island is expanded: Space, Ctrl+Right, Ctrl+Left for music, Alt+Down and Alt+Up for the pages. |
 | `Animation/` | `CubicBezier.cs` | The design's timing curves as math, including the spring curve that overshoots and settles. |
 | `Tray/` | `TrayMenuLabels.cs` | The tray menu wording, which changes while paused or hidden. |
 | `Music/` | `NowPlaying.cs`, `PlaybackStatus.cs` | What the music player reports: title, artist, playing or paused, position, length, whether seeking works. |
@@ -93,18 +95,19 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
 | App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer. |
-| App | `Music/MusicControlsView.xaml` | The expanded island: artwork, title, artist, progress with seek, previous, play or pause, next. |
+| App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
+| App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the design gradient) and the title shown when a song has none. |
 | App | `Island/IslandMusicPresenter.cs`, `Island/PointerLeaveCollapser.cs` | Keep the music views up to date, tick the progress once per second while expanded, and close the island 2 s after the pointer leaves. |
 | App | `Island/TopmostGuard.cs` | Every 2 s, checks the island is still on top (style and place among on-top windows) and non-activating, and repairs it if Windows moved it (seen after WhatsApp starts); each repair is logged. |
 | App | `Island/OutsideClickWatcher.cs` | While expanded, closes the island when a mouse button is pressed anywhere outside it. |
-| App | `Island/ExpandedMusicKeys.cs` | While expanded, turns on Space, Ctrl+Right and Ctrl+Left for play or pause, next and previous; off again when the island closes. |
+| App | `Island/ExpandedKeys.cs` | While expanded, turns on Space, Ctrl+Right and Ctrl+Left for the music and Alt+Down and Alt+Up for the pages; off again when the island closes. |
 | App | `Music/MarqueeText.xaml` | A line of text that scrolls sideways when the song title does not fit. |
 | App | `Notifications/NotificationController.cs` | Asks for notification access, moves new and removed notifications to the UI thread, hands them to Core, keeps app logos. |
-| App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner: app logo or letter circle, sender, preview, +N badge; tap opens the list, a sideways drag swipes it away. |
-| App | `Notifications/NotificationListView.xaml` | The last 3 notifications, or the full text of a single one (up to 3 lines, measured). |
+| App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner on a grey card: app logo or letter circle (centered by its shape), sender, preview, +N badge; tap opens the notifications page, a sideways drag swipes it away. |
+| App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 on grey cards with the time, the full text of a single one (up to 3 lines), or "No notifications". |
 | App | `Notifications/PermissionPromptView.xaml`, `Notifications/PermissionPromptBehavior.cs` | "Allow notification access": opens the Windows settings page, hides itself after 10 seconds. |
-| App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and list up to date, with "Hide message text" applied. |
+| App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and the notifications page up to date, with "Hide message text" applied. |
 | App | `Island/IslandHotkeys.cs` | The three island hotkeys: applied at start and from Settings, freed while Settings records a new combination. |
 | App | `Settings/SettingsController.cs` | Loads, checks, applies and saves settings; opens the Settings window. |
 | App | `Settings/SettingsWindow.xaml`, `Settings/HotkeyCapture.cs` | The Settings window from the design board, and turning a key press into a hotkey. |

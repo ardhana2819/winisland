@@ -1,6 +1,7 @@
 <!--
-  MusicControlsView.xaml: the expanded island with music controls, 420 x 168 (DESIGN_SPEC section 2).
-  Section 5: 16 side padding, rows 10 apart, centered like the prototype.
+  MusicControlsView.xaml: the music page of the expanded island, 420 x 190 (DESIGN_SPEC section 9).
+  Section 9: 16 padding on the left and 30 on the right (room for the page dots), rows 14 apart,
+  centered like the prototype. Section 5 for the rest:
     Top row: artwork 64 square, radius 12, 14 gap, title and artist.
     Middle row: elapsed time, progress bar (4 high, radius 2), total time, 8 gap. The bar sits in
       a 16 high area; with seek support, hovering grows it to 6 high and shows a 10 round thumb.
@@ -20,7 +21,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:music="clr-namespace:WinIsland.App.Music"
              Width="420"
-             Height="168"
+             Height="190"
              Focusable="False">
     <UserControl.Resources>
         <Style x:Key="IslandButton" TargetType="Button">
@@ -41,11 +42,11 @@
         </Style>
     </UserControl.Resources>
 
-    <StackPanel Margin="16,0,16,0" VerticalAlignment="Center">
+    <StackPanel Margin="16,0,30,0" VerticalAlignment="Center">
         <!-- Top row: artwork, title, artist -->
         <StackPanel Orientation="Horizontal">
             <Border x:Name="Artwork" Width="64" Height="64" CornerRadius="12" />
-            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center" Width="306">
+            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center" Width="296">
                 <music:MarqueeText x:Name="TitleText"
                                    AutomationProperties.AutomationId="ExpandedTitle"
                                    Foreground="#FFFFFF"
@@ -62,7 +63,7 @@
         </StackPanel>
 
         <!-- Middle row: elapsed, progress bar, total. Hidden in the empty view (DESIGN_SPEC section 9). -->
-        <Grid x:Name="ProgressRow" Margin="0,10,0,0">
+        <Grid x:Name="ProgressRow" Margin="0,14,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -104,7 +105,7 @@
         </Grid>
 
         <!-- Bottom row: previous, play or pause, next. At 35 percent and not clickable in the empty view. -->
-        <StackPanel x:Name="ControlsRow" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel x:Name="ControlsRow" Margin="0,14,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="PreviousButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Previous track" Click="OnPreviousClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">

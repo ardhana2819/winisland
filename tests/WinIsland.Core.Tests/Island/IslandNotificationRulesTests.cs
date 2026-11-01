@@ -1,5 +1,5 @@
 // IslandNotificationRulesTests.cs: checks how notifications change the island (FR-2, FR-6, FR-6a,
-// FR-14, FR-15, FR-16): banners, the list, hotkey 3, swipe, pause and hide.
+// FR-14, FR-15, FR-16, FR-21, FR-22): banners, the notifications page, hotkey 3, swipe, pause and hide.
 
 using WinIsland.Core.Island;
 using WinIsland.Core.Music;
@@ -50,26 +50,28 @@ public class IslandNotificationRulesTests
     }
 
     [Fact]
-    public void Tapping_the_banner_opens_the_list_and_stops_the_banner_timer()
+    public void Tapping_the_banner_opens_the_notifications_page_and_stops_the_banner_timer()
     {
+        // v1.1 (FR-15, FR-21): the banner opens the expanded island's notifications page, not a separate list.
         IslandStateMachine island = new();
         island.AddNotification(Message(1, "Sam"), Now);
         island.AddNotification(Message(2, "Kai"), Now);
 
-        island.OpenNotificationList();
+        island.OpenNotificationsPage();
 
-        Assert.Equal(IslandView.NotificationList, island.View);
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Equal(ExpandedPage.Notifications, island.Page);
         Assert.Empty(island.WaitingBanners);
         Assert.Null(island.NextTimeCheckAt);
         Assert.Equal(2, island.RecentNotifications.Count);
     }
 
     [Fact]
-    public void The_list_closes_like_the_expanded_island()
+    public void The_notifications_page_closes_like_the_expanded_island()
     {
         IslandStateMachine island = new();
         island.AddNotification(Message(1, "Sam"), Now);
-        island.OpenNotificationList();
+        island.OpenNotificationsPage();
 
         island.Collapse(Now.AddSeconds(3));
 
@@ -77,16 +79,81 @@ public class IslandNotificationRulesTests
     }
 
     [Fact]
-    public void The_list_closes_when_its_last_item_is_read()
+    public void The_notifications_page_stays_open_and_empty_when_its_last_item_is_read()
     {
+        // v1.1 (FR-22): replaces the v1.0 rule that closed the list; the page says "No notifications".
         IslandStateMachine island = new();
         island.AddNotification(Message(1, "Sam"), Now);
-        island.OpenNotificationList();
+        island.OpenNotificationsPage();
 
         island.RemoveNotification(1, Now.AddSeconds(2));
         island.UpdateTime(Now.AddSeconds(3));
 
         Assert.Empty(island.RecentNotifications);
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Equal(ExpandedPage.Notifications, island.Page);
+    }
+
+    [Fact]
+    public void A_notification_on_the_notifications_page_goes_onto_the_page_without_a_banner()
+    {
+        IslandStateMachine island = new();
+        island.AddNotification(Message(1, "Sam"), Now);
+        island.OpenNotificationsPage();
+
+        island.AddNotification(Message(2, "Kai"), Now.AddSeconds(1));
+
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Equal(ExpandedPage.Notifications, island.Page);
+        Assert.Empty(island.WaitingBanners);
+        Assert.Null(island.NextTimeCheckAt);
+        Assert.Equal("Kai", island.RecentNotifications[0].Sender);
+    }
+
+    [Fact]
+    public void A_notification_on_the_music_page_still_replaces_it_with_a_banner()
+    {
+        IslandStateMachine island = new();
+        island.ToggleExpanded(Now);
+
+        island.AddNotification(Message(1, "Sam"), Now);
+
+        Assert.Equal(IslandView.Notification, island.View);
+    }
+
+    [Fact]
+    public void Pages_switch_only_while_expanded_and_expanding_opens_the_music_page()
+    {
+        IslandStateMachine island = new();
+        island.ShowPage(ExpandedPage.Notifications);
+        Assert.Equal(ExpandedPage.Music, island.Page);
+        Assert.Equal(IslandView.Compact, island.View);
+
+        island.ToggleExpanded(Now);
+        island.ShowPage(ExpandedPage.Notifications);
+        Assert.Equal(ExpandedPage.Notifications, island.Page);
+
+        int changes = 0;
+        island.Changed += (_, _) => changes++;
+        island.ShowPage(ExpandedPage.Notifications);
+        Assert.Equal(0, changes);
+
+        island.Collapse(Now);
+        island.ToggleExpanded(Now);
+        Assert.Equal(ExpandedPage.Music, island.Page);
+    }
+
+    [Fact]
+    public void Hotkey_3_closes_the_notifications_page_but_not_the_music_page()
+    {
+        IslandStateMachine island = new();
+        island.ToggleExpanded(Now);
+
+        island.HideNotifications(Now);
+        Assert.Equal(IslandView.Expanded, island.View);
+
+        island.ShowPage(ExpandedPage.Notifications);
+        island.HideNotifications(Now);
         Assert.Equal(IslandView.Compact, island.View);
     }
 
@@ -107,7 +174,7 @@ public class IslandNotificationRulesTests
     }
 
     [Fact]
-    public void Hotkey_3_hides_all_banners_and_the_list_without_deleting_anything()
+    public void Hotkey_3_hides_all_banners_and_the_notifications_page_without_deleting_anything()
     {
         IslandStateMachine island = new();
         island.AddNotification(Message(1, "Sam"), Now);
@@ -118,7 +185,7 @@ public class IslandNotificationRulesTests
         Assert.Empty(island.WaitingBanners);
 
         island.AddNotification(Message(3, "Ana"), Now.AddSeconds(1));
-        island.OpenNotificationList();
+        island.OpenNotificationsPage();
         island.HideNotifications(Now.AddSeconds(2));
 
         Assert.Equal(IslandView.Compact, island.View);
@@ -202,12 +269,12 @@ public class IslandNotificationRulesTests
     }
 
     [Fact]
-    public void Swipe_and_list_do_nothing_without_a_banner()
+    public void Swipe_and_banner_tap_do_nothing_without_a_banner()
     {
         IslandStateMachine island = new();
 
         island.SwipeBanner(Now);
-        island.OpenNotificationList();
+        island.OpenNotificationsPage();
 
         Assert.Equal(IslandView.Compact, island.View);
     }

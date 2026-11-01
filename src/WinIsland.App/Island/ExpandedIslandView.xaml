@@ -1,0 +1,58 @@
+<!--
+  ExpandedIslandView.xaml: the expanded island, 420 x 190, with two pages (PRD FR-21,
+  DESIGN_SPEC section 9). The music page sits on top and the notifications page below it, on a
+  vertical track; switching moves the track by 190 and the island clips the rest.
+  Page dots at the right edge, 11 from the right, centered, 5 apart: each 6 wide, the current one
+  14 high and white, the other 6 high and white at 35 percent. The click area reaches 5 beyond
+  each dot. Clicking a dot opens its page.
+-->
+<UserControl x:Class="WinIsland.App.Island.ExpandedIslandView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:music="clr-namespace:WinIsland.App.Music"
+             xmlns:notifications="clr-namespace:WinIsland.App.Notifications"
+             Width="420"
+             Height="190"
+             Focusable="False"
+             ClipToBounds="True">
+    <UserControl.Resources>
+        <Style x:Key="PageDot" TargetType="Button">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- Transparent padding makes the click area reach 5 beyond the dot. -->
+                        <Border Background="Transparent" Padding="5">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- A Canvas, because a Grid would cut the 380 high track down to its own 190 and never
+             draw the second page. The island itself clips what is outside (ClipToBounds above). -->
+        <Canvas>
+            <StackPanel x:Name="Track" Width="420">
+                <StackPanel.RenderTransform>
+                    <TranslateTransform x:Name="TrackOffset" />
+                </StackPanel.RenderTransform>
+                <music:MusicControlsView x:Name="MusicPage" />
+                <notifications:NotificationsPageView x:Name="NotificationsPage" />
+            </StackPanel>
+        </Canvas>
+
+        <!-- 11 from the right edge: 6 to the button's edge plus its 5 transparent padding. -->
+        <StackPanel Margin="0,0,6,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button x:Name="MusicDotButton" Style="{StaticResource PageDot}" Margin="0,0,0,-5" AutomationProperties.Name="Music page" Click="OnMusicDotClick">
+                <Border x:Name="MusicDot" Width="6" Height="14" CornerRadius="3" Background="#FFFFFF" />
+            </Button>
+            <Button x:Name="NotificationsDotButton" Style="{StaticResource PageDot}" AutomationProperties.Name="Notifications page" Click="OnNotificationsDotClick">
+                <Border x:Name="NotificationsDot" Width="6" Height="6" CornerRadius="3" Background="#59FFFFFF" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

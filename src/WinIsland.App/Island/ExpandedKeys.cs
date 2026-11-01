@@ -1,5 +1,6 @@
-// ExpandedMusicKeys.cs: turns the music keys on while the island is expanded and off when it
-// closes (Diva's request, 31 Oct 2026): Space plays or pauses, Ctrl+Right next, Ctrl+Left previous.
+// ExpandedKeys.cs: turns the expanded island's keys on while it is open and off when it closes.
+// Music (Diva's request, 31 Oct 2026): Space plays or pauses, Ctrl+Right next, Ctrl+Left previous.
+// Pages (PRD FR-21, v1.1): Alt+Down shows the notifications, Alt+Up the music.
 // While the island is open these keys go to WinIsland instead of the game; once it closes they
 // belong to the game again.
 
@@ -11,13 +12,13 @@ using WinIsland.Platform.Hotkeys;
 
 namespace WinIsland.App.Island;
 
-internal sealed class ExpandedMusicKeys : IDisposable
+internal sealed class ExpandedKeys : IDisposable
 {
     private readonly IslandStateMachine _island;
     private readonly GlobalHotkeys _hotkeys;
     private bool _isActive;
 
-    public ExpandedMusicKeys(IslandStateMachine island, GlobalHotkeys hotkeys)
+    public ExpandedKeys(IslandStateMachine island, GlobalHotkeys hotkeys)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(hotkeys);
@@ -28,7 +29,7 @@ internal sealed class ExpandedMusicKeys : IDisposable
 
     public void Dispose()
     {
-        _hotkeys.UnregisterMusicShortcuts();
+        _hotkeys.UnregisterExpandedShortcuts();
     }
 
     private void FollowIsland()
@@ -42,15 +43,15 @@ internal sealed class ExpandedMusicKeys : IDisposable
         _isActive = shouldBeActive;
         if (!shouldBeActive)
         {
-            _hotkeys.UnregisterMusicShortcuts();
+            _hotkeys.UnregisterExpandedShortcuts();
             return;
         }
 
-        IReadOnlyList<MusicShortcut> unavailable = _hotkeys.RegisterMusicShortcuts(MusicShortcut.All);
+        IReadOnlyList<ExpandedShortcut> unavailable = _hotkeys.RegisterExpandedShortcuts(ExpandedShortcut.All);
         if (unavailable.Count > 0)
         {
-            // Not worth a banner: the buttons on the island still work. Record it for diagnosis.
-            Trace.TraceWarning("Music keys owned by another app: {0}", string.Join(", ", unavailable));
+            // Not worth a banner: the buttons, scrolling and page dots still work. Record it for diagnosis.
+            Trace.TraceWarning("Island keys owned by another app: {0}", string.Join(", ", unavailable));
         }
     }
 }

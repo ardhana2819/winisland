@@ -2,8 +2,8 @@
 // Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1),
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
 // shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), shows
-// notification banners and the last 3 list (FR-15), and animates whenever the island's state
-// changes (FR-4).
+// notification banners (FR-15), switches the expanded island's pages by scroll, Alt+Up and
+// Alt+Down or the page dots (FR-21), and animates whenever the island's state changes (FR-4).
 
 using System.Windows;
 using System.Windows.Input;
@@ -38,7 +38,8 @@ public partial class IslandWindow : Window
     private readonly IslandNotificationPresenter _notificationPresenter;
     private readonly PermissionPromptBehavior _permissionPrompt;
     private readonly HotkeySet _startHotkeys;
-    private ExpandedMusicKeys? _expandedMusicKeys;
+    private readonly PageScroll _pageScroll = new();
+    private ExpandedKeys? _expandedKeys;
     private TopmostGuard? _topmostGuard;
     private IslandView _shownView = IslandView.Compact;
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
@@ -57,10 +58,11 @@ public partial class IslandWindow : Window
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
         _animator.SetShape(PillShape.For(IslandView.Compact));
-        _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer);
+        _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer.Music);
         _leaveCollapser = new PointerLeaveCollapser(island, Pill);
         _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
-        _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ListLayer);
+        _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ExpandedLayer.Notifications);
+        ExpandedLayer.PageRequested += (_, page) => _island.ShowPage(page);
         _permissionPrompt = new PermissionPromptBehavior(island, PermissionLayer);
 
         _conflictTimer = new DispatcherTimer { Interval = ConflictBannerDuration };
@@ -115,7 +117,7 @@ public partial class IslandWindow : Window
     {
         Hotkeys = new IslandHotkeys(handle);
         Hotkeys.Global.Pressed += OnHotkeyPressed;
-        _expandedMusicKeys = new ExpandedMusicKeys(_island, Hotkeys.Global);
+        _expandedKeys = new ExpandedKeys(_island, Hotkeys.Global);
 
         // At start a taken hotkey shows the conflict banner for 10 seconds (FR-5); Settings shows it too.
         string? conflictMessage = Hotkeys.Apply(_startHotkeys);
@@ -156,14 +158,20 @@ public partial class IslandWindow : Window
             case HotkeyAction.MusicPrevious:
                 _ = _music.PreviousAsync();
                 break;
+            case HotkeyAction.ShowNotificationsPage:
+                _island.ShowPage(ExpandedPage.Notifications);
+                break;
+            case HotkeyAction.ShowMusicPage:
+                _island.ShowPage(ExpandedPage.Music);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown hotkey action.");
         }
     }
 
     /// <summary>
-    /// A click on the pill that no button, the progress bar or the banner took (FR-2): the compact
-    /// clock or music pill opens (v1.1: the clock too, FR-23, FR-24), the open island or list closes.
+    /// A click on the pill that no button, the progress bar, a card or the banner took (FR-2): the
+    /// compact clock or music pill opens (v1.1: the clock too, FR-23, FR-24), the open island closes.
     /// </summary>
     private void OnPillClicked(object sender, MouseButtonEventArgs e)
     {
@@ -172,7 +180,7 @@ public partial class IslandWindow : Window
             case IslandView.Compact or IslandView.Music:
                 _island.ToggleExpanded(DateTimeOffset.Now);
                 break;
-            case IslandView.Expanded or IslandView.NotificationList:
+            case IslandView.Expanded:
                 _island.Collapse(DateTimeOffset.Now);
                 break;
             default:
@@ -182,6 +190,24 @@ public partial class IslandWindow : Window
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Mouse wheel or touchpad over the open island: one gesture moves one page (FR-21). Windows
+    /// sends the wheel to the window under the pointer, so the island gets it without focus (U9).
+    /// </summary>
+    private void OnPillMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (_island.View != IslandView.Expanded)
+        {
+            return;
+        }
+
+        e.Handled = true;
+        if (_pageScroll.Step(e.Delta, DateTimeOffset.Now) is ExpandedPage page)
+        {
+            _island.ShowPage(page);
+        }
+    }
+
     private void ShowCurrentState()
     {
         ConflictLabel.Text = _island.HotkeyConflictText ?? string.Empty;
@@ -189,9 +215,9 @@ public partial class IslandWindow : Window
         _notificationPresenter.Refresh();
 
         IslandView view = _island.View;
-        PillShape shape = view == IslandView.NotificationList
-            ? PillShape.ForList(_notificationPresenter.ListHeight)
-            : PillShape.For(view);
+        PillShape shape = PillShape.For(view);
+        // Slide only between pages of an island that is already open; otherwise jump to the page.
+        ExpandedLayer.ShowPage(_island.Page, slide: _shownView == IslandView.Expanded && view == IslandView.Expanded);
 
         if (view != _shownView)
         {
@@ -199,7 +225,6 @@ public partial class IslandWindow : Window
             _shownView = view;
         }
 
-        // The list can change height while open (an item read in the app), so compare the shape too.
         if (shape != _shownShape)
         {
             _animator.MorphTo(shape);
@@ -222,7 +247,6 @@ public partial class IslandWindow : Window
             IslandView.Music => MusicLayer,
             IslandView.Expanded => ExpandedLayer,
             IslandView.Notification => BannerLayer,
-            IslandView.NotificationList => ListLayer,
             IslandView.PermissionPrompt => PermissionLayer,
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No layer exists for this view."),
         };
@@ -280,7 +304,7 @@ public partial class IslandWindow : Window
         _leaveCollapser.Dispose();
         _outsideClickWatcher.Dispose();
         _permissionPrompt.Dispose();
-        _expandedMusicKeys?.Dispose();
+        _expandedKeys?.Dispose();
         _minuteTimer.Dispose();
         _topmostGuard?.Dispose();
         Hotkeys?.Dispose();

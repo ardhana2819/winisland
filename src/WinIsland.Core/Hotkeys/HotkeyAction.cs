@@ -13,7 +13,7 @@ public enum HotkeyAction
     /// <summary>Hotkey 3: hide the notification banner. Registered once banners exist (Phase 4).</summary>
     HideBanner,
 
-    /// <summary>Space while expanded: play or pause (see MusicShortcut.cs).</summary>
+    /// <summary>Space while expanded: play or pause (see ExpandedShortcut.cs).</summary>
     MusicPlayPause,
 
     /// <summary>Ctrl+Right while expanded: next song.</summary>
@@ -21,4 +21,10 @@ public enum HotkeyAction
 
     /// <summary>Ctrl+Left while expanded: previous song.</summary>
     MusicPrevious,
+
+    /// <summary>Alt+Down while expanded: the notifications page (FR-21).</summary>
+    ShowNotificationsPage,
+
+    /// <summary>Alt+Up while expanded: the music page (FR-21).</summary>
+    ShowMusicPage,
 }
