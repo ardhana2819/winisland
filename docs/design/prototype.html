@@ -17,50 +17,75 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#0b1220,#24394f 70%,#3b2f2f)}
 .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:15px;text-align:center;padding:0 16px}
 .pw{position:absolute;left:50%;top:0;transform-origin:top center}
-.pill{position:relative;background:#000;color:#fff;overflow:hidden;width:120px;height:34px;border-radius:17px;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:width .6s cubic-bezier(.34,1.4,.56,1),height .6s cubic-bezier(.34,1.4,.56,1),border-radius .6s cubic-bezier(.34,1.4,.56,1),opacity .3s,transform .5s cubic-bezier(.34,1.4,.56,1)}
+.pill{--acc:#fff;--accs:rgba(255,255,255,.18);--sec:#a6abb6;position:relative;background:#000;color:#fff;overflow:hidden;width:120px;height:34px;border-radius:17px;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:width .6s cubic-bezier(.34,1.4,.56,1),height .6s cubic-bezier(.34,1.4,.56,1),border-radius .6s cubic-bezier(.34,1.4,.56,1),opacity .3s,transform .5s cubic-bezier(.34,1.4,.56,1),background-color .45s}
 .pill.hid{opacity:0;transform:scale(.4) translateY(-14px);pointer-events:none}
+/* Artwork colour at the top fading to black at the bottom, only on the open music page. */
+.pill::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.6) 60%,#000 100%);opacity:0;transition:opacity .45s;pointer-events:none}
+.pill.tint::before{opacity:1}
 .l{position:absolute;left:50%;top:50%;width:var(--w);height:var(--h);margin-left:calc(var(--w) / -2);margin-top:calc(var(--h) / -2);box-sizing:border-box;display:flex;align-items:center;opacity:0;filter:blur(10px);transform:scale(.88);pointer-events:none;transition:opacity .2s,filter .25s,transform .35s}
 .l.on{opacity:1;filter:blur(0);transform:scale(1);pointer-events:auto;transition:opacity .3s .14s,filter .35s .14s,transform .5s .14s cubic-bezier(.34,1.4,.56,1)}
 .clk{width:100%;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
 .l[data-m=music]{padding:0 12px 0 6px;gap:10px}
-.art{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#7c3aed,#06b6d4);flex:none}
+.art{width:24px;height:24px;border-radius:6px;background:#2c2c2e center/cover no-repeat;flex:none;display:flex;align-items:center;justify-content:center}
 .art.big{width:64px;height:64px;border-radius:12px}
+.art svg{width:45%;height:45%;fill:#8e8e93;display:none}
+.art.ph svg{display:block}
 .t{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.eq{display:flex;gap:3px;align-items:flex-end;height:16px}
+.eq{display:flex;gap:3px;align-items:flex-end;height:16px;flex:none}
 .eq i{display:block;width:3px;height:5px;background:#4ade80}
 .playing .eq i{animation:bar .9s ease-in-out infinite alternate}
 .eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
 @keyframes bar{from{height:4px}to{height:16px}}
-.ex{flex-direction:column;align-items:stretch;justify-content:center;padding:16px;gap:10px}
+/* Expanded island: two pages of 420 x 190 on a vertical track, page dots on the right. */
+.l[data-m=exp]{display:block;overflow:hidden}
+.track{transition:transform .5s cubic-bezier(.3,1.12,.5,1)}
+.page{height:190px;box-sizing:border-box}
+.pg-music{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0 30px 0 16px}
 .xr{display:flex;gap:14px;align-items:center}
-.xm{min-width:0;display:flex;flex-direction:column}
+.xm{flex:1;min-width:0;display:flex;flex-direction:column}
 .xm b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.xm span{font-size:13px;color:#a6abb6}
-.xp{display:flex;align-items:center;gap:8px;font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums}
+.xm span{font-size:13px;color:var(--sec);transition:color .45s}
+.xeq i{background:var(--acc);transition:background-color .45s}
+.xp{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sec);font-variant-numeric:tabular-nums;transition:color .45s}
 .seek{flex:1;height:16px;display:flex;align-items:center;cursor:pointer;touch-action:none}
-.bar{width:100%;height:4px;border-radius:2px;background:#3a3a3c;transition:height .15s}
+.bar{width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,.18);transition:height .15s}
 .seek:hover .bar{height:6px}
 .nos{cursor:default}
 .nos:hover .bar{height:4px}
-.bar div{height:100%;border-radius:3px;background:#fff;width:0;position:relative}
-#xf::after{content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:#fff;opacity:0;transition:opacity .15s}
-.seek:hover #xf::after,.seek:focus-visible #xf::after{opacity:1}
+.bar div{height:100%;border-radius:3px;background:var(--acc);width:0;position:relative;transition:background-color .45s}
+#xf::after{content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .15s}
+.seek:hover #xf::after{opacity:1}
 .nos:hover #xf::after{opacity:0}
 .ctl{display:flex;justify-content:center;gap:16px}
-.ib{width:44px;height:44px;border:0;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-.ib.main{background:#fff}
-.ib svg{width:22px;height:22px;fill:#fff}
-.ib.main svg{fill:#000}
-.l[data-m=notif]{padding:0 16px;gap:12px;cursor:pointer}
-.ni{width:40px;height:40px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.ib{width:44px;height:44px;border:0;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background-color .45s}
+.ib.main{background:var(--accs)}
+.ib svg{width:22px;height:22px;fill:var(--acc);transition:fill .45s}
+.pg-music.empty .xp,.pg-music.empty .xeq{display:none}
+.pg-music.empty .ctl{opacity:.35;pointer-events:none}
+.dots{position:absolute;right:11px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px}
+.dot{position:relative;width:6px;height:6px;border:0;padding:0;border-radius:3px;background:rgba(255,255,255,.35);cursor:pointer;transition:height .3s,background-color .3s}
+.dot::before{content:"";position:absolute;inset:-5px}
+.dot[aria-current=true]{height:14px;background:#fff}
+/* Notification cards, on the notifications page and in the banner. */
+/* Cards run edge to edge (10 from the island's edge, so their 18 radius follows the island's 28),
+   and the dots sit on the cards' right padding, which is wider so text never reaches them. */
+.pg-notif{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 10px}
+.card{background:#1c1c1e;border-radius:18px;height:52px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 22px 0 12px;cursor:default;min-width:0}
+.ni{width:32px;height:32px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;line-height:1;flex:none}
 .nb{flex:1;min-width:0;display:flex;flex-direction:column}
-.nb b{font-size:14px}
+.top{display:flex;align-items:baseline;gap:8px}
+.top b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top time{font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums;flex:none}
 .nb span{font-size:13px;color:#a6abb6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bd{background:#2c2c2e;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600}
-.l[data-m=list]{flex-direction:column;align-items:stretch;justify-content:center;padding:12px 16px;gap:8px;cursor:pointer}
-.rw{display:flex;align-items:center;gap:12px;height:50px}
-.l[data-m=list].one .rw{height:auto;align-items:flex-start}
-.l[data-m=list].one .nb span{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pg-notif.one{justify-content:flex-start;padding-top:10px}
+.pg-notif.one .card{height:auto;align-items:flex-start;padding:12px 22px 12px 12px}
+.pg-notif.one .nb span{white-space:normal;line-height:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.none{text-align:center;font-size:13px;color:#a6abb6}
+.l[data-m=notif]{padding:8px;cursor:pointer}
+.card.bn{flex:1;height:56px;border-radius:28px;padding:0 14px 0 10px;cursor:pointer}
+.card.bn .top time{display:none}
+.card.bn .ni{width:36px;height:36px;font-size:16px}
+.bd{background:#3a3a3c;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600;flex:none}
 .l[data-m=perm]{padding:0 10px 0 20px;gap:12px;font-size:13px}
 .l[data-m=perm] span,.l[data-m=conflict] span{flex:1}
 .l[data-m=conflict]{padding:0 10px 0 16px;gap:10px;font-size:13px}
@@ -74,6 +99,7 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 .note{color:var(--muted);font-size:13px;margin:8px 0 0}
 #log{margin:16px 0 0;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;min-height:20px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;border:1px solid var(--line)}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
 .rm *{transition-duration:.01s!important;animation:none!important}
 </style>
@@ -81,25 +107,30 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 <body>
 <main>
 <h1>WinIsland prototype</h1>
-<p class="lead">Interactive mock with fake data. It shows the look and the motion only. Spotify, Windows notifications and games get tested in Claude Code. Hotkeys work here too: Ctrl+Alt+I to expand, Ctrl+Alt+H to hide, Alt+X to hide notifications. You can also click the island to expand it and swipe a notification sideways to hide it.</p>
+<p class="lead">Interactive mock with fake data, v1.1. It shows the look and the motion only. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
 
 <div class="stage" id="stage">
   <div class="scene" aria-hidden="true">Game running in a borderless window</div>
   <div class="pw" id="pw">
     <div class="pill" id="pill">
       <div class="l" data-m="idle"><span class="clk" id="clk">00:00</span></div>
-      <div class="l" data-m="music"><span class="art"></span><span class="t" id="mt"></span><span class="eq"><i></i><i></i><i></i></span></div>
-      <div class="l ex" data-m="exp">
-        <div class="xr"><span class="art big"></span><div class="xm"><b id="xt"></b><span id="xa"></span></div></div>
-        <div class="xp"><span id="xc">0:00</span><div class="seek" id="seek" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" tabindex="0"><div class="bar"><div id="xf"></div></div></div><span id="xd">0:00</span></div>
-        <div class="ctl">
-          <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-          <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-          <button class="ib" id="bnext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <div class="l" data-m="music"><span class="art" id="mart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><span class="t" id="mt"></span><span class="eq"><i></i><i></i><i></i></span></div>
+      <div class="l" data-m="exp" id="xl">
+        <div class="track" id="track">
+          <div class="page pg-music" id="pm">
+            <div class="xr"><span class="art big" id="xart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><div class="xm"><b id="xt"></b><span id="xa"></span></div><span class="eq xeq"><i></i><i></i><i></i></span></div>
+            <div class="xp"><span id="xc">0:00</span><div class="seek" id="seek" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="xf"></div></div></div><span id="xd">0:00</span></div>
+            <div class="ctl">
+              <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+              <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+              <button class="ib" id="bnext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+            </div>
+          </div>
+          <div class="page pg-notif" id="pn"></div>
         </div>
+        <div class="dots" id="dots"><button class="dot" data-p="0" aria-label="Music page"></button><button class="dot" data-p="1" aria-label="Notifications page"></button></div>
       </div>
-      <div class="l" data-m="notif" id="nl"><div class="ni" id="ni">W</div><div class="nb"><b id="ns"></b><span id="nt"></span></div><span class="bd" id="nbd"></span></div>
-      <div class="l" data-m="list" id="ll"></div>
+      <div class="l" data-m="notif" id="nl"><div class="card bn"><div class="ni" id="ni">W</div><div class="nb"><div class="top"><b id="ns"></b><time id="ntm"></time></div><span id="nt"></span></div><span class="bd" id="nbd"></span></div></div>
       <div class="l" data-m="perm"><span>Allow notification access</span><button class="allow" id="ballow">Allow</button></div>
       <div class="l" data-m="conflict"><svg class="warn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z"/></svg><span>Alt+X is used by another app</span><button class="allow" id="bset">Change</button></div>
     </div>
@@ -107,109 +138,203 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 </div>
 
 <section class="panel" aria-label="Prototype controls">
-  <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-start">Start music</button><button class="btn" id="a-stop">Stop music</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Click the island or press Ctrl+Alt+I to expand it, then use play, previous and next. With no music, expanding does nothing. Click the open island outside the buttons to close it, or wait 2 seconds after the pointer leaves.</p></div>
-  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a notification to see the last 3, newest first. Swipe it sideways to hide one, or hide all. The banner vanishes after 6 seconds.</p></div>
-  <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Expand (Ctrl+Alt+I)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
+  <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-play">Play in Spotify</button><button class="btn" id="a-pausesp">Pause in Spotify</button><button class="btn" id="a-close">Close Spotify</button><button class="btn" id="a-cover">Next song (new cover)</button><button class="btn" id="a-noart" aria-pressed="false">Artwork missing</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Paused: the compact island shows the paused song for 5 seconds, then the clock. Click the clock to get the paused song back and press play. With Spotify closed, opening the island shows the empty view. The four sample covers are red, blue, very light and black and white; their colours are worked out from the cover pixels, as the app will.</p></div>
+  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner.</p></div>
+  <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Open or close (Ctrl+Alt+I)</button><button class="btn" id="a-pg">Switch page (Alt+Up / Alt+Down)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
   <div class="group"><h2>Monitor</h2><div class="btns" id="mons"><button class="btn" data-dip="1920" aria-pressed="false">24 in, 1080p</button><button class="btn" data-dip="2560" aria-pressed="true">27 in, 1440p</button><button class="btn" data-dip="3072" aria-pressed="false">32 in, 4K at 125%</button></div>
   <div class="btns" style="margin-top:8px"><button class="btn" id="a-zoom" aria-pressed="false">True proportion</button></div><p class="note" id="scl"></p></div>
 </section>
-<p id="log" role="status" aria-live="polite">Ready. Start music or send a message.</p>
+<p id="log" role="status" aria-live="polite">Ready. Click the clock to open the island, start music or send a message.</p>
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const D={idle:[120,34,17],music:[280,36,18],exp:[420,168,28],notif:[420,72,36],perm:[360,52,26],list:[420,190,28],conflict:[400,52,26]};
-const listH=n=>{if(S.hist.length===1){const l=Math.min(3,Math.max(1,Math.ceil(S.hist[0].text.length/44)));return 24+22+l*18+6}return 24+Math.max(1,n)*50+Math.max(0,n-1)*8};
-const T=[{t:"Song Title One",a:"Artist Name",d:221},{t:"Song Title Two",a:"Artist Name",d:187},{t:"Song Title Three",a:"Artist Name",d:243}];
-const S={ov:null,hidden:false,paused:false,music:false,playing:false,pos:0,ti:0,q:[],hist:[],tm:null,dip:2560,zoom:true};
+const D={idle:[120,34,17],music:[280,36,18],exp:[420,190,28],notif:[420,72,36],perm:[360,52,26],conflict:[400,52,26]};
+const PAGE_H=190,PAUSED_SHOWN_MS=5000,GESTURE_GAP_MS=300;
+
+/* ---------- Colours from the artwork (the same steps the app's Core will use) ---------- */
+const lin=c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)};
+const lum=([r,g,b])=>.2126*lin(r)+.7152*lin(g)+.0722*lin(b);
+const contrast=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const over=(fg,alpha,bg)=>fg.map((c,i)=>Math.round(c*alpha+bg[i]*(1-alpha)));
+const hex=c=>"#"+c.map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+function rgb2hsl([r,g,b]){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}return [h,s,l]}
+function hsl2rgb(h,s,l){const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return [f(0),f(8),f(4)].map(v=>Math.round(v*255))}
+const WHITE=[255,255,255],SEC_ALPHA=.68;
+const BLACK_PALETTE={bg:[0,0,0],acc:WHITE,accs:"rgba(255,255,255,.18)",sec:"#A6ABB6"};
+function palette(pixels){
+  // 1. Vote for a hue. Each pixel counts by its colourfulness squared, so a small strong colour beats a
+  //    large pale area (a pink shape on cream gives pink), and black, white and grey count almost nothing.
+  const bins=new Array(36).fill(0),sat=new Array(36).fill(0),hueSum=new Array(36).fill(0);let total=0,n=0;
+  for(let i=0;i<pixels.length;i+=4){const [h,s,l]=rgb2hsl([pixels[i],pixels[i+1],pixels[i+2]]);const chroma=s*(1-Math.abs(2*l-1)),w=chroma*chroma;const b=Math.floor(h/10)%36;bins[b]+=w;sat[b]+=s*w;hueSum[b]+=h*w;total+=chroma;n++}
+  let best=0;bins.forEach((w,i)=>{if(w>bins[best])best=i});
+  const neutral=total/n<.06||bins[best]===0;
+  const h=neutral?240:hueSum[best]/bins[best],s=neutral?.04:sat[best]/bins[best];
+  // 2. Background: the hue, dark and calm. Darken until the grey text reaches 4.5 to 1.
+  let bl=.16,bg=hsl2rgb(h,Math.min(s,.55),bl),secC=over(WHITE,SEC_ALPHA,bg);
+  while(contrast(secC,bg)<4.5&&bl>.04){bl-=.01;bg=hsl2rgb(h,Math.min(s,.55),bl);secC=over(WHITE,SEC_ALPHA,bg)}
+  // 3. Accent: the same hue, bright. Lighten until it reaches 3 to 1 against the background.
+  let acc=WHITE;
+  if(!neutral){let al=.62;acc=hsl2rgb(h,Math.max(.6,Math.min(s,.9)),al);while(contrast(acc,bg)<3&&al<.9){al+=.02;acc=hsl2rgb(h,Math.max(.6,Math.min(s,.9)),al)}}
+  return {bg,acc,accs:"rgba("+acc.join(",")+",.22)",sec:hex(secC),neutral,
+    text:contrast(WHITE,bg),secRatio:contrast(secC,bg),accRatio:contrast(acc,bg)};
+}
+
+/* ---------- Sample covers, drawn so the prototype has real pixels to read ---------- */
+function cover(kind){
+  const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d");
+  if(kind==="red"){g.fillStyle="#140406";g.fillRect(0,0,64,64);const r=g.createRadialGradient(38,26,2,38,26,30);r.addColorStop(0,"#ff3b4a");r.addColorStop(.6,"#a3121f");r.addColorStop(1,"rgba(20,4,6,0)");g.fillStyle=r;g.fillRect(0,0,64,64);g.fillStyle="#2a0a0d";g.fillRect(6,44,52,4)}
+  if(kind==="blue"){const l=g.createLinearGradient(0,0,64,64);l.addColorStop(0,"#0b1d4f");l.addColorStop(1,"#1e88e5");g.fillStyle=l;g.fillRect(0,0,64,64);g.fillStyle="#e6f1ff";g.beginPath();g.arc(44,20,7,0,7);g.fill()}
+  if(kind==="light"){g.fillStyle="#f7f1e6";g.fillRect(0,0,64,64);g.fillStyle="#f2b8c6";g.beginPath();g.arc(32,34,17,0,7);g.fill();g.fillStyle="#e8dcc8";g.fillRect(0,56,64,3)}
+  if(kind==="grey"){for(let i=0;i<8;i++){g.fillStyle=["#0a0a0a","#e8e8e8","#6b6b6b","#1e1e1e"][i%4];g.fillRect(i*8,0,8,64)}}
+  return {url:c.toDataURL(),pal:palette(g.getImageData(0,0,64,64).data)};
+}
+const T=[{t:"Song Title One",a:"Artist Name",d:221,k:"red"},{t:"Song Title Two",a:"Artist Name",d:187,k:"blue"},{t:"Song Title Three",a:"Artist Name",d:243,k:"light"},{t:"Song Title Four",a:"Artist Name",d:199,k:"grey"}];
+T.forEach(x=>Object.assign(x,cover(x.k)));
+
+/* ---------- State ---------- */
+const S={ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
 const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
 layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
-const mode=()=>S.ov||(S.music?"music":"idle");
-function log(m){$("log").textContent=m}
+const now=()=>new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+const appColor=a=>a==="Discord"?"#4752c4":"#177a40";
+function mode(){
+  if(S.ov)return S.ov;
+  if(S.music&&(S.playing||Date.now()-S.pausedAt<PAUSED_SHOWN_MS))return "music";
+  return "idle";
+}
+function log(m){$("log").innerHTML=m}
+function currentPalette(){return (!S.music||S.noArt)?BLACK_PALETTE:T[S.ti].pal}
+function setArt(el){const show=S.music&&!S.noArt;el.classList.toggle("ph",!show);el.style.backgroundImage=show?"url("+T[S.ti].url+")":""}
+
 function render(){
-  const m=mode(),tr=T[S.ti],q=S.q[0],d=m==="list"?[420,listH(S.hist.length),28]:D[m];
+  const m=mode(),tr=T[S.ti],q=S.q[0],d=D[m],P=currentPalette(),empty=!S.music;
   pill.classList.toggle("hid",S.hidden||S.paused);
   pill.classList.toggle("playing",S.music&&S.playing);
   pill.style.width=d[0]+"px";pill.style.height=d[1]+"px";pill.style.borderRadius=d[2]+"px";
+  // Only the open music page is coloured; everything else stays black.
+  pill.style.backgroundColor=(m==="exp"&&S.page===0)?hex(P.bg):"#000";
+  pill.classList.toggle("tint",m==="exp"&&S.page===0&&P!==BLACK_PALETTE);
+  pill.style.setProperty("--acc",hex(P.acc));pill.style.setProperty("--accs",P.accs);pill.style.setProperty("--sec",P.sec);
   layers.forEach(l=>{const on=l.dataset.m===m;l.classList.toggle("on",on);l.inert=!on});
-  $("ll").style.setProperty("--h",listH(S.hist.length)+"px");
-  $("ll").innerHTML=S.hist.map(x=>'<div class="rw"><div class="ni" style="width:36px;height:36px;background:'+(x.app==="Discord"?"#4752c4":"#177a40")+'">'+x.app[0]+'</div><div class="nb"><b>'+x.sender+'</b><span>'+x.text+'</span></div></div>').join("");
-  $("ll").classList.toggle("one",S.hist.length===1);
-  $("mt").textContent=tr.t;$("xt").textContent=tr.t;$("xa").textContent=tr.a;$("xd").textContent=fmt(tr.d);
-  $("xf").style.width=(S.pos/tr.d*100)+"%";$("xc").textContent=fmt(S.pos);
+  $("track").style.transform="translateY("+(-PAGE_H*S.page)+"px)";
+  [...$("dots").children].forEach(b=>b.setAttribute("aria-current",+b.dataset.p===S.page));
+  $("pm").classList.toggle("empty",empty);
+  $("pm").inert=S.page!==0;$("pn").inert=S.page!==1;
+  setArt($("mart"));setArt($("xart"));
+  $("mt").textContent=tr.t;
+  $("xt").textContent=empty?"Not playing":tr.t;$("xa").textContent=empty?"":tr.a;
+  $("xd").textContent=fmt(tr.d);$("xf").style.width=(S.pos/tr.d*100)+"%";$("xc").textContent=fmt(S.pos);
+  ["bprev","bpp","bnext"].forEach(id=>$(id).disabled=empty);
   $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
   $("ppi").innerHTML=S.playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M7 5v14l12-7z"/>';
-  if(q){$("ni").textContent=q.app[0];$("ni").style.background=q.app==="Discord"?"#4752c4":"#177a40";$("ns").textContent=q.sender;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
+  if(q){$("ni").textContent=q.app[0];$("ni").style.background=appColor(q.app);$("ns").textContent=q.sender;$("ntm").textContent=q.time;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
   $("a-pause").setAttribute("aria-pressed",S.paused);$("a-pause").textContent=S.paused?"Resume":"Pause for 1 hour";
-  $("a-zoom").setAttribute("aria-pressed",!S.zoom);
+  $("a-zoom").setAttribute("aria-pressed",!S.zoom);$("a-noart").setAttribute("aria-pressed",S.noArt);
+}
+function renderList(){
+  const pn=$("pn");pn.classList.toggle("one",S.hist.length===1);
+  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+x.app[0]+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b><time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+}
+function logPalette(){
+  const P=currentPalette();
+  if(P===BLACK_PALETTE){log(S.music?"No artwork, so the music page stays black.":"Spotify is closed: empty view, black.");return}
+  log("Colours from the cover: background <span class=sw style=background:"+hex(P.bg)+"></span> "+hex(P.bg)+", accent <span class=sw style=background:"+hex(P.acc)+"></span> "+hex(P.acc)+". Contrast: title "+P.text.toFixed(1)+":1, grey text "+P.secRatio.toFixed(1)+":1, accent "+P.accRatio.toFixed(1)+":1"+(P.neutral?" (black and white cover, so a neutral grey).":"."));
 }
 function layout(){
   const auto=Math.min(1.25,Math.max(.85,S.dip/2560)),k=$("stage").clientWidth/S.dip,f=k*auto*(S.zoom?3:1);
   $("pw").style.transform="translateX(-50%) scale("+f+")";$("pw").style.top=(12*f)+"px";
   $("scl").textContent="Auto scale "+auto.toFixed(2)+"x for a "+S.dip+" px wide display (Windows DPI units). "+(S.zoom?"Pill drawn 3x larger so you can read it.":"Pill drawn at true proportion.");
 }
+
+/* ---------- Opening, closing and pages ---------- */
+function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;render()}
+function collapse(msg){if(S.ov!=="exp")return;S.ov=null;if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
+function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
+function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;render();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
+
+/* ---------- Notifications ---------- */
 function clearNotif(){clearTimeout(S.tm);S.q=[];if(S.ov==="notif")S.ov=null}
 function arm(){clearTimeout(S.tm);S.tm=setTimeout(()=>{clearNotif();render();log("Notification dismissed after 6 seconds.")},6000)}
 function notify(app,sender,text){
   if(S.paused){log("Paused, so the notification was silenced.");return}
-  const n={app,sender,text};S.q.unshift(n);S.hist.unshift(n);S.hist=S.hist.slice(0,3);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
+  const n={app,sender,text,time:now()};S.hist.unshift(n);S.hist=S.hist.slice(0,3);renderList();
+  if(S.ov==="exp"&&S.page===1){render();log(app+" message added to the top of the page, no banner.");return}
+  S.q.unshift(n);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
 }
-function expand(){
-  if(S.ov==="exp"){S.ov=null;log("Island collapsed.")}
-  else if(!S.music){log("Nothing is playing, so there is nothing to expand. Start music first.");return}
-  else{S.ov="exp";log("Island expanded. It is clickable but does not take keyboard focus.")}
-  render();
+function clearAll(){
+  if(S.ov==="exp"&&S.page===1){collapse("Alt+X closed the notifications page. Nothing was deleted.");return}
+  if(!S.q.length){log("Nothing to hide.");return}
+  clearNotif();render();log("Hidden from the island only. The notifications stay in Windows and on the notifications page.");
 }
-function nextT(d){S.ti=(S.ti+d+T.length)%T.length;S.pos=0;render()}
-$("a-start").onclick=()=>{S.music=true;S.playing=true;S.pos=0;S.ti=0;render();log("Music started.")};
-$("a-stop").onclick=()=>{S.music=false;S.playing=false;if(S.ov==="exp")S.ov=null;render();log("Music stopped. The clock is back.")};
-$("a-wa").onclick=()=>notify("WhatsApp","Sender Name","Message preview text goes here and gets cut cleanly when it is long. Tap the banner to read the whole message here without opening WhatsApp.");
+function nextT(d){S.ti=(S.ti+d+T.length)%T.length;S.pos=0;render();logPalette()}
+
+/* ---------- Prototype controls ---------- */
+$("a-play").onclick=()=>{S.music=true;S.playing=true;render();logPalette()};
+$("a-pausesp").onclick=()=>{if(!S.music){log("Spotify is closed.");return}S.playing=false;if(S.ov!=="exp")S.pausedAt=Date.now();render();log("Paused. The paused song shows for 5 seconds, then the clock. Click the clock to get it back.")};
+$("a-close").onclick=()=>{S.music=false;S.playing=false;S.pausedAt=0;render();log("Spotify closed. Opening the island now shows the empty view.")};
+$("a-cover").onclick=()=>{if(!S.music){S.music=true;S.playing=true}nextT(1)};
+$("a-noart").onclick=()=>{S.noArt=!S.noArt;render();logPalette()};
+$("a-wa").onclick=()=>notify("WhatsApp","Sender Name","Message preview text goes here and gets cut cleanly when it is long. With only one notification, the page shows up to three lines of it.");
 $("a-dc").onclick=()=>notify("Discord","Sender Name","Short Discord message");
 $("a-3").onclick=()=>{notify("WhatsApp","Sender One","First message");notify("Discord","Sender Two","Second message");notify("WhatsApp","Sender Three","Third message")};
-$("a-read").onclick=()=>{if(!S.hist.length){log("No notification to clear.");return}S.hist.shift();S.q.shift();if(S.ov==="list"&&!S.hist.length)S.ov=null;if(S.ov==="notif"){if(!S.q.length){clearTimeout(S.tm);S.ov=null}else arm()}render();log("Simulated: the app cleared the notification in Windows, so the island removed it too.")};
+$("a-read").onclick=()=>{if(!S.hist.length){log("No notification to clear.");return}const n=S.hist.shift();S.q=S.q.filter(x=>x!==n);renderList();if(S.ov==="notif"){if(!S.q.length){clearTimeout(S.tm);S.ov=null}else arm()}render();log("Simulated: the app cleared the notification in Windows, so the island removed it too.")};
 $("a-perm").onclick=()=>{S.ov="perm";render();log("Permission prompt shown once if access is denied.")};
 $("ballow").onclick=()=>{S.ov=null;render();log("Access granted (simulated).")};
-$("a-exp").onclick=expand;
+$("a-exp").onclick=toggleOpen;
+$("a-pg").onclick=()=>{if(S.ov!=="exp"){log("Open the island first.");return}setPage(1-S.page)};
 $("a-hide").onclick=()=>{S.hidden=!S.hidden;render();log(S.hidden?"Island hidden. The app keeps running.":"Island visible again.")};
-$("a-pause").onclick=()=>{S.paused=!S.paused;if(S.paused)clearNotif();render();log(S.paused?"Paused for 1 hour: island hidden and notifications silenced.":"Resumed.")};
-$("bpp").onclick=()=>{S.playing=!S.playing;render()};
-$("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
-$("nl").onclick=e=>{if(S.sw){S.sw=false;return}S.skip=true;clearTimeout(S.tm);S.q=[];S.ov="list";render();log("Showing the last "+S.hist.length+" notifications, newest first.")};
+$("a-pause").onclick=()=>{S.paused=!S.paused;if(S.paused){clearNotif();S.ov=null}render();log(S.paused?"Paused for 1 hour: island hidden and notifications silenced.":"Resumed.")};
+$("a-clear").onclick=clearAll;
+$("a-conf").onclick=()=>{S.ov="conflict";render();log("Shown for 10 seconds at start if a hotkey is taken. The same error shows in Settings.");clearTimeout(S.ct);S.ct=setTimeout(()=>{if(S.ov==="conflict"){S.ov=null;render()}},10000)};
+$("bset").onclick=()=>{S.ov=null;render();log("This would open Settings with the hotkey row marked.")};
+$("a-rm").onclick=()=>{const on=document.body.classList.toggle("rm");$("a-rm").setAttribute("aria-pressed",on);log(on?"Reduced motion on: changes are instant.":"Reduced motion off.")};
 $("mons").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.dip=+b.dataset.dip;[...$("mons").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout()};
 $("a-zoom").onclick=()=>{S.zoom=!S.zoom;layout();render()};
-function clearAll(){if(!S.q.length&&S.ov!=="list"){log("Nothing to hide.");return}clearNotif();if(S.ov==="list")S.ov=null;render();log("Hidden from the island only. The notifications stay in Windows and in the last 3 list.")}
-$("a-clear").onclick=clearAll;
+$("a-seek").onclick=()=>{S.seekOK=!S.seekOK;$("seek").classList.toggle("nos",!S.seekOK);$("a-seek").setAttribute("aria-pressed",S.seekOK);$("a-seek").textContent=S.seekOK?"Seek works":"Seek not supported";log(S.seekOK?"Click or drag the progress bar to seek.":"This player does not support seeking, so the bar is display only.")};
+
+/* ---------- Island input ---------- */
+$("bpp").onclick=()=>{S.playing=!S.playing;render()};
+$("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
+$("dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;e.stopPropagation();setPage(+b.dataset.p)});
+$("pn").addEventListener("click",e=>{if(e.target.closest(".card"))e.stopPropagation()});
+$("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};
+pill.addEventListener("click",e=>{
+  if(S.hidden||S.paused)return;const m=mode();
+  if(m==="idle"||m==="music"){toggleOpen();return}
+  if(m==="exp"&&!e.target.closest("button")&&!e.target.closest(".seek"))collapse("Clicked the open island, so it closed.");
+});
+// One gesture moves one page. A touchpad sends many small scroll steps; steps closer together than 300 ms belong to one gesture.
+pill.addEventListener("wheel",e=>{
+  if(mode()!=="exp"||Math.abs(e.deltaY)<Math.abs(e.deltaX))return;e.preventDefault();
+  const t=performance.now(),fresh=t-S.lastWheel>GESTURE_GAP_MS;S.lastWheel=t;
+  if(fresh)setPage(e.deltaY>0?1:0);
+},{passive:false});
+pill.addEventListener("mouseleave",()=>{if(S.ov==="exp"){clearTimeout(S.lt);S.lt=setTimeout(()=>collapse("Pointer left, island closed."),2000)}});
+pill.addEventListener("mouseenter",()=>clearTimeout(S.lt));
 function swipeOut(dx){S.sw=true;setTimeout(()=>{S.sw=false},300);const nl=$("nl");nl.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX("+(dx>0?90:-90)+"px)",opacity:0}],{duration:200}).finished.then(()=>{S.q.shift();if(!S.q.length){clearTimeout(S.tm);if(S.ov==="notif")S.ov=null}else arm();render();log("Swiped away. "+(S.q.length?S.q.length+" left.":""))})}
 let sx=null;
 $("nl").addEventListener("pointerdown",e=>{sx=e.clientX});
 $("nl").addEventListener("pointerup",e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)swipeOut(dx)});
-pill.addEventListener("click",e=>{if(S.skip){S.skip=false;return}if(S.hidden||S.paused)return;const m=mode();if(m==="music")expand();else if((m==="exp"||m==="list")&&!e.target.closest("button")&&!e.target.closest(".seek")){S.ov=null;render();log("Clicked the open island, so it closed.")}});
-pill.addEventListener("mouseleave",()=>{if(S.ov==="exp"||S.ov==="list"){clearTimeout(S.lt);S.lt=setTimeout(()=>{if(S.ov==="exp"||S.ov==="list"){S.ov=null;render();log("Pointer left, island collapsed.")}},2000)}});
-pill.addEventListener("mouseenter",()=>clearTimeout(S.lt));
-S.seekOK=true;
 function seekTo(e){if(!S.seekOK)return;const r=$("seek").getBoundingClientRect();const p=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));S.pos=Math.round(p*T[S.ti].d);render()}
 let sk=false;
-$("seek").addEventListener("pointerdown",e=>{if(!S.seekOK)return;sk=true;$("seek").setPointerCapture(e.pointerId);seekTo(e)});
+$("seek").addEventListener("pointerdown",e=>{if(!S.seekOK||!S.music)return;sk=true;$("seek").setPointerCapture(e.pointerId);seekTo(e)});
 $("seek").addEventListener("pointermove",e=>{if(sk)seekTo(e)});
 $("seek").addEventListener("pointerup",()=>{sk=false});
-$("seek").addEventListener("keydown",e=>{if(!S.seekOK)return;if(e.key==="ArrowRight"){S.pos=Math.min(T[S.ti].d,S.pos+5);render()}else if(e.key==="ArrowLeft"){S.pos=Math.max(0,S.pos-5);render()}});
-$("a-seek").onclick=()=>{S.seekOK=!S.seekOK;$("seek").classList.toggle("nos",!S.seekOK);$("a-seek").setAttribute("aria-pressed",S.seekOK);$("a-seek").textContent=S.seekOK?"Seek works":"Seek not supported";log(S.seekOK?"Click or drag the progress bar to seek.":"This player does not support seeking, so the bar is display only.")};
-$("a-conf").onclick=()=>{S.ov="conflict";render();log("Shown for 10 seconds at start if a hotkey is taken. The same error shows in Settings.");clearTimeout(S.ct);S.ct=setTimeout(()=>{if(S.ov==="conflict"){S.ov=null;render()}},10000)};
-$("bset").onclick=()=>{S.ov=null;render();log("This would open Settings with the hotkey row marked.")};
-$("a-rm").onclick=()=>{const on=document.body.classList.toggle("rm");$("a-rm").setAttribute("aria-pressed",on);log(on?"Reduced motion on: changes are instant.":"Reduced motion off.")};
 addEventListener("resize",layout);
 addEventListener("keydown",e=>{
-  if(e.ctrlKey&&e.altKey&&e.code==="KeyI"){e.preventDefault();expand()}
+  if(e.ctrlKey&&e.altKey&&e.code==="KeyI"){e.preventDefault();toggleOpen()}
   else if(e.ctrlKey&&e.altKey&&e.code==="KeyH"){e.preventDefault();$("a-hide").click()}
   else if(e.altKey&&!e.ctrlKey&&e.code==="KeyX"){e.preventDefault();clearAll()}
-  else if(e.key==="Escape"&&(S.ov==="exp"||S.ov==="list")){S.ov=null;render()}
+  else if(e.altKey&&!e.ctrlKey&&(e.code==="ArrowDown"||e.code==="ArrowUp")&&S.ov==="exp"){e.preventDefault();setPage(e.code==="ArrowDown"?1:0)}
 });
 setInterval(()=>{
-  $("clk").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  if(S.music&&S.playing){S.pos++;if(S.pos>=T[S.ti].d)nextT(1);else{$("xf").style.width=(S.pos/T[S.ti].d*100)+"%";$("xc").textContent=fmt(S.pos)}}
+  $("clk").textContent=now();
+  if(S.music&&S.playing){S.pos++;if(S.pos>=T[S.ti].d)nextT(1)}
+  render();
 },1000);
-$("clk").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-layout();render();
+$("clk").textContent=now();
+layout();renderList();render();
 </script>
 </body>
 </html>
