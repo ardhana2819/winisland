@@ -19,6 +19,9 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .pw{position:absolute;left:50%;top:0;transform-origin:top center}
 .pill{--acc:#fff;--accs:rgba(255,255,255,.18);--sec:#a6abb6;position:relative;background:#000;color:#fff;overflow:hidden;width:120px;height:34px;border-radius:17px;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:width .6s cubic-bezier(.34,1.4,.56,1),height .6s cubic-bezier(.34,1.4,.56,1),border-radius .6s cubic-bezier(.34,1.4,.56,1),opacity .3s,transform .5s cubic-bezier(.34,1.4,.56,1),background-color .45s}
 .pill.hid{opacity:0;transform:scale(.4) translateY(-14px);pointer-events:none}
+/* Artwork colour at the top fading to black at the bottom, only on the open music page. */
+.pill::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.6) 60%,#000 100%);opacity:0;transition:opacity .45s;pointer-events:none}
+.pill.tint::before{opacity:1}
 .l{position:absolute;left:50%;top:50%;width:var(--w);height:var(--h);margin-left:calc(var(--w) / -2);margin-top:calc(var(--h) / -2);box-sizing:border-box;display:flex;align-items:center;opacity:0;filter:blur(10px);transform:scale(.88);pointer-events:none;transition:opacity .2s,filter .25s,transform .35s}
 .l.on{opacity:1;filter:blur(0);transform:scale(1);pointer-events:auto;transition:opacity .3s .14s,filter .35s .14s,transform .5s .14s cubic-bezier(.34,1.4,.56,1)}
 .clk{width:100%;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -64,20 +67,23 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .dot::before{content:"";position:absolute;inset:-5px}
 .dot[aria-current=true]{height:14px;background:#fff}
 /* Notification cards, on the notifications page and in the banner. */
-.pg-notif{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 30px 0 16px}
-.card{background:#1c1c1e;border-radius:14px;height:50px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 12px;cursor:default}
-.ni{width:32px;height:32px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+/* Cards run edge to edge (10 from the island's edge, so their 18 radius follows the island's 28),
+   and the dots sit on the cards' right padding, which is wider so text never reaches them. */
+.pg-notif{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 10px}
+.card{background:#1c1c1e;border-radius:18px;height:52px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 22px 0 12px;cursor:default;min-width:0}
+.ni{width:32px;height:32px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;line-height:1;flex:none}
 .nb{flex:1;min-width:0;display:flex;flex-direction:column}
 .top{display:flex;align-items:baseline;gap:8px}
 .top b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top time{font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums;flex:none}
 .nb span{font-size:13px;color:#a6abb6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pg-notif.one{justify-content:flex-start;padding-top:14px}
-.pg-notif.one .card{height:auto;align-items:flex-start;padding:12px}
+.pg-notif.one{justify-content:flex-start;padding-top:10px}
+.pg-notif.one .card{height:auto;align-items:flex-start;padding:12px 22px 12px 12px}
 .pg-notif.one .nb span{white-space:normal;line-height:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .none{text-align:center;font-size:13px;color:#a6abb6}
 .l[data-m=notif]{padding:8px;cursor:pointer}
 .card.bn{flex:1;height:56px;border-radius:28px;padding:0 14px 0 10px;cursor:pointer}
+.card.bn .top time{display:none}
 .card.bn .ni{width:36px;height:36px;font-size:16px}
 .bd{background:#3a3a3c;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600;flex:none}
 .l[data-m=perm]{padding:0 10px 0 20px;gap:12px;font-size:13px}
@@ -208,6 +214,7 @@ function render(){
   pill.style.width=d[0]+"px";pill.style.height=d[1]+"px";pill.style.borderRadius=d[2]+"px";
   // Only the open music page is coloured; everything else stays black.
   pill.style.backgroundColor=(m==="exp"&&S.page===0)?hex(P.bg):"#000";
+  pill.classList.toggle("tint",m==="exp"&&S.page===0&&P!==BLACK_PALETTE);
   pill.style.setProperty("--acc",hex(P.acc));pill.style.setProperty("--accs",P.accs);pill.style.setProperty("--sec",P.sec);
   layers.forEach(l=>{const on=l.dataset.m===m;l.classList.toggle("on",on);l.inert=!on});
   $("track").style.transform="translateY("+(-PAGE_H*S.page)+"px)";

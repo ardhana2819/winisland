@@ -99,7 +99,7 @@ The separate notification list from v1.0 (the two "Notification list" rows in se
 
 - The two pages sit on a vertical track inside the island, each 190 high. Page 1 (music) is on top, page 2 (notifications) below. Switching moves the track up or down by 190; the island clips what is outside.
 - Page dots: at the right edge, 11 from the right, centered vertically, 5 apart. Each dot is 6 wide; the current one is 14 high and white, the other 6 high and white at 35 percent. The click area reaches 5 beyond each dot.
-- Content on both pages keeps 30 free on the right for the dots (16 on the left).
+- Music page content keeps 30 free on the right for the dots (16 on the left). On the notifications page the cards run under the dots instead (see Notification cards).
 
 ### Music page
 
@@ -124,15 +124,18 @@ The prototype works these out from the real cover pixels with the steps below; t
 
 Results with the prototype's sample covers: red cover gives background `#3F1216` and accent `#E85461`; blue gives `#12273F` and `#5498E8`; a pink shape on cream gives `#3F121D` and `#E15B7B`; black and white stripes give `#27272A` and white. Title contrast is 14.9:1 or more, grey text 7.7:1 or more and accent 4.5:1 or more in all four.
 
-Only the open music page is coloured. The compact pill, banner and notifications page stay black. When the song changes, the background and accents fade over 0.45 seconds; moving between pages fades the background between the colour and black over the same 0.45 seconds.
+Gradient [Diva, 1 Nov 2026]: the background colour shows fully at the top and fades to black at the bottom: over the background colour lies black at 0 percent at the top, 60 percent at 60 percent of the height, and 100 percent at the bottom. The controls therefore sit on near black, and the accent keeps the artwork's colour. The gradient only darkens, so every contrast above stays at least as high.
+
+Only the open music page is coloured. The compact pill, banner and notifications page stay black. When the song changes, the background and accents fade over 0.45 seconds; moving between pages fades the background and the gradient between the colour and black over the same 0.45 seconds.
 
 ### Notification cards
 
-- Card: `#1C1C1E`, radius 14, 50 high, padding 0 by 12, 10 gap. App icon circle 32 (letter 14 bold). Top line: sender 14 semibold (ellipsis) and, on the right, the arrival time 11 in `#A6ABB6`, 24-hour HH:MM. Second line: preview 13 in `#A6ABB6`, one line with ellipsis.
-- Notifications page: up to 3 cards, 6 apart, centered vertically, newest first.
-- One notification: the card sits at the top (14 from the top), grows to fit, padding 12, and shows up to 3 lines of preview at line height 18.
+- Card: `#1C1C1E`, radius 18, 52 high, padding 12 on the left and 22 on the right, 10 gap. App icon circle 32. Top line: sender 14 semibold (ellipsis) and, on the right, the arrival time 11 in `#A6ABB6`, 24-hour HH:MM. Second line: preview 13 in `#A6ABB6`, one line with ellipsis. Text never runs past the card: long text is cut with an ellipsis.
+- Notifications page: up to 3 cards, 6 apart, centered vertically, newest first. The cards run edge to edge, 10 from the island's sides [Diva, 1 Nov 2026], so their radius 18 follows the island's radius 28 (28 minus 10). The page dots sit on top of the cards' right padding; the wider right padding (22) keeps the time and the preview at least 6 away from the dots.
+- One notification: the card sits at the top (10 from the top), grows to fit, padding 12 (22 on the right), and shows up to 3 lines of preview at line height 18.
 - None: "No notifications", 13, `#A6ABB6`, centered.
-- Banner: the 420 x 72 black pill holds one card inset by 8: 56 high, radius 28, padding 0 14 0 10, icon circle 36 (letter 16 bold), the same text lines, and the +N badge on the right (`#3A3A3C` so it stands out on the card, radius 12, padding 3 by 9, text 12 semibold).
+- Banner: the 420 x 72 black pill holds one card inset by 8: 56 high, radius 28 (the pill's 36 minus 8), padding 0 14 0 10, icon circle 36, sender and preview, and the +N badge on the right (`#3A3A3C` so it stands out on the card, radius 12, padding 3 by 9, text 12 semibold). The banner shows no time: it is always "now". The card fills the pill's width and never grows past it.
+- App icons: the WhatsApp and Discord logos are centered in their circle, horizontally and vertically. The prototype's letters are stand-ins.
 - Clicking a card does nothing.
 
 ### Motion
