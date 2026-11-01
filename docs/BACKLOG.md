@@ -8,6 +8,8 @@ Size rule [Confirmed]: the island may change size for these features, but every 
 
 ## Features you want next
 
+F1 to F5 and the first-song artwork issue moved into the v1.1 draft of `docs/PRD.md` on 1 Nov 2026 (FR-21 to FR-27). The PRD is now the source of truth for them; the notes below stay for history. F6 stays here.
+
 ### F1. Paused music stays one click away [Confirmed]
 
 Today, when Spotify is paused, the island goes back to the clock, and the only way to play again is to open Spotify. Instead:
@@ -21,7 +23,7 @@ Today, when Spotify is paused, the island goes back to the clock, and the only w
 When Spotify is closed and there is no last song, the expanded music view shows an empty default instead of nothing.
 
 - [Proposed] A plain artwork placeholder, "Not playing" as the title, and dimmed controls that do nothing.
-- [Proposed] While Spotify is open but stopped, its media session usually still reports the last song: show that song, paused. Once Spotify is closed there is no session left, so the controls could not work; show the empty view.
+- [Confirmed 1 Nov 2026] While Spotify is open but stopped, its media session usually still reports the last song: show that song, paused. Once Spotify is closed there is no session left, so the controls could not work; show the empty view.
 - [Unverified] What Spotify reports after it has been open a long time with nothing played. Check during the build.
 
 ### F3. Two pages in the expanded island: music and notifications [Confirmed]
@@ -42,7 +44,7 @@ Replaces the old F1 (recent notifications when idle) and F2 (music controls plus
 The music view takes its colours from the song's artwork, similar to your reference (dark red island for a red cover), not an exact copy.
 
 - Solid dark background tinted with the artwork's main colour [Confirmed]. Not see-through, so text stays readable over bright and dark games.
-- Accent colour for the play or pause button, previous and next, the progress bar and the equalizer. You said this part can come later if it is hard. [Proposed] Do it in the same step; picking a brighter version of the same colour is not much extra work.
+- Accent colour for the play or pause button, previous and next, the progress bar and the equalizer. You said this part can come later if it is hard. [Confirmed 1 Nov 2026] Do it in the same step; picking a brighter version of the same colour is not much extra work.
 - [Proposed] Text stays white and light grey, and the background is darkened until it meets the normal contrast rule for small text (4.5 to 1).
 - [Proposed] No artwork means black, as in v1.0. When the song changes, the colour fades over.
 - [Proposed] The colour picking is plain logic in Core, with unit tests.
@@ -51,7 +53,7 @@ The music view takes its colours from the song's artwork, similar to your refere
 
 Each notification sits on its own rounded grey card inside the black island, like your reference: app icon, sender in bold, preview below, time on the right.
 
-- Applies to the notifications page (F3). [Proposed] Also to the banner, so they look the same.
+- Applies to the notifications page (F3). [Confirmed 1 Nov 2026] Also to the banner, so they look the same.
 - Exact card colour, radius, and spacing get decided in the prototype design pass.
 
 ### F6. Glass or blur look [Confirmed]
