@@ -1,6 +1,6 @@
 // IslandMusicPresenter.cs: keeps the music views on the island up to date.
 // Fills the compact music pill and the expanded controls from the island's state (or the empty
-// view when there is no music session, FR-24), moves the
+// view when there is no music session, FR-24) with the artwork's colors (FR-25), moves the
 // progress on once per second while the expanded island shows playing music (DESIGN_SPEC
 // section 7; nothing ticks otherwise), and sends the button presses to Spotify (FR-8, FR-11).
 
@@ -39,6 +39,13 @@ internal sealed class IslandMusicPresenter : IDisposable
         _controls.SeekRequested += (_, position) => _ = _music.SeekAsync(position);
     }
 
+    /// <summary>
+    /// The music page's colors (FR-25): from the artwork while a song with artwork is reported,
+    /// otherwise the black look (no artwork, or the empty view).
+    /// </summary>
+    public ArtworkPalette CurrentPalette =>
+        _island.Music is not null && _music.Artwork is not null ? _music.Palette : ArtworkPalette.Black;
+
     /// <summary>Call after every island change.</summary>
     public void Refresh()
     {
@@ -54,10 +61,14 @@ internal sealed class IslandMusicPresenter : IDisposable
             _controls.ShowEmpty();
         }
 
-        _pill.SetActive(_island.IsVisible && _island.View == IslandView.Music);
-        _controls.SetActive(_island.IsVisible && _island.View == IslandView.Expanded);
+        _controls.ApplyPalette(CurrentPalette);
 
-        bool needsTicks = music is { IsPlaying: true } && _island.View == IslandView.Expanded;
+        // Only the music page on screen animates and ticks; the notifications page hides it.
+        bool musicPageShown = _island.IsVisible && _island.View == IslandView.Expanded && _island.Page == ExpandedPage.Music;
+        _pill.SetActive(_island.IsVisible && _island.View == IslandView.Music);
+        _controls.SetActive(musicPageShown);
+
+        bool needsTicks = music is { IsPlaying: true } && musicPageShown;
         if (needsTicks && !_progressTimer.IsEnabled)
         {
             _progressTimer.Start();

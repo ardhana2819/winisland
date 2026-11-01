@@ -6,6 +6,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
@@ -30,6 +31,15 @@ public partial class EqualizerView : UserControl
     public EqualizerView()
     {
         InitializeComponent();
+    }
+
+    /// <summary>The bars' color: green in the compact pill, the accent on the music page (DESIGN_SPEC section 9).</summary>
+    public void SetBarBrush(Brush brush)
+    {
+        ArgumentNullException.ThrowIfNull(brush);
+        BarOne.Fill = brush;
+        BarTwo.Fill = brush;
+        BarThree.Fill = brush;
     }
 
     public void SetPlaying(bool isPlaying)

@@ -1,5 +1,6 @@
 <!--
-  EqualizerView.xaml: the three small green bars in the compact music pill.
+  EqualizerView.xaml: the three small bars, green in the compact music pill and in the accent
+  color on the music page (DESIGN_SPEC section 9; the color is set with SetBarBrush).
   DESIGN_SPEC section 5: three bars, 3 wide, 3 apart, up to 16 high, color #4ADE80 (section 4).
   The motion is in EqualizerView.xaml.cs.
 -->

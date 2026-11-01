@@ -2,14 +2,17 @@
   MusicControlsView.xaml: the music page of the expanded island, 420 x 190 (DESIGN_SPEC section 9).
   Section 9: 16 padding on the left and 30 on the right (room for the page dots), rows 14 apart,
   centered like the prototype. Section 5 for the rest:
-    Top row: artwork 64 square, radius 12, 14 gap, title and artist.
+    Top row: artwork 64 square, radius 12, 14 gap, title and artist, then the equalizer on the
+      right, 12 gap, in the accent color (section 9; the compact pill keeps its green one).
     Middle row: elapsed time, progress bar (4 high, radius 2), total time, 8 gap. The bar sits in
       a 16 high area; with seek support, hovering grows it to 6 high and shows a 10 round thumb.
     Bottom row: previous, play or pause, next, centered, 16 gap; buttons 44 across, icons 22.
-      Play or pause is a white circle with a black icon; the others have no background.
+      Play or pause is a circle of the accent at 22 percent with the icon in the accent; the
+      others have no background and the icon in the accent (section 9).
   Section 3: title 16 semibold (scrolls sideways when too long, see MarqueeText), artist 13,
   time labels 11 tabular.
-  Section 4: secondary text #A6ABB6, track #3A3A3C, fill #FFFFFF.
+  Colors (section 9, FR-25) are set from the artwork in MusicControlsView.xaml.cs: grey text,
+  fill, thumb, icons and the play circle. The track is white at 18 percent.
   Icons are the prototype's SVG paths, each inside a 24 x 24 Canvas like the SVG viewBox. Without
   that frame, WPF sizes a Path from (0,0) to its far edge and the Viewbox pushes the icon off center.
   Buttons never take keyboard focus (FR-3).
@@ -46,7 +49,7 @@
         <!-- Top row: artwork, title, artist -->
         <StackPanel Orientation="Horizontal">
             <Border x:Name="Artwork" Width="64" Height="64" CornerRadius="12" />
-            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center" Width="296">
+            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center" Width="269">
                 <music:MarqueeText x:Name="TitleText"
                                    AutomationProperties.AutomationId="ExpandedTitle"
                                    Foreground="#FFFFFF"
@@ -60,6 +63,7 @@
                            FontSize="13"
                            TextTrimming="CharacterEllipsis" />
             </StackPanel>
+            <music:EqualizerView x:Name="Equalizer" Margin="12,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
 
         <!-- Middle row: elapsed, progress bar, total. Hidden in the empty view (DESIGN_SPEC section 9). -->
@@ -88,7 +92,7 @@
                   MouseLeftButtonDown="OnSeekAreaMouseDown"
                   MouseMove="OnSeekAreaMouseMove"
                   MouseLeftButtonUp="OnSeekAreaMouseUp">
-                <Border x:Name="Track" Height="4" CornerRadius="2" Background="#3A3A3C" VerticalAlignment="Center" />
+                <Border x:Name="Track" Height="4" CornerRadius="2" Background="#2EFFFFFF" VerticalAlignment="Center" />
                 <Border x:Name="Fill" Height="4" CornerRadius="2" Background="#FFFFFF" VerticalAlignment="Center" HorizontalAlignment="Left" Width="0" />
                 <Canvas IsHitTestVisible="False">
                     <Ellipse x:Name="Thumb" Width="10" Height="10" Fill="#FFFFFF" Canvas.Top="3" Visibility="Hidden" />
@@ -109,21 +113,21 @@
             <Button x:Name="PreviousButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Previous track" Click="OnPreviousClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">
-                        <Path Fill="#FFFFFF" Data="M6 5h2v14H6zM20 5v14L9 12z" />
+                        <Path x:Name="PreviousIcon" Data="M6 5h2v14H6zM20 5v14L9 12z" />
                     </Canvas>
                 </Viewbox>
             </Button>
-            <Button x:Name="PlayPauseButton" Style="{StaticResource IslandButton}" Margin="16,0,16,0" Background="#FFFFFF" AutomationProperties.Name="Pause" Click="OnPlayPauseClick">
+            <Button x:Name="PlayPauseButton" Style="{StaticResource IslandButton}" Margin="16,0,16,0" AutomationProperties.Name="Pause" Click="OnPlayPauseClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">
-                        <Path x:Name="PlayPauseIcon" Fill="#000000" Data="M7 5h4v14H7zM13 5h4v14h-4z" />
+                        <Path x:Name="PlayPauseIcon" Data="M7 5h4v14H7zM13 5h4v14h-4z" />
                     </Canvas>
                 </Viewbox>
             </Button>
             <Button x:Name="NextButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Next track" Click="OnNextClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">
-                        <Path Fill="#FFFFFF" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
+                        <Path x:Name="NextIcon" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
                     </Canvas>
                 </Viewbox>
             </Button>
