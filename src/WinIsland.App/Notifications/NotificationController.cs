@@ -31,6 +31,7 @@ internal sealed class NotificationController : IDisposable
     private bool _isListening;
     private bool _promptShown;
     private int _loggedRecentCount;
+    private ImageSource? _whatsAppDesktopLogo;
 
     public NotificationController(IslandStateMachine island, Dispatcher dispatcher)
     {
@@ -46,10 +47,20 @@ internal sealed class NotificationController : IDisposable
         _island.Changed += (_, _) => LogRecentCount();
     }
 
-    /// <summary>The app's logo for a notification, or null to show the letter circle instead.</summary>
+    /// <summary>
+    /// The app's logo for a notification, or null to show the letter circle instead. The WhatsApp
+    /// Web app from Chrome sends no logo, so it borrows the WhatsApp desktop logo (Diva, 1 Nov 2026:
+    /// the WhatsApp logo, not a "W"). Desktop sends its logo with every notification, even its
+    /// "You may have new messages" while closed, so it is nearly always known.
+    /// </summary>
     public ImageSource? LogoFor(IslandNotification notification)
     {
         ArgumentNullException.ThrowIfNull(notification);
+        if (notification.FromBrowser && _whatsAppDesktopLogo is not null)
+        {
+            return _whatsAppDesktopLogo;
+        }
+
         return _logos.GetValueOrDefault(LogoKey(notification));
     }
 
@@ -140,6 +151,11 @@ internal sealed class NotificationController : IDisposable
             DateTimeOffset now = DateTimeOffset.Now;
             Trace.TraceInformation("Notification added: {0}{1}, id {2}, at {3:HH:mm:ss.fff}", notification.Source, notification.FromBrowser ? " Web" : string.Empty, notification.WindowsId, now);
             _logos[LogoKey(notification)] = logo;
+            if (notification.Source == NotificationSource.WhatsApp && !notification.FromBrowser && logo is not null)
+            {
+                _whatsAppDesktopLogo = logo;
+            }
+
             _island.AddNotification(notification, now);
         });
     }
