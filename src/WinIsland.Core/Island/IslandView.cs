@@ -10,7 +10,7 @@ public enum IslandView
     /// <summary>The compact music pill: artwork, song title, equalizer (DESIGN_SPEC section 5).</summary>
     Music,
 
-    /// <summary>The large island with music controls. Only possible while music is present.</summary>
+    /// <summary>The large island with music controls: playing, paused, or the empty view when there is no music session.</summary>
     Expanded,
 
     /// <summary>The warning banner shown at start when a hotkey is taken by another app (FR-5).</summary>

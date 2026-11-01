@@ -1,6 +1,10 @@
 // IslandStateMachine.cs: decides what the island should be doing, without drawing anything.
 // It holds the rules from the PRD so they can be unit tested:
-//   FR-2  expanding only works while music is present; a banner replaces the expanded island.
+//   FR-2  the click and hotkey 1 always expand, also from the clock (v1.1); a banner replaces the
+//         expanded island.
+//   FR-23 expanding after paused music went back to the clock shows the paused song again.
+//   FR-24 with no music session the expanded island shows the empty view, and Spotify closing
+//         while it is open switches it to that view instead of closing it.
 //   FR-5  hotkey 1 toggles expanded, hotkey 2 hides or shows, hotkey 3 hides banners.
 //   FR-6  pause for 1 hour, then return on its own; Resume ends it early; notifications that
 //         arrive while paused are dropped.
@@ -106,7 +110,10 @@ public sealed class IslandStateMachine
         }
     }
 
-    /// <summary>Hotkey 1 or a click on the compact music pill. Does nothing without music (FR-2).</summary>
+    /// <summary>
+    /// Hotkey 1 or a click on the compact island, clock or music (FR-2). Opens the music view:
+    /// the playing or paused song (FR-23), or the empty view without a music session (FR-24).
+    /// </summary>
     public void ToggleExpanded(DateTimeOffset now)
     {
         if (_overlay == IslandOverlay.Expanded)
@@ -115,13 +122,14 @@ public sealed class IslandStateMachine
             return;
         }
 
-        if (!IsVisible || !IsMusicPresent)
+        if (!IsVisible)
         {
             return;
         }
 
         _overlay = IslandOverlay.Expanded;
-        // While expanded, paused music stays; its 5 seconds start again when the island closes.
+        // A paused song counts as present again, so closing shows it for 5 seconds before the clock.
+        IsMusicPresent = Music is not null;
         _pausedMusicEndsAt = null;
         RaiseChanged();
     }
@@ -205,13 +213,10 @@ public sealed class IslandStateMachine
 
         if (music is null)
         {
-            // Spotify closed or stopped publishing: back to the clock, even when expanded.
+            // Spotify closed or stopped publishing: back to the clock. An open island stays open
+            // and shows the empty view instead (FR-24).
             IsMusicPresent = false;
             _pausedMusicEndsAt = null;
-            if (_overlay == IslandOverlay.Expanded)
-            {
-                _overlay = IslandOverlay.None;
-            }
         }
         else if (music.IsPlaying)
         {

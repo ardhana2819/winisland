@@ -1,5 +1,6 @@
 // IslandMusicPresenter.cs: keeps the music views on the island up to date.
-// Fills the compact music pill and the expanded controls from the island's state, moves the
+// Fills the compact music pill and the expanded controls from the island's state (or the empty
+// view when there is no music session, FR-24), moves the
 // progress on once per second while the expanded island shows playing music (DESIGN_SPEC
 // section 7; nothing ticks otherwise), and sends the button presses to Spotify (FR-8, FR-11).
 
@@ -46,6 +47,11 @@ internal sealed class IslandMusicPresenter : IDisposable
         {
             _pill.Show(music, _music.Artwork);
             _controls.Show(music, _music.Artwork, DateTimeOffset.Now);
+        }
+        else
+        {
+            // No music session: the expanded island shows the empty view (FR-24).
+            _controls.ShowEmpty();
         }
 
         _pill.SetActive(_island.IsVisible && _island.View == IslandView.Music);
