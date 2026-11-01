@@ -1,4 +1,7 @@
-// AppIconView.xaml.cs: shows the app logo, or the colored letter circle when there is none.
+// AppIconView.xaml.cs: shows the app icon on banners and cards.
+//   WhatsApp (desktop and Web): always the green circle with the white WhatsApp logo, drawn by
+//   WinIsland (Diva, 1 Nov 2026), so it looks the same whatever Windows sends.
+//   Other apps: the app logo from the notification, or the colored letter circle when there is none.
 // The design names colors for WhatsApp and Discord only; other apps use the design's dark grey
 // (#3A3A3C, the progress track color) so they stay quiet next to the two main apps.
 // The letter is turned into a shape and moved so its ink starts at (0,0); the Path is then
@@ -31,6 +34,14 @@ public partial class AppIconView : UserControl
     public void Show(IslandNotification notification, ImageSource? logo)
     {
         ArgumentNullException.ThrowIfNull(notification);
+
+        if (notification.Source == NotificationSource.WhatsApp)
+        {
+            Circle.Fill = WhatsAppGreen;
+            Letter.Data = WhatsAppGlyph.ForCircle(double.IsNaN(Width) ? ActualWidth : Width);
+            Letter.Visibility = Visibility.Visible;
+            return;
+        }
 
         if (logo is not null)
         {
