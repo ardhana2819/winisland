@@ -1,6 +1,6 @@
 # WinIsland PRD (v1.1)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), to be released as v1.1.0-beta.1. The look of the new states is still to be settled in the prototype design pass (Phase 6) before any v1.1 code.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026.
 
 Labels used below: **[Confirmed]** you decided it. **[Verified]** I checked it against Microsoft docs or another source this session. **[Proposed]** my recommendation, needs your yes. **[Unverified]** I believe it but it must be tested before we rely on it. **[v1.1]** new or changed in v1.1.
 
@@ -225,8 +225,9 @@ This is a recommendation from reading docs, not from building. A small spike wil
 **Unverified for v1.1**
 
 - U8. What Spotify's media session reports while Spotify is open but stopped, including right after it starts with nothing played yet. Decides whether FR-23 shows a last song or FR-24 shows the empty view in that case.
-- U9. Whether the island receives the mouse wheel and touchpad scrolling without being the active window. Windows sends the wheel to the window under the pointer when "Scroll inactive windows when I hover over them" is on (the Windows default). To test over your games, and to check the game keeps keyboard focus.
-- U10. Whether Alt+Up and Alt+Down can be registered while a game runs and whether any of your four games use them. They are only taken while the island is open.
+- U9. Whether the island receives the mouse wheel and touchpad scrolling without being the active window. Windows sends the wheel to the window under the pointer when "Scroll inactive windows when I hover over them" is on (the Windows default). To test over your games, and to check the game keeps keyboard focus. **Result (you, 1 Nov 2026):** scrolling and clicking the open island worked while playing a game.
+- U10. Whether Alt+Up and Alt+Down can be registered while a game runs and whether any of your four games use them. They are only taken while the island is open. **Result (you, 1 Nov 2026):** Alt+Up and Alt+Down worked while playing a game, with no problem in the game.
+- U8 was not tested on its own; paused and closed Spotify (FR-23, FR-24) worked in your Phase 7 test.
 
 ## 11. Data and integrations
 
@@ -327,3 +328,5 @@ v1.1 [Confirmed 1 Nov 2026]:
 8. v1.1 decisions, 1 Nov 2026 [Confirmed]: paused music reachable from the idle island; empty view once Spotify is closed, even if a last song is remembered; two vertical pages switched by scroll wheel, touchpad, or Alt+Up and Alt+Down; both pages 420 x 190; the pages replace the old "recent notifications when idle" and "music plus notifications" ideas; solid (not see-through) artwork colours, with accent colours for the controls in the same step; grey cards for both the page and the banner; shuffle and repeat and opening the app from a notification removed.
 9. Release name for v1.1: `v1.1.0-beta.1`, so the version number shows the new features. [Confirmed 1 Nov 2026]
 10. The detailed v1.1 proposals in FR-2, FR-15, FR-21, FR-22, FR-25 and the phase plan were all approved by you on 1 Nov 2026.
+11. Found in your v1.1 tests and fixed before release, 1 Nov 2026: WhatsApp posts the same notification again when its window is opened or minimized, which showed one message as two cards; the same text from the same chat within a minute now counts as one message. Line breaks inside a long group message now become spaces, so a card keeps one line. Notification events (app, Windows id, time, how many items the page holds; never sender or text) are now logged, to diagnose a "messages vanished" report that did not come back.
+12. v1.1 released as v1.1.0-beta.1 on 1 Nov 2026.
