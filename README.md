@@ -60,7 +60,7 @@ dotnet test WinIsland.slnx -c Release
 | `tests/WinIsland.Core.Tests` | Unit tests for Core. |
 | `spikes/` | Throwaway Phase 1 test programs. Never used by the app. |
 | `packaging/` | Package identity manifest and scripts. |
-| `docs/` | PRD, backlog, engineering standards, architecture, spike results. |
+| `docs/` | PRD, backlog, engineering standards, architecture, spike results, performance results. |
 
 More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
