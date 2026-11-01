@@ -67,6 +67,7 @@ In words:
 | `Notifications/` | `RawNotification.cs`, `IslandNotification.cs`, `NotificationSource.cs` | A Windows notification as read, and as the island shows it: app, sender or chat, preview. Memory only. |
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
 | `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
+| `Notifications/` | `WhatsAppWebPriority.cs` | WhatsApp Web comes first: drops desktop's "You may have new messages" and desktop notifications for chats Web covered in the last 10 minutes. |
 | `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, and the read or replaced rule for removals. |
 | `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 

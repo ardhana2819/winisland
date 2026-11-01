@@ -13,7 +13,7 @@ Personal project, private repository.
 - Windows 11 (64-bit).
 - Games in **windowed or borderless** mode. Exclusive fullscreen is not supported.
 - Spotify desktop app for music.
-- WhatsApp desktop (from the Microsoft Store) and Discord desktop for notifications.
+- For notifications: WhatsApp Web installed as an app from Chrome (Chrome menu > Cast, save and share > Install page as app), or WhatsApp desktop from the Microsoft Store, and Discord desktop. With both WhatsApp apps open, WinIsland shows each message once, from WhatsApp Web.
 
 ## Install on another PC
 

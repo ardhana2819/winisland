@@ -8,7 +8,10 @@
 //   notification from the same conversation is a replacement: the older message stays. A removal
 //   with nothing after it means the chat was read: every item from that conversation leaves.
 //   Repost rule (Diva's bug, 1 Nov 2026): the same text from the same conversation within a minute
-//   is one message that WhatsApp posted twice, so it stays one item.
+//   is one message that WhatsApp posted twice, so it stays one item. The same holds when WhatsApp
+//   desktop and WhatsApp Web both send it (v1.2): the later one replaces the earlier, and desktop
+//   notifications that WhatsApp Web already covers never arrive (WhatsAppWebPriority.cs), so the
+//   item kept is the Web one.
 // Time is passed in; NextTimeCheckAt says when the next time-based change is due.
 
 namespace WinIsland.Core.Notifications;
@@ -24,6 +27,7 @@ public sealed class NotificationFeed
     private readonly List<IslandNotification> _recent = [];
     private readonly List<IslandNotification> _waiting = [];
     private readonly List<PendingRead> _pendingReads = [];
+    private readonly WhatsAppWebPriority _whatsAppWeb = new();
 
     /// <summary>The last 3 notifications, newest first (FR-15).</summary>
     public IReadOnlyList<IslandNotification> Recent => _recent;
@@ -57,6 +61,13 @@ public sealed class NotificationFeed
     {
         ArgumentNullException.ThrowIfNull(notification);
         if (_recent.Any(item => item.WindowsId == notification.WindowsId))
+        {
+            return false;
+        }
+
+        // Checked before anything else: an ignored desktop notification must not count as WhatsApp
+        // swapping its notification, so a chat read in desktop still leaves (spike W7).
+        if (_whatsAppWeb.ShouldIgnore(notification, now))
         {
             return false;
         }
