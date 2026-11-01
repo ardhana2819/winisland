@@ -91,6 +91,9 @@ public partial class MusicControlsView : UserControl
     private void SetEmptyLook(bool isEmpty)
     {
         ProgressRow.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        // An empty artist line still takes a line of height and pushes "Not playing" above the
+        // artwork's middle, so the empty view leaves it out.
+        ArtistText.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
         ControlsRow.Opacity = isEmpty ? EmptyControlsOpacity : 1;
         ControlsRow.IsEnabled = !isEmpty;
     }
