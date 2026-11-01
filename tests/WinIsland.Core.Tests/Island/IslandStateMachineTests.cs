@@ -24,15 +24,37 @@ public class IslandStateMachineTests
     // ---- Expanding (FR-2) ----
 
     [Fact]
-    public void Expand_does_nothing_without_music()
+    public void Expand_from_the_clock_without_music_opens_the_empty_view()
     {
+        // v1.1 (FR-2, FR-24): replaces the v1.0 rule that expanding did nothing without music.
         IslandStateMachine island = new();
         ChangeCounter changes = CountChanges(island);
 
         island.ToggleExpanded(Now);
 
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Null(island.Music);
+        Assert.False(island.IsMusicPresent);
+        Assert.Equal(1, changes.Count);
+
+        island.ToggleExpanded(Now);
         Assert.Equal(IslandView.Compact, island.View);
-        Assert.Equal(0, changes.Count);
+        Assert.Null(island.NextTimeCheckAt);
+    }
+
+    [Fact]
+    public void Music_starting_while_the_empty_view_is_open_fills_it()
+    {
+        IslandStateMachine island = new();
+        island.ToggleExpanded(Now);
+
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now);
+
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.True(island.IsMusicPresent);
+
+        island.Collapse(Now);
+        Assert.Equal(IslandView.Music, island.View);
     }
 
     [Fact]
@@ -239,15 +261,44 @@ public class IslandStateMachineTests
     }
 
     [Fact]
-    public void Paused_music_after_the_5_seconds_cannot_be_expanded()
+    public void Paused_music_after_the_5_seconds_expands_again_with_the_paused_song()
+    {
+        // v1.1 (FR-23): replaces the v1.0 rule that paused music could not be expanded once the clock was back.
+        IslandStateMachine island = WithMusicPlaying();
+        island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
+        island.UpdateTime(Now.AddSeconds(5));
+        Assert.Equal(IslandView.Compact, island.View);
+
+        island.ToggleExpanded(Now.AddSeconds(6));
+
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Equal("Like a Stone", island.Music?.Title);
+        Assert.False(island.Music?.IsPlaying);
+        Assert.Null(island.NextTimeCheckAt);
+
+        // Closing shows the paused song for 5 seconds again, then the clock (section 13).
+        DateTimeOffset closedAt = Now.AddSeconds(20);
+        island.Collapse(closedAt);
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Equal(closedAt.AddSeconds(5), island.NextTimeCheckAt);
+
+        island.UpdateTime(closedAt.AddSeconds(5));
+        Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Playing_from_the_reopened_paused_song_keeps_the_music()
     {
         IslandStateMachine island = WithMusicPlaying();
         island.UpdateMusic(Track(PlaybackStatus.Paused), Now);
         island.UpdateTime(Now.AddSeconds(5));
-
         island.ToggleExpanded(Now.AddSeconds(6));
 
-        Assert.Equal(IslandView.Compact, island.View);
+        island.UpdateMusic(Track(PlaybackStatus.Playing), Now.AddSeconds(7));
+        island.Collapse(Now.AddSeconds(8));
+
+        Assert.Equal(IslandView.Music, island.View);
+        Assert.Null(island.NextTimeCheckAt);
     }
 
     [Fact]
@@ -264,16 +315,33 @@ public class IslandStateMachineTests
     }
 
     [Fact]
-    public void Music_session_closing_returns_to_the_clock_even_when_expanded()
+    public void Music_session_closing_returns_to_the_clock()
     {
         IslandStateMachine island = WithMusicPlaying();
-        island.ToggleExpanded(Now);
 
         island.UpdateMusic(null, Now);
 
         Assert.False(island.IsMusicPresent);
         Assert.Null(island.Music);
         Assert.Equal(IslandView.Compact, island.View);
+    }
+
+    [Fact]
+    public void Music_session_closing_while_expanded_keeps_the_island_open_on_the_empty_view()
+    {
+        // v1.1 (FR-24, section 13): replaces the v1.0 rule that closed the expanded island.
+        IslandStateMachine island = WithMusicPlaying();
+        island.ToggleExpanded(Now);
+
+        island.UpdateMusic(null, Now);
+
+        Assert.Equal(IslandView.Expanded, island.View);
+        Assert.Null(island.Music);
+        Assert.False(island.IsMusicPresent);
+
+        island.Collapse(Now);
+        Assert.Equal(IslandView.Compact, island.View);
+        Assert.Null(island.NextTimeCheckAt);
     }
 
     [Fact]

@@ -23,10 +23,18 @@ public sealed class SpotifyMediaSession : IDisposable
     // Album art is small; anything bigger than this is not worth holding in memory.
     private const ulong MaxArtworkBytes = 4 * 1024 * 1024;
 
+    // FR-27: for the first song Spotify can report the title before the picture is ready (no
+    // picture, or an empty one), and then send no further event while that song plays. So a missing
+    // picture is read again a few times, a second apart, instead of being given up on.
+    private const int MaxArtworkRetries = 5;
+    private static readonly TimeSpan ArtworkRetryDelay = TimeSpan.FromSeconds(1);
+
     private readonly GlobalSystemMediaTransportControlsSessionManager _manager;
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
     private GlobalSystemMediaTransportControlsSession? _session;
     private string? _artworkTrackKey;
+    private string? _missingArtworkTrackKey;
+    private int _artworkRetries;
     private bool _isDisposed;
 
     private SpotifyMediaSession(GlobalSystemMediaTransportControlsSessionManager manager)
@@ -193,13 +201,22 @@ public sealed class SpotifyMediaSession : IDisposable
         IRandomAccessStreamReference? thumbnail = properties.Thumbnail;
         if (thumbnail is null)
         {
-            // Spotify sometimes sends the picture a moment after the title; try again on the next event.
+            // Spotify sometimes sends the picture a moment after the title.
             ArtworkChanged?.Invoke(this, null);
+            RetryMissingArtwork(trackKey);
             return;
         }
 
         using IRandomAccessStreamWithContentType stream = await thumbnail.OpenReadAsync();
-        if (stream.Size == 0 || stream.Size > MaxArtworkBytes)
+        if (stream.Size == 0)
+        {
+            // Not ready yet. Do not remember the song as done, or its picture would never be read.
+            ArtworkChanged?.Invoke(this, null);
+            RetryMissingArtwork(trackKey);
+            return;
+        }
+
+        if (stream.Size > MaxArtworkBytes)
         {
             ArtworkChanged?.Invoke(this, null);
             _artworkTrackKey = trackKey;
@@ -209,5 +226,28 @@ public sealed class SpotifyMediaSession : IDisposable
         IBuffer buffer = await stream.ReadAsync(new global::Windows.Storage.Streams.Buffer((uint)stream.Size), (uint)stream.Size, InputStreamOptions.None);
         _artworkTrackKey = trackKey;
         ArtworkChanged?.Invoke(this, buffer.ToArray());
+    }
+
+    private void RetryMissingArtwork(string trackKey)
+    {
+        if (trackKey != _missingArtworkTrackKey)
+        {
+            _missingArtworkTrackKey = trackKey;
+            _artworkRetries = 0;
+        }
+
+        if (_artworkRetries >= MaxArtworkRetries)
+        {
+            return;
+        }
+
+        _artworkRetries++;
+        _ = RetryAfterDelayAsync();
+    }
+
+    private async Task RetryAfterDelayAsync()
+    {
+        await Task.Delay(ArtworkRetryDelay);
+        await RefreshAsync();
     }
 }

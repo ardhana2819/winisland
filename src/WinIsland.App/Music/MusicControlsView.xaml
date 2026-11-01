@@ -12,6 +12,8 @@
   Icons are the prototype's SVG paths, each inside a 24 x 24 Canvas like the SVG viewBox. Without
   that frame, WPF sizes a Path from (0,0) to its far edge and the Viewbox pushes the icon off center.
   Buttons never take keyboard focus (FR-3).
+  Empty view (FR-24, DESIGN_SPEC section 9): placeholder artwork, "Not playing", no progress row,
+  controls dimmed and not clickable.
 -->
 <UserControl x:Class="WinIsland.App.Music.MusicControlsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -59,8 +61,8 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Middle row: elapsed, progress bar, total -->
-        <Grid Margin="0,10,0,0">
+        <!-- Middle row: elapsed, progress bar, total. Hidden in the empty view (DESIGN_SPEC section 9). -->
+        <Grid x:Name="ProgressRow" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -101,8 +103,8 @@
                        AutomationProperties.AutomationId="TotalTime" />
         </Grid>
 
-        <!-- Bottom row: previous, play or pause, next -->
-        <StackPanel Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+        <!-- Bottom row: previous, play or pause, next. At 35 percent and not clickable in the empty view. -->
+        <StackPanel x:Name="ControlsRow" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="PreviousButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Previous track" Click="OnPreviousClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">

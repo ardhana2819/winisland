@@ -163,13 +163,13 @@ public partial class IslandWindow : Window
 
     /// <summary>
     /// A click on the pill that no button, the progress bar or the banner took (FR-2): the compact
-    /// music pill opens, the open island or list closes. A click on the clock does nothing.
+    /// clock or music pill opens (v1.1: the clock too, FR-23, FR-24), the open island or list closes.
     /// </summary>
     private void OnPillClicked(object sender, MouseButtonEventArgs e)
     {
         switch (_island.View)
         {
-            case IslandView.Music:
+            case IslandView.Compact or IslandView.Music:
                 _island.ToggleExpanded(DateTimeOffset.Now);
                 break;
             case IslandView.Expanded or IslandView.NotificationList:

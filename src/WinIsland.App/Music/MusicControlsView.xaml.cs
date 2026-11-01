@@ -3,7 +3,7 @@
 // play/pause and next (FR-8), and handles seeking with the mouse (FR-11): hover shows the larger
 // bar and thumb, click or drag moves it, and the new position is sent once when the button is
 // released, so Spotify is not flooded with requests while dragging. Without seek support the bar
-// is display only.
+// is display only. Without a music session it shows the empty view instead (FR-24).
 
 using System.Windows;
 using System.Windows.Automation;
@@ -20,6 +20,8 @@ public partial class MusicControlsView : UserControl
     private const double BarDips = 4;
     private const double HoverBarDips = 6;
     private const double ThumbRadiusDips = 5;
+    private const double EmptyControlsOpacity = 0.35;
+    private const string EmptyTitle = "Not playing";
     private const string PauseIconPath = "M7 5h4v14H7zM13 5h4v14h-4z";
     private const string PlayIconPath = "M7 5v14l12-7z";
 
@@ -49,6 +51,7 @@ public partial class MusicControlsView : UserControl
     {
         ArgumentNullException.ThrowIfNull(music);
         _music = music;
+        SetEmptyLook(false);
 
         TitleText.Text = SongText.TitleOf(music);
         ArtistText.Text = music.Artist;
@@ -64,6 +67,35 @@ public partial class MusicControlsView : UserControl
         }
 
         UpdateProgress(now);
+    }
+
+    /// <summary>The empty view when there is no music session, for example Spotify closed (FR-24).</summary>
+    public void ShowEmpty()
+    {
+        _music = null;
+        _dragFraction = null;
+        // Spotify can close in the middle of a drag; let go of the mouse so the island stays clickable.
+        if (SeekArea.IsMouseCaptured)
+        {
+            SeekArea.ReleaseMouseCapture();
+        }
+
+        SetEmptyLook(true);
+        TitleText.Text = EmptyTitle;
+        ArtistText.Text = string.Empty;
+        Artwork.Background = ArtworkBrush.For(null);
+        PlayPauseIcon.Data = PlayIcon;
+        AutomationProperties.SetName(PlayPauseButton, "Play");
+    }
+
+    private void SetEmptyLook(bool isEmpty)
+    {
+        ProgressRow.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        // An empty artist line still takes a line of height and pushes "Not playing" above the
+        // artwork's middle, so the empty view leaves it out.
+        ArtistText.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        ControlsRow.Opacity = isEmpty ? EmptyControlsOpacity : 1;
+        ControlsRow.IsEnabled = !isEmpty;
     }
 
     /// <summary>The title only scrolls while the expanded island is the view on screen.</summary>
