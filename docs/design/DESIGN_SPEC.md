@@ -1,6 +1,6 @@
 # WinIsland Design Spec (v1.1)
 
-Save as `docs/design/DESIGN_SPEC.md`. Save the prototype next to it as `docs/design/prototype.html` (open it in a browser to see and try the real motion). Source: the approved prototype, 30 Oct 2026, updated for v1.1 on 1 Nov 2026 (section 9, waiting for Diva's review). If this spec and the prototype disagree, the prototype wins for look and motion, and the PRD wins for behavior rules. Report the difference to Diva. `winisland-design-boards.html` is a snapshot of v1.0 only; for v1.1 states use the prototype.
+Save as `docs/design/DESIGN_SPEC.md`. Save the prototype next to it as `docs/design/prototype.html` (open it in a browser to see and try the real motion). Source: the approved prototype, 30 Oct 2026, updated for v1.1 and approved by Diva on 1 Nov 2026 (section 9). If this spec and the prototype disagree, the prototype wins for look and motion, and the PRD wins for behavior rules. Report the difference to Diva. `winisland-design-boards.html` is a snapshot of v1.0 only; for v1.1 states use the prototype.
 
 All sizes are in device-independent pixels (DIPs, what WPF uses), measured at the base scale for a 2560 DIP wide display. Values were read from the prototype code, so they are exact for the prototype. How well they carry over to WPF is not yet tested.
 
@@ -83,7 +83,7 @@ Track names, artist names, sender names, message text, and album art are fake. T
 
 ## 9. v1.1 changes (PRD FR-21 to FR-26)
 
-Waiting for Diva's review of the prototype. Where this section and sections 1 to 8 differ, this section wins for v1.1.
+Approved by Diva on 1 Nov 2026 after reviewing the prototype. Where this section and sections 1 to 8 differ, this section wins for v1.1.
 
 ### Sizes
 
