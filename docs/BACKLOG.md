@@ -66,6 +66,19 @@ A setting to switch the island from solid black to a glass or blur style, so it 
 - Open question: how it combines with the artwork colours from F4.
 - Test over bright and dark scenes in your four games before approving.
 
+### F7. Install and uninstall like a normal app [Confirmed]
+
+Today WinIsland comes as a zip with manual steps (README "Install on another PC" and "Uninstall"). Instead: a `WinIsland-Setup.exe` that installs it, and uninstalling from Windows Settings > Apps > Installed apps removes everything.
+
+- [Proposed] Option 1 first: a per-user installer (for example Inno Setup), no admin rights. It adds the files, the Start menu shortcut and start with Windows; uninstall removes them. Built by CI at release time. Without a paid signature, Windows shows a SmartScreen warning once per version (More info > Run anyway).
+- [Proposed] Option 2 later, for a public release or sale: a full MSIX package. Cleanest uninstall and instant notifications built in, but it must be signed, and start with Windows moves to StartupTask. App code stays the same. A public release also needs trusted signing (a bought certificate, Azure Trusted Signing, or the Microsoft Store), a check of the WhatsApp, Discord and Spotify trademark rules, and a privacy policy.
+- Changes the locked decision "Releases contain only the app zip" in `CLAUDE.md` and the PRD, so both need your approval first. A new dependency (the installer tool) also needs your approval.
+- Questions to answer before building:
+  1. Does uninstall also delete the settings and log folder (`%USERPROFILE%\.winisland`), or ask first?
+  2. Which publisher name shows in Installed apps, for example "Diva"?
+  3. Does the release keep the zip next to the installer, or only the installer?
+- Testing: remove the zip copy first (README "Uninstall"), then install, use it, uninstall, and check nothing is left.
+
 ## Removed
 
 - **Shuffle and repeat buttons** (was F3). Removed 1 Nov 2026 by you: the controls stay as they are now, to keep the view clean.
