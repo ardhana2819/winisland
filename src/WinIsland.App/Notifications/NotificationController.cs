@@ -3,6 +3,10 @@
 // prompt and keeps working as clock and music. Otherwise every new or removed notification is
 // moved to the UI thread and handed to the island's rules (Core). App logos are decoded small
 // and kept per app. Message text stays in memory only (FR-18).
+// Each notification event is logged with its app, its Windows id and the time to the millisecond,
+// and so is every change in how many items the notifications page holds. Never the sender or the
+// text (section 14: event types only). This is how Diva's "messages vanished" bug of 1 Nov 2026
+// is diagnosed: it shows whether WhatsApp's swap took longer than the 1 second replacement window.
 
 using System.Diagnostics;
 using System.Windows.Media;
@@ -26,6 +30,7 @@ internal sealed class NotificationController : IDisposable
     private WindowsNotificationListener? _listener;
     private bool _isListening;
     private bool _promptShown;
+    private int _loggedRecentCount;
 
     public NotificationController(IslandStateMachine island, Dispatcher dispatcher)
     {
@@ -38,6 +43,7 @@ internal sealed class NotificationController : IDisposable
         // was turned off, show the prompt once (PRD section 7: recover; FR-12).
         _accessCheck = new DispatcherTimer(DispatcherPriority.Background, dispatcher) { Interval = AccessCheckInterval };
         _accessCheck.Tick += async (_, _) => await CheckAccessAsync();
+        _island.Changed += (_, _) => LogRecentCount();
     }
 
     /// <summary>The app's logo for a notification, or null to show the letter circle instead.</summary>
@@ -131,14 +137,33 @@ internal sealed class NotificationController : IDisposable
         ImageSource? logo = arrival.AppLogo is null ? null : ArtworkImage.FromBytes(arrival.AppLogo);
         _dispatcher.BeginInvoke(() =>
         {
+            DateTimeOffset now = DateTimeOffset.Now;
+            Trace.TraceInformation("Notification added: {0}, id {1}, at {2:HH:mm:ss.fff}", notification.Source, notification.WindowsId, now);
             _logos[LogoKey(notification)] = logo;
-            _island.AddNotification(notification, DateTimeOffset.Now);
+            _island.AddNotification(notification, now);
         });
     }
 
     private void OnRemoved(object? sender, uint windowsId)
     {
-        _dispatcher.BeginInvoke(() => _island.RemoveNotification(windowsId, DateTimeOffset.Now));
+        _dispatcher.BeginInvoke(() =>
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+            Trace.TraceInformation("Notification removed: id {0}, at {1:HH:mm:ss.fff}", windowsId, now);
+            _island.RemoveNotification(windowsId, now);
+        });
+    }
+
+    private void LogRecentCount()
+    {
+        int count = _island.RecentNotifications.Count;
+        if (count == _loggedRecentCount)
+        {
+            return;
+        }
+
+        _loggedRecentCount = count;
+        Trace.TraceInformation("Notifications page now holds {0}, at {1:HH:mm:ss.fff}", count, DateTimeOffset.Now);
     }
 
     private static string LogoKey(IslandNotification notification) => $"{notification.Source}\u0001{notification.AppName}";
