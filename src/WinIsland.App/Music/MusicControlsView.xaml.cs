@@ -4,6 +4,9 @@
 // bar and thumb, click or drag moves it, and the new position is sent once when the button is
 // released, so Spotify is not flooded with requests while dragging. Without seek support the bar
 // is display only. Without a music session it shows the empty view instead (FR-24).
+// Colors come from the artwork (FR-25, DESIGN_SPEC section 9): the icons, play circle, progress
+// fill, thumb and equalizer use the accent, the artist and times the grey text color, and every
+// change fades over 0.45 s.
 
 using System.Windows;
 using System.Windows.Automation;
@@ -11,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using WinIsland.App.Animation;
 using WinIsland.Core.Music;
 
 namespace WinIsland.App.Music;
@@ -28,16 +32,68 @@ public partial class MusicControlsView : UserControl
     private static readonly Geometry PauseIcon = Geometry.Parse(PauseIconPath);
     private static readonly Geometry PlayIcon = Geometry.Parse(PlayIconPath);
 
+    // Owned, not frozen, so their colors can fade.
+    private readonly SolidColorBrush _accent = new(Colors.White);
+    private readonly SolidColorBrush _accentSoft = new(Colors.White);
+    private readonly SolidColorBrush _secondary = new(Colors.White);
+
     private NowPlaying? _music;
     private double _shownFraction;
     private double? _dragFraction;
+    private bool _isActive;
+    private ArtworkPalette _shownPalette = ArtworkPalette.Black;
 
     public MusicControlsView()
     {
         InitializeComponent();
         Artwork.Background = ArtworkBrush.For(null);
         SeekArea.SizeChanged += (_, _) => DrawProgress(_dragFraction ?? _shownFraction);
+
+        PreviousIcon.Fill = _accent;
+        PlayPauseIcon.Fill = _accent;
+        NextIcon.Fill = _accent;
+        Fill.Background = _accent;
+        Thumb.Fill = _accent;
+        PlayPauseButton.Background = _accentSoft;
+        ArtistText.Foreground = _secondary;
+        ElapsedText.Foreground = _secondary;
+        TotalText.Foreground = _secondary;
+        Equalizer.SetBarBrush(_accent);
+        ShowPalette(ArtworkPalette.Black, fade: false);
     }
+
+    /// <summary>The colors from the song's artwork, or ArtworkPalette.Black without one (FR-25).</summary>
+    public void ApplyPalette(ArtworkPalette palette)
+    {
+        ArgumentNullException.ThrowIfNull(palette);
+        if (palette == _shownPalette)
+        {
+            return;
+        }
+
+        _shownPalette = palette;
+        ShowPalette(palette, fade: true);
+    }
+
+    private void ShowPalette(ArtworkPalette palette, bool fade)
+    {
+        Color accent = ToColor(palette.Accent);
+        Color accentSoft = Color.FromArgb((byte)Math.Round(ArtworkPalette.AccentSoftOpacity * 255), accent.R, accent.G, accent.B);
+        Color secondary = ToColor(palette.Secondary);
+        if (fade)
+        {
+            ColorFade.To(_accent, accent);
+            ColorFade.To(_accentSoft, accentSoft);
+            ColorFade.To(_secondary, secondary);
+            return;
+        }
+
+        _accent.Color = accent;
+        _accentSoft.Color = accentSoft;
+        _secondary.Color = secondary;
+    }
+
+    private static Color ToColor(RgbColor color) => Color.FromRgb(color.R, color.G, color.B);
 
     public event EventHandler? PreviousClicked;
 
@@ -60,6 +116,7 @@ public partial class MusicControlsView : UserControl
 
         PlayPauseIcon.Data = music.IsPlaying ? PauseIcon : PlayIcon;
         AutomationProperties.SetName(PlayPauseButton, music.IsPlaying ? "Pause" : "Play");
+        Equalizer.SetPlaying(_isActive && music.IsPlaying);
         SeekArea.Cursor = music.CanSeek ? Cursors.Hand : Cursors.Arrow;
         if (!music.CanSeek)
         {
@@ -94,12 +151,25 @@ public partial class MusicControlsView : UserControl
         // An empty artist line still takes a line of height and pushes "Not playing" above the
         // artwork's middle, so the empty view leaves it out.
         ArtistText.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        Equalizer.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        if (isEmpty)
+        {
+            Equalizer.SetPlaying(false);
+        }
         ControlsRow.Opacity = isEmpty ? EmptyControlsOpacity : 1;
         ControlsRow.IsEnabled = !isEmpty;
     }
 
-    /// <summary>The title only scrolls while the expanded island is the view on screen.</summary>
-    public void SetActive(bool isActive) => TitleText.SetActive(isActive);
+    /// <summary>
+    /// The title only scrolls, and the equalizer only moves, while the expanded island is the view
+    /// on screen, so nothing animates unseen (PRD G4).
+    /// </summary>
+    public void SetActive(bool isActive)
+    {
+        _isActive = isActive;
+        TitleText.SetActive(isActive);
+        Equalizer.SetPlaying(isActive && _music is { IsPlaying: true });
+    }
 
     /// <summary>Moves the elapsed time and the bar on; called once per second while expanded (DESIGN_SPEC section 7).</summary>
     public void UpdateProgress(DateTimeOffset now)

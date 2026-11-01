@@ -61,6 +61,18 @@
             </Border.RenderTransform>
 
             <Grid>
+                <!-- Shade over the artwork color on the open music page, fading to black at the
+                     bottom (DESIGN_SPEC section 9). PillColors fades it in and out. -->
+                <Border x:Name="PillShade" IsHitTestVisible="False" Opacity="0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#00000000" Offset="0" />
+                            <GradientStop Color="#99000000" Offset="0.6" />
+                            <GradientStop Color="#FF000000" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
                 <!-- Compact, idle: the clock. -->
                 <Grid x:Name="ClockLayer"
                       Width="120"

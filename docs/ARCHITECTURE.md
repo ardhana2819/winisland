@@ -62,6 +62,7 @@ In words:
 | `Music/` | `NowPlaying.cs`, `PlaybackStatus.cs` | What the music player reports: title, artist, playing or paused, position, length, whether seeking works. |
 | `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
 | `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
+| `Music/` | `ArtworkPalette.cs`, `ColorMath.cs`, `RgbColor.cs` | Works out the music page's colors from the artwork's pixels: a dark background, an accent for the controls, and grey text, all checked for readable contrast. |
 | `Music/` | `MusicSource.cs` | Picks the Spotify media session and ignores browsers and other players. |
 | `Notifications/` | `RawNotification.cs`, `IslandNotification.cs`, `NotificationSource.cs` | A Windows notification as read, and as the island shows it: app, sender or chat, preview. Memory only. |
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
@@ -94,10 +95,12 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
-| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer. |
+| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page). |
 | App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
 | App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
-| App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the design gradient) and the title shown when a song has none. |
+| App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the grey placeholder with a music note) and the title shown when a song has none. |
+| App | `Music/ArtworkColors.cs` | Reads the album art at 64 x 64 and asks Core for its colors, once per song. |
+| App | `Island/PillColors.cs` | The artwork color behind the open music page, with the shade that fades it to black at the bottom; black everywhere else. |
 | App | `Island/IslandMusicPresenter.cs`, `Island/PointerLeaveCollapser.cs` | Keep the music views up to date, tick the progress once per second while expanded, and close the island 2 s after the pointer leaves. |
 | App | `Island/TopmostGuard.cs` | Every 2 s, checks the island is still on top (style and place among on-top windows) and non-activating, and repairs it if Windows moved it (seen after WhatsApp starts); each repair is logged. |
 | App | `Island/OutsideClickWatcher.cs` | While expanded, closes the island when a mouse button is pressed anywhere outside it. |
@@ -115,7 +118,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
 | App | `Island/PillShape.cs` | The island's size and corner radius for each view, from the design spec. |
 | App | `Island/PillAnimator.cs`, `Island/PillGeometry.cs` | The motion from the design: shape change, content swap with blur, hide and show. |
-| App | `Animation/CubicBezierEase.cs`, `Animation/Motion.cs` | Use the design's curves in WPF, and skip all motion when Windows animation effects are off. |
+| App | `Animation/CubicBezierEase.cs`, `Animation/Motion.cs`, `Animation/ColorFade.cs` | Use the design's curves in WPF, fade colors, and skip all motion when Windows animation effects are off. |
 
 The island window never changes size. It is big enough for the largest island shape, and the clear parts let clicks through to the game. Resizing a transparent window during an animation would be slow.
 

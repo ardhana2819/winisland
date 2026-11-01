@@ -1,7 +1,7 @@
 // MusicController.cs: connects the Spotify media session to the island.
 // Windows reports music changes on background threads; this moves each report to the UI thread
-// and hands it to the island's rules (Core), decodes the album art, and forwards the button
-// presses back to Spotify.
+// and hands it to the island's rules (Core), decodes the album art and works out its colors
+// (FR-25), and forwards the button presses back to Spotify.
 
 using System.Diagnostics;
 using System.Windows.Media;
@@ -34,6 +34,9 @@ internal sealed class MusicController : IDisposable
     public event EventHandler? ArtworkChanged;
 
     public ImageSource? Artwork { get; private set; }
+
+    /// <summary>The music page's colors from the album art; Black without a picture.</summary>
+    public ArtworkPalette Palette { get; private set; } = ArtworkPalette.Black;
 
     /// <summary>
     /// Connects to the Windows media session. If Windows refuses (rare, for example right after
@@ -92,11 +95,13 @@ internal sealed class MusicController : IDisposable
 
     private void OnArtworkChanged(object? sender, byte[]? bytes)
     {
-        // Decode off the UI thread; the frozen image can then be used on the UI thread.
+        // Decode and work out the colors off the UI thread; the frozen image can then be used on it.
         ImageSource? image = ArtworkImage.FromBytes(bytes);
+        ArtworkPalette palette = image is null ? ArtworkPalette.Black : ArtworkColors.FromBytes(bytes);
         _dispatcher.BeginInvoke(() =>
         {
             Artwork = image;
+            Palette = palette;
             ArtworkChanged?.Invoke(this, EventArgs.Empty);
         });
     }

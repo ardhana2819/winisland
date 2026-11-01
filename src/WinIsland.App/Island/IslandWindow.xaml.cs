@@ -18,6 +18,7 @@ using WinIsland.App.Music;
 using WinIsland.App.Notifications;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
+using WinIsland.Core.Music;
 using WinIsland.Platform.Hotkeys;
 using WinIsland.Platform.Windows;
 
@@ -39,6 +40,7 @@ public partial class IslandWindow : Window
     private readonly PermissionPromptBehavior _permissionPrompt;
     private readonly HotkeySet _startHotkeys;
     private readonly PageScroll _pageScroll = new();
+    private readonly PillColors _pillColors;
     private ExpandedKeys? _expandedKeys;
     private TopmostGuard? _topmostGuard;
     private IslandView _shownView = IslandView.Compact;
@@ -63,6 +65,8 @@ public partial class IslandWindow : Window
         _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
         _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ExpandedLayer.Notifications);
         ExpandedLayer.PageRequested += (_, page) => _island.ShowPage(page);
+        _pillColors = new PillColors(Pill, PillShade);
+        _music.ArtworkChanged += (_, _) => UpdatePillColors();
         _permissionPrompt = new PermissionPromptBehavior(island, PermissionLayer);
 
         _conflictTimer = new DispatcherTimer { Interval = ConflictBannerDuration };
@@ -216,6 +220,7 @@ public partial class IslandWindow : Window
 
         IslandView view = _island.View;
         PillShape shape = PillShape.For(view);
+        UpdatePillColors();
         // Slide only between pages of an island that is already open; otherwise jump to the page.
         ExpandedLayer.ShowPage(_island.Page, slide: _shownView == IslandView.Expanded && view == IslandView.Expanded);
 
@@ -236,6 +241,14 @@ public partial class IslandWindow : Window
             _animator.SetVisible(_island.IsVisible);
             _shownVisible = _island.IsVisible;
         }
+    }
+
+    /// <summary>The artwork color behind the open music page; black everywhere else (FR-25).</summary>
+    private void UpdatePillColors()
+    {
+        ArtworkPalette palette = _musicPresenter.CurrentPalette;
+        bool onMusicPage = _island.View == IslandView.Expanded && _island.Page == ExpandedPage.Music;
+        _pillColors.Show(onMusicPage && palette != ArtworkPalette.Black, palette);
     }
 
     private FrameworkElement LayerFor(IslandView view)
