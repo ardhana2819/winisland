@@ -4,6 +4,7 @@
 // step with the island's state. Closing the island window closes the whole app (AC-9).
 
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -54,7 +55,9 @@ public partial class App : Application
         Trace.Listeners.Add(new ErrorLogFile(SettingsFile.FolderPath));
         Trace.AutoFlush = true;
         CrashGuard.Install(Dispatcher);
-        Trace.TraceInformation("WinIsland {0} started", typeof(App).Assembly.GetName().Version);
+        // The informational version keeps the "-beta.1" part; the plain assembly version cannot hold it.
+        string version = typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+        Trace.TraceInformation("WinIsland {0} started", version);
 
         IslandStateMachine island = new();
         AppSettings saved = SettingsController.LoadSaved();

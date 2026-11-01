@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**MVP v1.0 complete.** All PRD v1.0 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide), and a Settings window (tray > Settings) that also turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Beta (v1.0.0-beta.1).** WinIsland is ready to use, but still in development: more features are planned. All PRD v1.0 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, WhatsApp and Discord notifications (banner, +N, last 3 list, Alt+X to hide), and a Settings window (tray > Settings) that also turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 
@@ -18,8 +18,9 @@ Personal project, private repository.
 ## Install on another PC
 
 1. Sign in to GitHub in your browser (the repository is private).
-2. Open the repository's **Releases** page and download `WinIsland-vX.Y.Z-win-x64.zip` (about 77 MB).
-   Or, with GitHub CLI: `gh release download --repo ardhana2819/WinIsland --pattern "*.zip"`
+2. Open the repository's **Releases** page and download `WinIsland-<version>-win-x64.zip` (about 83 MB) from the newest release. Beta releases are marked **Pre-release**.
+   Or, with GitHub CLI, naming the version: `gh release download v1.0.0-beta.1 --repo ardhana2819/WinIsland --pattern "*.zip"`
+   (without a version, GitHub CLI only looks at releases that are not pre-releases).
 3. Right-click the zip > **Properties** > tick **Unblock** > OK. Windows marks downloaded files, and without this the setup scripts in step 5 are refused.
 4. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
    No .NET install is needed. The build is self-contained.
@@ -72,7 +73,7 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 3. Run format, build, and tests locally.
 4. Push the branch and open a pull request into `main`. CI runs format, build, and tests.
 5. After review and approval, squash merge and delete the branch.
-6. Pushing a tag like `v1.0.0` builds a release automatically.
+6. Pushing a tag like `v1.0.0-beta.1` builds a release automatically. A tag with `-beta` becomes a pre-release.
 
 **One-time setup per clone:** run `git config core.hooksPath .githooks`. This turns on a local hook that refuses pushes to `main`. It is a safety net on your own PC only. GitHub does not enforce branch protection on free private repositories, and the hook can be skipped with `git push --no-verify`.
 
