@@ -1,5 +1,5 @@
 // SettingsFile.cs: reads and writes WinIsland's settings file (PRD FR-19, "saved locally"):
-// %LOCALAPPDATA%\WinIsland\settings.json, for this Windows user only. It holds settings only,
+// %USERPROFILE%\.winisland\settings.json, for this Windows user only. It holds settings only,
 // never message text (FR-18, AC-9).
 // Saving writes a temporary file first and then swaps it in, so a crash or power cut in the
 // middle of saving can never leave a half-written settings file.
