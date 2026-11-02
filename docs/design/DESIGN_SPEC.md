@@ -228,7 +228,8 @@ Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
 
 - Settings "Look": Solid (default, today's `#000000`) or Glass.
 - Glass background: Windows' host backdrop blur of what is behind the island, no tint, no edge line. The blur has the island's exact rounded shape with smooth edges and follows every shape change in the same frame.
-- White text on Glass gets a soft dark shadow: black, blur radius 8, no offset, 70 percent opacity.
+- Text on Glass gets a small soft shadow: black, blur radius 3, 1 down, 45 percent opacity. A larger glow (radius 8, 70 percent) looked like a dark box around each line in the prototype. [Diva, 2 Nov 2026]
+- Second lines on Glass (message previews, times, "N messages", the back chevron) are white at 85 percent instead of `#A6ABB6`, which disappears over bright games. [Diva, 2 Nov 2026]
 - Cards on Glass (banners, notification cards, opened chat rows): white at 14 percent instead of `#1C1C1E`. Peeking stacked cards: white at 10 and 6 percent, drawn only where they peek out below the card, because the card above is see-through.
 - Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork.
 - Unchanged on Glass: the page dots and the unread dot.

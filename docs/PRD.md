@@ -262,7 +262,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Clearing from Windows does not mark the message as read in WhatsApp or Discord.
 - FR-37. Glass look. [Confirmed 2 Nov 2026: a Solid or Glass choice; spike G1 to G5 passed 2 Nov 2026]
   - Settings gets "Look": Solid (today's black, the default) or Glass.
-  - Glass: Windows' own blur of what is behind the island, light, with no dark tint and no light edge, and a soft dark shadow behind white text so it stays readable over bright games. [Confirmed by Diva in spike rounds 5, 9 and 10: tint 0 like her TranslucentTB taskbar, the shadow, no edge line]
+  - Glass: Windows' own blur of what is behind the island, light, with no dark tint and no light edge, a small soft shadow behind text, and near-white second lines instead of grey, so text stays readable over bright games. [Confirmed by Diva in spike rounds 5, 9 and 10: tint 0 like her TranslucentTB taskbar, the shadow, no edge line]
   - How: the blur is Windows.UI.Composition's host backdrop brush (documented), clipped to the island's rounded shape with smooth edges, in a second window right behind the island. The second window never takes focus and clicks pass through it. Windows draws the blur; WinIsland never captures the screen (section 7). [Verified by spike, docs/spike-results.md]
   - The blur follows every shape change of the island (open, close, banners, size change) in the same frame. [Verified in spike G3 at 30 fps]
   - If Windows refuses the blur (for example right after sign-in, or a Windows update changes it), the island quietly shows the Solid look instead, logs the error type, and tries Glass again on the next start. It never shows a grey or black box. [Proposed]
