@@ -16,8 +16,10 @@
   Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
   layer is visible; PillAnimator swaps them.
   Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1, FR-32).
-  IslandGrowScale is only used while the island size changes (IslandResizeAnimator); it grows
-  from the top center, where the island hangs.
+  IslandGrowScale is only used while the island size changes (IslandResizeAnimator). It sits on
+  IslandFrame, which always fills the window, so it grows from the window's top center, where the
+  island hangs. On IslandRoot itself the grow center would be worked out from the unscaled 480
+  width and land left of center (seen in Diva's video, 2 Nov 2026).
   No drop shadow: DESIGN_SPEC section 4 makes it optional, and leaving it out keeps the window light.
 -->
 <Window x:Class="WinIsland.App.Island.IslandWindow"
@@ -35,176 +37,177 @@
         ShowInTaskbar="False"
         ShowActivated="False"
         Focusable="False">
-    <Grid x:Name="IslandRoot"
-          Width="480"
-          Height="230"
-          HorizontalAlignment="Center"
-          VerticalAlignment="Top"
-          RenderTransformOrigin="0.5,0">
-        <Grid.LayoutTransform>
-            <ScaleTransform x:Name="IslandScaleTransform" ScaleX="1" ScaleY="1" />
-        </Grid.LayoutTransform>
+    <Grid x:Name="IslandFrame" RenderTransformOrigin="0.5,0">
         <Grid.RenderTransform>
             <ScaleTransform x:Name="IslandGrowScale" ScaleX="1" ScaleY="1" />
         </Grid.RenderTransform>
+        <Grid x:Name="IslandRoot"
+              Width="480"
+              Height="230"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Top">
+            <Grid.LayoutTransform>
+                <ScaleTransform x:Name="IslandScaleTransform" ScaleX="1" ScaleY="1" />
+            </Grid.LayoutTransform>
 
-        <Border x:Name="Pill"
-                Width="120"
-                Height="34"
-                CornerRadius="17"
-                Margin="0,12,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Background="#000000"
-                RenderTransformOrigin="0.5,0.5"
-                MouseLeftButtonUp="OnPillClicked"
-                MouseWheel="OnPillMouseWheel">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <TranslateTransform x:Name="PillOffset" />
-                    <ScaleTransform x:Name="PillScale" />
-                </TransformGroup>
-            </Border.RenderTransform>
+            <Border x:Name="Pill"
+                    Width="120"
+                    Height="34"
+                    CornerRadius="17"
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Background="#000000"
+                    RenderTransformOrigin="0.5,0.5"
+                    MouseLeftButtonUp="OnPillClicked"
+                    MouseWheel="OnPillMouseWheel">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <TranslateTransform x:Name="PillOffset" />
+                        <ScaleTransform x:Name="PillScale" />
+                    </TransformGroup>
+                </Border.RenderTransform>
 
-            <Grid>
-                <!-- Shade over the artwork color on the open music page, fading to black at the
-                     bottom (DESIGN_SPEC section 9). PillColors fades it in and out. -->
-                <Border x:Name="PillShade" IsHitTestVisible="False" Opacity="0">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#00000000" Offset="0" />
-                            <GradientStop Color="#99000000" Offset="0.6" />
-                            <GradientStop Color="#FF000000" Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
+                <Grid>
+                    <!-- Shade over the artwork color on the open music page, fading to black at the
+                         bottom (DESIGN_SPEC section 9). PillColors fades it in and out. -->
+                    <Border x:Name="PillShade" IsHitTestVisible="False" Opacity="0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#00000000" Offset="0" />
+                                <GradientStop Color="#99000000" Offset="0.6" />
+                                <GradientStop Color="#FF000000" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
 
-                <!-- Compact, idle: the clock. -->
-                <Grid x:Name="ClockLayer"
-                      Width="120"
-                      Height="34"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      RenderTransformOrigin="0.5,0.5">
-                    <Grid.RenderTransform>
-                        <ScaleTransform />
-                    </Grid.RenderTransform>
-                    <TextBlock x:Name="ClockLabel"
-                               AutomationProperties.AutomationId="ClockText"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="#FFFFFF"
-                               FontFamily="Segoe UI Variable Text, Segoe UI"
-                               FontSize="15"
-                               FontWeight="SemiBold"
-                               Typography.NumeralAlignment="Tabular" />
-                    <!-- Unread dot (FR-33): 12 from the right edge, the clock stays centered. -->
-                    <notifications:UnreadDot x:Name="ClockUnreadDot"
-                                             HorizontalAlignment="Right"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,12,0" />
-                </Grid>
-
-                <!-- Hotkey conflict banner. Starts hidden. Change opens Settings (DESIGN_SPEC section 2). -->
-                <Grid x:Name="ConflictLayer"
-                      Width="400"
-                      Height="52"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      Opacity="0"
-                      IsHitTestVisible="False"
-                      RenderTransformOrigin="0.5,0.5">
-                    <Grid.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </Grid.RenderTransform>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Margin="16,0,16,0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Viewbox Width="20" Height="20" VerticalAlignment="Center">
-                            <Canvas Width="24" Height="24">
-                                <Path Fill="#FBBF24" Data="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z" />
-                            </Canvas>
-                        </Viewbox>
-                        <TextBlock x:Name="ConflictLabel"
-                                   AutomationProperties.AutomationId="ConflictText"
-                                   Margin="10,0,0,0"
-                                   MaxWidth="240"
+                    <!-- Compact, idle: the clock. -->
+                    <Grid x:Name="ClockLayer"
+                          Width="120"
+                          Height="34"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <ScaleTransform />
+                        </Grid.RenderTransform>
+                        <TextBlock x:Name="ClockLabel"
+                                   AutomationProperties.AutomationId="ClockText"
+                                   HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Foreground="#FFFFFF"
                                    FontFamily="Segoe UI Variable Text, Segoe UI"
-                                   FontSize="13"
-                                   TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                    <Button Grid.Column="1"
-                            Margin="0,0,10,0"
-                            VerticalAlignment="Center"
-                            Focusable="False"
-                            Cursor="Hand"
-                            AutomationProperties.Name="Change"
-                            Click="OnConflictChangeClicked">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="#FFFFFF" CornerRadius="16" Padding="16,7,16,7">
-                                    <TextBlock Text="Change"
-                                               Foreground="#000000"
-                                               FontFamily="Segoe UI Variable Text, Segoe UI"
-                                               FontSize="13"
-                                               FontWeight="SemiBold" />
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Typography.NumeralAlignment="Tabular" />
+                        <!-- Unread dot (FR-33): 12 from the right edge, the clock stays centered. -->
+                        <notifications:UnreadDot x:Name="ClockUnreadDot"
+                                                 HorizontalAlignment="Right"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,12,0" />
+                    </Grid>
+
+                    <!-- Hotkey conflict banner. Starts hidden. Change opens Settings (DESIGN_SPEC section 2). -->
+                    <Grid x:Name="ConflictLayer"
+                          Width="400"
+                          Height="52"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Opacity="0"
+                          IsHitTestVisible="False"
+                          RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </Grid.RenderTransform>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="16,0,16,0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Viewbox Width="20" Height="20" VerticalAlignment="Center">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="#FBBF24" Data="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z" />
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock x:Name="ConflictLabel"
+                                       AutomationProperties.AutomationId="ConflictText"
+                                       Margin="10,0,0,0"
+                                       MaxWidth="240"
+                                       VerticalAlignment="Center"
+                                       Foreground="#FFFFFF"
+                                       FontFamily="Segoe UI Variable Text, Segoe UI"
+                                       FontSize="13"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center"
+                                Focusable="False"
+                                Cursor="Hand"
+                                AutomationProperties.Name="Change"
+                                Click="OnConflictChangeClicked">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="#FFFFFF" CornerRadius="16" Padding="16,7,16,7">
+                                        <TextBlock Text="Change"
+                                                   Foreground="#000000"
+                                                   FontFamily="Segoe UI Variable Text, Segoe UI"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                    <!-- Compact, music: artwork, title, equalizer. -->
+                    <music:MusicPillView x:Name="MusicLayer"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         Opacity="0"
+                                         IsHitTestVisible="False"
+                                         RenderTransformOrigin="0.5,0.5">
+                        <music:MusicPillView.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </music:MusicPillView.RenderTransform>
+                    </music:MusicPillView>
+
+                    <!-- Expanded: the music and notifications pages. -->
+                    <island:ExpandedIslandView x:Name="ExpandedLayer"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Opacity="0"
+                                               IsHitTestVisible="False"
+                                               RenderTransformOrigin="0.5,0.5">
+                        <island:ExpandedIslandView.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </island:ExpandedIslandView.RenderTransform>
+                    </island:ExpandedIslandView>
+
+                    <!-- Notification banner. -->
+                    <notifications:NotificationBannerView x:Name="BannerLayer"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Opacity="0"
+                                                          IsHitTestVisible="False"
+                                                          RenderTransformOrigin="0.5,0.5">
+                        <notifications:NotificationBannerView.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </notifications:NotificationBannerView.RenderTransform>
+                    </notifications:NotificationBannerView>
+
+                    <!-- Permission prompt. -->
+                    <notifications:PermissionPromptView x:Name="PermissionLayer"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Opacity="0"
+                                                        IsHitTestVisible="False"
+                                                        RenderTransformOrigin="0.5,0.5">
+                        <notifications:PermissionPromptView.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </notifications:PermissionPromptView.RenderTransform>
+                    </notifications:PermissionPromptView>
                 </Grid>
-                <!-- Compact, music: artwork, title, equalizer. -->
-                <music:MusicPillView x:Name="MusicLayer"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center"
-                                     Opacity="0"
-                                     IsHitTestVisible="False"
-                                     RenderTransformOrigin="0.5,0.5">
-                    <music:MusicPillView.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </music:MusicPillView.RenderTransform>
-                </music:MusicPillView>
-
-                <!-- Expanded: the music and notifications pages. -->
-                <island:ExpandedIslandView x:Name="ExpandedLayer"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Opacity="0"
-                                           IsHitTestVisible="False"
-                                           RenderTransformOrigin="0.5,0.5">
-                    <island:ExpandedIslandView.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </island:ExpandedIslandView.RenderTransform>
-                </island:ExpandedIslandView>
-
-                <!-- Notification banner. -->
-                <notifications:NotificationBannerView x:Name="BannerLayer"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      Opacity="0"
-                                                      IsHitTestVisible="False"
-                                                      RenderTransformOrigin="0.5,0.5">
-                    <notifications:NotificationBannerView.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </notifications:NotificationBannerView.RenderTransform>
-                </notifications:NotificationBannerView>
-
-                <!-- Permission prompt. -->
-                <notifications:PermissionPromptView x:Name="PermissionLayer"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Opacity="0"
-                                                    IsHitTestVisible="False"
-                                                    RenderTransformOrigin="0.5,0.5">
-                    <notifications:PermissionPromptView.RenderTransform>
-                        <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
-                    </notifications:PermissionPromptView.RenderTransform>
-                </notifications:PermissionPromptView>
-            </Grid>
-        </Border>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
