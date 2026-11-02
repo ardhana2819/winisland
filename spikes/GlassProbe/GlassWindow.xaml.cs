@@ -185,19 +185,8 @@ public partial class GlassWindow : Window
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
         int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
 
-        // Also limit the blur itself to the pill, in case DWM draws the blur outside the window region.
-        IntPtr blurRegion = NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner);
-        NativeMethods.DwmBlurBehind blurBehind = new()
-        {
-            Flags = NativeMethods.DwmBbEnable | NativeMethods.DwmBbBlurRegion,
-            Enable = 1,
-            BlurRegion = blurRegion,
-        };
-        int blurResult = NativeMethods.DwmEnableBlurBehindWindow(_handle, ref blurBehind);
-        NativeMethods.DeleteObject(blurRegion);
-
         int boxType = NativeMethods.GetWindowRgnBox(_handle, out NativeMethods.Rect box);
-        _regionInfo = $"region set {setResult}, box type {boxType} {box.Right - box.Left}x{box.Bottom - box.Top}, blur region 0x{blurResult:X8}";
+        _regionInfo = $"region set {setResult}, box type {boxType} {box.Right - box.Left}x{box.Bottom - box.Top}";
         ShowStatus();
     }
 
