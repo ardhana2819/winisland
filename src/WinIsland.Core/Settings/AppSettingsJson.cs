@@ -1,6 +1,6 @@
 // AppSettingsJson.cs: turns the settings into the text saved on disk (PRD FR-19) and back.
 // The file holds settings only, never message text (FR-18, AC-9). Hotkeys are saved as readable
-// text ("Ctrl+Alt+I"), the island size as its name ("Medium") and the banner time in whole
+// text ("Ctrl+Alt+I"), the island size and the look as their names ("Medium", "Solid") and the banner time in whole
 // seconds, so the file is easy to read and fix by
 // hand. Anything missing, unreadable or breaking a rule falls back to its default, so a damaged
 // file never stops WinIsland from starting.
@@ -41,6 +41,7 @@ public static class AppSettingsJson
             ClearFromWindows = settings.Notifications.ClearFromWindows,
             LaunchAtStartup = settings.LaunchAtStartup,
             IslandSize = settings.Size.ToString(),
+            Look = settings.Look.ToString(),
         };
 
         return JsonSerializer.Serialize(file, Options);
@@ -93,7 +94,14 @@ public static class AppSettingsJson
             duration,
             file.ClearFromWindows ?? defaults.Notifications.ClearFromWindows);
 
-        return new AppSettings(hotkeys, notifications, file.LaunchAtStartup ?? defaults.LaunchAtStartup, ReadSize(file.IslandSize, defaults.Size));
+        return new AppSettings(hotkeys, notifications, file.LaunchAtStartup ?? defaults.LaunchAtStartup, ReadSize(file.IslandSize, defaults.Size), ReadLook(file.Look, defaults.Look));
+    }
+
+    // Like the size: only the names count, anything else is the default (Solid).
+    private static IslandLook ReadLook(string? text, IslandLook fallback)
+    {
+        bool isName = !string.IsNullOrWhiteSpace(text) && char.IsLetter(text.Trim()[0]);
+        return isName && Enum.TryParse(text, ignoreCase: true, out IslandLook look) && Enum.IsDefined(look) ? look : fallback;
     }
 
     // Only the four names count; numbers ("3") and unknown names fall back to the default.
@@ -127,5 +135,7 @@ public static class AppSettingsJson
         public bool? LaunchAtStartup { get; set; }
 
         public string? IslandSize { get; set; }
+
+        public string? Look { get; set; }
     }
 }
