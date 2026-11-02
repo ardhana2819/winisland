@@ -51,6 +51,9 @@ public partial class SettingsWindow : Window
             SizeBox.Items.Add(new ComboBoxItem { Content = name, Tag = size });
         }
 
+        LookBox.Items.Add(new ComboBoxItem { Content = "Solid", Tag = IslandLook.Solid });
+        LookBox.Items.Add(new ComboBoxItem { Content = "Glass", Tag = IslandLook.Glass });
+
         SourceInitialized += (_, _) => DarkTitleBar.Apply(new WindowInteropHelper(this).Handle);
         PreviewKeyDown += OnPreviewKeyDown;
         Deactivated += (_, _) => StopRecording(applied: false);
@@ -70,6 +73,7 @@ public partial class SettingsWindow : Window
         HideNotificationsHotkeyButton.Content = Spaced(settings.Hotkeys.HideBanner);
 
         SizeBox.SelectedItem = SizeBox.Items.Cast<ComboBoxItem>().FirstOrDefault(item => (IslandSize)item.Tag == settings.Size);
+        LookBox.SelectedItem = LookBox.Items.Cast<ComboBoxItem>().FirstOrDefault(item => (IslandLook)item.Tag == settings.Look);
 
         int seconds = (int)settings.Notifications.BannerDuration.TotalSeconds;
         DurationBox.SelectedItem = DurationBox.Items.Cast<ComboBoxItem>().FirstOrDefault(item => (int)item.Tag == seconds);
@@ -108,6 +112,16 @@ public partial class SettingsWindow : Window
         }
 
         Change(_controller.Current with { Size = size });
+    }
+
+    private void OnLookChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isShowingSettings || LookBox.SelectedItem is not ComboBoxItem { Tag: IslandLook look })
+        {
+            return;
+        }
+
+        Change(_controller.Current with { Look = look });
     }
 
     private void OnDurationChanged(object sender, SelectionChangedEventArgs e)

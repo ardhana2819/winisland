@@ -11,8 +11,8 @@
   The compact music pill (280 x 36) is MusicPillView in the Music folder. The expanded island
   (420 x 190, v1.1) is ExpandedIslandView next to this file: two pages, MusicControlsView and
   NotificationsPageView, with page dots (FR-21).
-  The notification banner (420 x 72) and the permission prompt (360 x 52) are in the
-  Notifications folder.
+  The notification banner (420 x 72), the call banner (the same view, v1.4) and the permission
+  prompt (360 x 52) are in the Notifications folder.
   Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
   layer is visible; PillAnimator swaps them.
   Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1, FR-32).
@@ -185,6 +185,18 @@
 
                     <!-- Notification banner. -->
                     <notifications:NotificationBannerView x:Name="BannerLayer"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Opacity="0"
+                                                          IsHitTestVisible="False"
+                                                          RenderTransformOrigin="0.5,0.5">
+                        <notifications:NotificationBannerView.RenderTransform>
+                            <ScaleTransform ScaleX="0.88" ScaleY="0.88" />
+                        </notifications:NotificationBannerView.RenderTransform>
+                    </notifications:NotificationBannerView>
+
+                    <!-- Call banner (v1.4, FR-38): the banner view in call mode, over message banners. -->
+                    <notifications:NotificationBannerView x:Name="CallLayer"
                                                           HorizontalAlignment="Center"
                                                           VerticalAlignment="Center"
                                                           Opacity="0"

@@ -6,6 +6,7 @@
   Unlike the island, this is a normal window: it is opened on purpose and takes keyboard focus,
   so every control works with the keyboard (PRD section 7, accessibility).
   v1.3: the title bar shows the WinIsland icon (FR-34) and there is an Island size row (FR-32).
+  v1.4: a Look row, Solid or Glass (FR-37), and the "Also clear from Windows" switch (FR-36).
 -->
 <Window x:Class="WinIsland.App.Settings.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -194,6 +195,13 @@
                 <DockPanel>
                     <ComboBox x:Name="SizeBox" DockPanel.Dock="Right" Style="{StaticResource DarkDropdown}" AutomationProperties.Name="Island size" SelectionChanged="OnSizeChanged" />
                     <TextBlock Text="Island size" Style="{StaticResource RowLabel}" />
+                </DockPanel>
+            </Border>
+            <!-- v1.4 (FR-37): Solid or Glass. -->
+            <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">
+                <DockPanel>
+                    <ComboBox x:Name="LookBox" DockPanel.Dock="Right" Style="{StaticResource DarkDropdown}" AutomationProperties.Name="Look" SelectionChanged="OnLookChanged" />
+                    <TextBlock Text="Look" Style="{StaticResource RowLabel}" />
                 </DockPanel>
             </Border>
             <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">

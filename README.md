@@ -14,6 +14,7 @@ Personal project, private repository.
 - Games in **windowed or borderless** mode. Exclusive fullscreen is not supported. In exclusive fullscreen, Discord also shows messages only in its own in-game overlay, so they do not reach the island.
 - Spotify desktop app for music.
 - For notifications: WhatsApp Web installed as an app from Chrome (Chrome menu > Cast, save and share > Install page as app), or WhatsApp desktop from the Microsoft Store, and Discord desktop. With both WhatsApp apps open, WinIsland shows each message once, from WhatsApp Web.
+- Incoming call banner: WhatsApp Web only, with WhatsApp set to English. In another language, calls show as normal message banners.
 
 ## Install on another PC
 
@@ -107,6 +108,6 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 - Music information comes only from the Windows media session. WinIsland never signs in to Spotify.
 - Notifications are read only through the Windows notification listener, and only after you allow it.
 - Message text stays **in memory only**. It is never written to disk or to logs. Logs hold event types and errors only.
-- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, also clear from Windows, island size, start with Windows. Next to it, `winisland.log` (at most 256 KB) records event types and errors only, never message text. Nothing else is written to disk.
-- No screen capture, no reading other programs' memory, no injection or hooks into games.
+- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, also clear from Windows, island size, look (Solid or Glass), start with Windows. Next to it, `winisland.log` (at most 256 KB) records event types and errors only, never message text. Nothing else is written to disk.
+- No screen capture, no reading other programs' memory, no injection or hooks into games. The Glass look's blur is drawn by Windows itself; WinIsland never sees what is behind the island.
 - WinIsland never deletes anything from Windows unless you turn on **Also clear from Windows notification center** in Settings (off by default). Then hiding a banner with a swipe or the hide hotkey also removes that chat's notifications from the Windows notification center.
