@@ -1,4 +1,4 @@
-﻿// GlassWindow.xaml.cs: sets up the glass test pill (spike G1 to G5).
+// GlassWindow.xaml.cs: sets up the glass test pill (spike G1 to G5).
 //   1. The window never takes keyboard focus, like the island (FR-3).
 //   2. Windows draws the blurred backdrop: the frame is extended over the whole window and the
 //      system backdrop type is set (acrylic by default). The window background stays clear so
@@ -84,7 +84,10 @@ public partial class GlassWindow : Window
             Closed += (_, _) => _blurWindow.Close();
         }
 
-        Pill.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(_tint * 255), 0, 0, 0));
+        // At least 1 of 255: a fully transparent pixel of a transparent window lets clicks fall through
+        // to the window behind it, so the pill could not be clicked at tint 0.
+        byte tintAlpha = (byte)Math.Max(1, Math.Round(_tint * 255));
+        Pill.Background = new SolidColorBrush(Color.FromArgb(tintAlpha, 0, 0, 0));
         SourceInitialized += OnSourceInitialized;
     }
 
@@ -209,7 +212,11 @@ public partial class GlassWindow : Window
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
         // With the host backdrop the blur has its own smooth clip, so the hard window region is made
         // 2 pixels larger all round and never cuts the smooth edge.
-        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+        // A transparent window needs no region: WPF draws the pill's smooth edge itself, and a region's
+        // hard cut left a black rim in round 8. Only the non-transparent windows get one.
+        int setResult = _blurWindow is null
+            ? NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true)
+            : 0;
         if (_blurWindow is not null)
         {
             const int pad = 2;
