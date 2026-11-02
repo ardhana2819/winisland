@@ -199,3 +199,15 @@ On a 256 x 256 grid:
 - Artwork square inside the pill: (54, 112), 32 x 32, radius 9, `#000000`.
 - Equalizer bars inside the pill, each 8 wide with radius 3, `#000000`: x 166 from y 120 to 144, x 180 from y 112 to 144, x 194 from y 126 to 144.
 - The tray icon stays the plain white pill (drawn in code, see `TrayIconImage.cs`), which matches this icon.
+
+## 11. v1.4 additions (draft, not approved yet)
+
+Stacks per chat on the notifications page (PRD FR-35). [Proposed, 2 Nov 2026]
+
+- Page cards are 48 high instead of 52, so three stacks still fit in the 190 high island. The island size does not change.
+- A stack shows "N messages" (11, `#A6ABB6`) before the time on the top line, "99+" above 99.
+- The cards behind a stack peek out under it, like the iPhone: one card for 2 messages, two for 3 or more.
+  - First card behind: `#3A3A3C`, 8 narrower on each side, radius 14, shows 4 below the card.
+  - Second card behind: `#2E2E31`, 16 narrower on each side, radius 12, shows 4 below the first.
+  - The space below a stack grows by what peeks out (4 or 8), so the 6 gap to the next card stays clear.
+- Worst case, three stacks of 3 or more: 3 x 48 + 3 x 8 + 2 x 6 = 180, inside the 190 island.
