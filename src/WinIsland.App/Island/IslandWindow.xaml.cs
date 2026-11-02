@@ -1,5 +1,6 @@
 // IslandWindow.xaml.cs: connects the island window to the island's rules.
-// Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1),
+// Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1) at
+// the size chosen in Settings (FR-32),
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
 // shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), shows
 // notification banners (FR-15), switches the expanded island's pages by scroll, Alt+Up and
@@ -42,13 +43,15 @@ public partial class IslandWindow : Window
     private readonly HotkeySet _startHotkeys;
     private readonly PageScroll _pageScroll = new();
     private readonly PillColors _pillColors;
+    private readonly IslandResizeAnimator _resizeAnimator;
     private ExpandedKeys? _expandedKeys;
     private TopmostGuard? _topmostGuard;
     private IslandView _shownView = IslandView.Compact;
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
+    private IslandSize _size;
 
-    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys)
+    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys, IslandSize size)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
@@ -57,6 +60,7 @@ public partial class IslandWindow : Window
         _island = island;
         _music = music;
         _startHotkeys = startHotkeys;
+        _size = size;
 
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
@@ -67,6 +71,7 @@ public partial class IslandWindow : Window
         _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ExpandedLayer.Notifications);
         ExpandedLayer.PageRequested += (_, page) => _island.ShowPage(page);
         _pillColors = new PillColors(Pill, PillShade);
+        _resizeAnimator = new IslandResizeAnimator(IslandGrowScale);
         _music.ArtworkChanged += (_, _) => UpdatePillColors();
         _permissionPrompt = new PermissionPromptBehavior(island, PermissionLayer);
 
@@ -114,6 +119,24 @@ public partial class IslandWindow : Window
 
     /// <summary>The island's hotkeys; Settings changes them. Available once the window is shown.</summary>
     internal IslandHotkeys? Hotkeys { get; private set; }
+
+    /// <summary>
+    /// A new island size from Settings (FR-32): shown at once, without a restart, growing or
+    /// shrinking with the shape spring. Only the island inside changes; the window keeps its size
+    /// and place, so the island stays centered the whole time (Diva, 2 Nov 2026).
+    /// </summary>
+    internal void ApplySize(IslandSize size)
+    {
+        if (size == _size)
+        {
+            return;
+        }
+
+        _resizeAnimator.FinishNow();
+        double fromScale = LayoutFor(_size).Scale;
+        _size = size;
+        _resizeAnimator.Run(fromScale, LayoutFor(size).Scale, ApplyIslandScale);
+    }
 
     /// <summary>The conflict found when the hotkeys were first registered, for the Settings window.</summary>
     internal string? StartHotkeyConflict { get; private set; }
@@ -279,19 +302,34 @@ public partial class IslandWindow : Window
 
     private void PlaceOnPrimaryDisplay()
     {
-        // The window lives on the primary monitor, so its DPI is that monitor's DPI.
-        double displayWidthDips = PrimaryDisplay.WidthInPixels() / PixelsPerDip();
-        IslandLayout layout = IslandLayout.ForPrimaryDisplay(displayWidthDips);
+        // A display change in the middle of a resize: end the resize first, at the new place.
+        _resizeAnimator.FinishNow();
+        ApplyIslandScale();
 
-        IslandScaleTransform.ScaleX = layout.Scale;
-        IslandScaleTransform.ScaleY = layout.Scale;
-        Width = layout.Width;
-        Height = layout.Height;
-        Left = layout.Left;
-        Top = layout.Top;
+        // The window always has room for the largest island size, so changing the size never
+        // resizes or moves the window: resizing it showed as a jump to the side (Diva, 2 Nov 2026).
+        IslandLayout window = LayoutFor(IslandSize.ExtraLarge);
+        Width = window.Width;
+        Height = window.Height;
+        Left = window.Left;
+        Top = window.Top;
 
         // Display changes are one moment Windows can rearrange windows; check the island is still on top.
         _topmostGuard?.CheckNow();
+    }
+
+    private IslandLayout LayoutFor(IslandSize size)
+    {
+        // The window lives on the primary monitor, so its DPI is that monitor's DPI.
+        double displayWidthDips = PrimaryDisplay.WidthInPixels() / PixelsPerDip();
+        return IslandLayout.ForPrimaryDisplay(displayWidthDips, size);
+    }
+
+    private void ApplyIslandScale()
+    {
+        double scale = LayoutFor(_size).Scale;
+        IslandScaleTransform.ScaleX = scale;
+        IslandScaleTransform.ScaleY = scale;
     }
 
     private double PixelsPerDip()

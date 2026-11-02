@@ -1,4 +1,5 @@
-// IslandScaleTests.cs: checks the display scale rule from PRD FR-1 (width / 2560, limited to 0.85 to 1.25).
+// IslandScaleTests.cs: checks the display scale rule from PRD FR-1 (width / 2560, limited to 0.85 to 1.25)
+// and the size setting on top of it (FR-32: 0.85, 1, 1.15, 1.3).
 
 using WinIsland.Core.Island;
 
@@ -22,6 +23,32 @@ public class IslandScaleTests
     public void Scale_is_limited_to_the_allowed_range(double widthDips, double expected)
     {
         Assert.Equal(expected, IslandScale.ForDisplayWidth(widthDips), precision: 6);
+    }
+
+    [Theory]
+    [InlineData(IslandSize.Small, 0.85)]
+    [InlineData(IslandSize.Medium, 1.0)]
+    [InlineData(IslandSize.Large, 1.15)]
+    [InlineData(IslandSize.ExtraLarge, 1.3)]
+    public void Each_size_has_its_factor(IslandSize size, double expected)
+    {
+        Assert.Equal(expected, IslandScale.FactorOf(size), precision: 6);
+    }
+
+    [Theory]
+    [InlineData(2560, IslandSize.Medium, 1.0)] // Medium is today's island
+    [InlineData(2560, IslandSize.ExtraLarge, 1.3)] // 546 x 247 expanded
+    [InlineData(3840, IslandSize.ExtraLarge, 1.625)] // the display limit 1.25 times 1.3
+    [InlineData(1920, IslandSize.Small, 0.7225)] // the display limit 0.85 times 0.85
+    public void The_size_multiplies_the_display_scale(double widthDips, IslandSize size, double expected)
+    {
+        Assert.Equal(expected, IslandScale.ForDisplayWidth(widthDips, size), precision: 6);
+    }
+
+    [Fact]
+    public void An_unknown_size_is_rejected()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => IslandScale.FactorOf((IslandSize)99));
     }
 
     [Theory]

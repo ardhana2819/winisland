@@ -50,7 +50,7 @@ In words:
 | `Island/` | `ExpandedPage.cs` | The two pages of the expanded island: music and notifications. |
 | `Island/` | `PageScroll.cs` | Turns mouse wheel and touchpad scrolling into page changes, one gesture per page. |
 | `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island or a notification banner. The latest request wins. |
-| `Island/` | `IslandScale.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25). |
+| `Island/` | `IslandScale.cs`, `IslandSize.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25), times the size chosen in Settings (Small 0.85, Medium 1, Large 1.15, Extra large 1.3). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
 | `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
 | `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
@@ -92,7 +92,9 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Windows/DarkTitleBar.cs` | Dark title bar for the Settings window. |
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
-| App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display. |
+| App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display, at the chosen island size. |
+| App | `Island/IslandResizeAnimator.cs` | Grows or shrinks the island with the shape spring when the size changes in Settings. |
+| App | `Assets/WinIsland.ico`, `Assets/New-AppIcon.ps1` | The app icon (black tile with the white pill) for the exe, the Start menu and the Settings window, and the script that draws it from the design spec. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |

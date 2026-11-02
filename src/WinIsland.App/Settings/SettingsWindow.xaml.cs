@@ -4,6 +4,7 @@
 // recording, WinIsland frees its own hotkeys so the combination reaches this window. A refused
 // change (a rule in Core, or a combination another app owns) shows in amber under the hotkeys,
 // like the design board.
+// Island size (FR-32): Small, Medium, Large or Extra large; the island resizes at once.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 
 using WinIsland.Core.Hotkeys;
+using WinIsland.Core.Island;
 using WinIsland.Core.Settings;
 using WinIsland.Platform.Windows;
 
@@ -19,6 +21,14 @@ namespace WinIsland.App.Settings;
 public partial class SettingsWindow : Window
 {
     private const string RecordingText = "Press keys…";
+
+    private static readonly (IslandSize Size, string Name)[] SizeNames =
+    [
+        (IslandSize.Small, "Small"),
+        (IslandSize.Medium, "Medium"),
+        (IslandSize.Large, "Large"),
+        (IslandSize.ExtraLarge, "Extra large"),
+    ];
 
     private readonly SettingsController _controller;
     private Button? _recordingButton;
@@ -34,6 +44,11 @@ public partial class SettingsWindow : Window
         for (int seconds = min; seconds <= max; seconds++)
         {
             DurationBox.Items.Add(new ComboBoxItem { Content = $"{seconds} seconds", Tag = seconds });
+        }
+
+        foreach ((IslandSize size, string name) in SizeNames)
+        {
+            SizeBox.Items.Add(new ComboBoxItem { Content = name, Tag = size });
         }
 
         SourceInitialized += (_, _) => DarkTitleBar.Apply(new WindowInteropHelper(this).Handle);
@@ -53,6 +68,8 @@ public partial class SettingsWindow : Window
         ExpandHotkeyButton.Content = Spaced(settings.Hotkeys.Expand);
         HideShowHotkeyButton.Content = Spaced(settings.Hotkeys.HideShow);
         HideNotificationsHotkeyButton.Content = Spaced(settings.Hotkeys.HideBanner);
+
+        SizeBox.SelectedItem = SizeBox.Items.Cast<ComboBoxItem>().FirstOrDefault(item => (IslandSize)item.Tag == settings.Size);
 
         int seconds = (int)settings.Notifications.BannerDuration.TotalSeconds;
         DurationBox.SelectedItem = DurationBox.Items.Cast<ComboBoxItem>().FirstOrDefault(item => (int)item.Tag == seconds);
@@ -79,6 +96,16 @@ public partial class SettingsWindow : Window
             },
             LaunchAtStartup = StartupSwitch.IsChecked == true,
         });
+    }
+
+    private void OnSizeChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isShowingSettings || SizeBox.SelectedItem is not ComboBoxItem { Tag: IslandSize size })
+        {
+            return;
+        }
+
+        Change(_controller.Current with { Size = size });
     }
 
     private void OnDurationChanged(object sender, SelectionChangedEventArgs e)

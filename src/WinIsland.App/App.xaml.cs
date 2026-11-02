@@ -67,8 +67,9 @@ public partial class App : Application
         _islandTimeTimer = new IslandTimeTimer(island);
         _music = new MusicController(island, Dispatcher);
         _notifications = new NotificationController(island, Dispatcher);
-        _islandWindow = new IslandWindow(island, _music, _notifications, saved.Hotkeys);
+        _islandWindow = new IslandWindow(island, _music, _notifications, saved.Hotkeys, saved.Size);
         _islandWindow.SettingsRequested += (_, _) => _settings.OpenWindow();
+        _settings.Changed += (_, _) => _islandWindow.ApplySize(_settings.Current.Size);
         // If Windows closes the island window (for example while signing out), close the whole app,
         // so nothing keeps running in the background without an island (AC-9).
         _islandWindow.Closed += (_, _) =>
