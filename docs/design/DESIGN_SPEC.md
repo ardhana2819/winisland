@@ -223,3 +223,11 @@ Opening a stack (PRD FR-35, click to see the last 3 messages). [Proposed, 2 Nov 
 - Going back is the mirror image: the chat slides right and out, the list comes in from the left.
 - A card and the cards peeking out behind it move and fade as one piece, and the peeking cards always stay behind the card, also mid-animation. [Fixes a grey box Diva saw flash on going back, 2 Nov 2026]
 - With Windows animation effects off, the change is instant.
+
+Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
+
+- Settings "Look": Solid (default, today's `#000000`) or Glass.
+- Glass background: Windows' host backdrop blur of what is behind the island, no tint, no edge line. The blur has the island's exact rounded shape with smooth edges and follows every shape change in the same frame.
+- White text on Glass gets a soft dark shadow: black, blur radius 8, no offset, 70 percent opacity.
+- Unchanged on Glass: the music page's artwork colour, banner and notification cards (`#1C1C1E`), the stacked cards, the page dots and the unread dot.
+- The prototype imitates the blur with CSS `backdrop-filter: blur(22px) saturate(1.3)`; the app uses Windows' own blur, which looks lighter and smoother. "Game scene: Bright" in the prototype puts a bright scene behind the island to check readability.
