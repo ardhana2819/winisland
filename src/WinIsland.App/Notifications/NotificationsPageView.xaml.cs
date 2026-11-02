@@ -3,6 +3,7 @@
 // opens the chat (ChatView.cs); clicking the open chat goes back. Both clicks are reported to the
 // island's rules, which decide; ChatSlide.cs moves between the two views.
 // "Hide message text" is applied through NotificationSettings (FR-17).
+// While a WhatsApp Web call rings it is the top card, with the 2 newest chats under it (FR-38).
 // Other clicks on a card are swallowed, so they neither open an app nor close the island (FR-22).
 // The page is rebuilt only when what it shows changes, so a running move is not cut off.
 
@@ -19,6 +20,7 @@ public partial class NotificationsPageView : UserControl
 {
     private const double CardGapDips = 6;
     private const double SingleTopDips = 10;
+    private const int ChatsUnderCall = 2;
 
     private readonly ChatSlide _slide;
     private string _shownContent = string.Empty;
@@ -39,21 +41,27 @@ public partial class NotificationsPageView : UserControl
     public void Show(
         IReadOnlyList<NotificationStack> stacks,
         NotificationStack? openChat,
+        IncomingCall? call,
         NotificationSettings settings,
         Func<IslandNotification, ImageSource?> logoFor)
     {
         ArgumentNullException.ThrowIfNull(stacks);
+        if (call is not null)
+        {
+            stacks = [.. stacks.Take(ChatsUnderCall)];
+        }
+
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(logoFor);
 
-        string content = Describe(stacks, openChat, settings, logoFor);
+        string content = $"{Describe(stacks, openChat, settings, logoFor)}|call:{call?.Notification.WindowsId}";
         if (content == _shownContent)
         {
             return;
         }
 
         _shownContent = content;
-        void Fill() => FillPage(stacks, openChat, settings, logoFor);
+        void Fill() => FillPage(stacks, openChat, call, settings, logoFor);
 
         bool showChat = openChat is not null;
         if (showChat != _showsChat)
@@ -67,7 +75,7 @@ public partial class NotificationsPageView : UserControl
         }
     }
 
-    private void FillPage(IReadOnlyList<NotificationStack> stacks, NotificationStack? openChat, NotificationSettings settings, Func<IslandNotification, ImageSource?> logoFor)
+    private void FillPage(IReadOnlyList<NotificationStack> stacks, NotificationStack? openChat, IncomingCall? call, NotificationSettings settings, Func<IslandNotification, ImageSource?> logoFor)
     {
         Cards.Children.Clear();
         if (openChat is not null)
@@ -76,10 +84,19 @@ public partial class NotificationsPageView : UserControl
             return;
         }
 
-        EmptyText.Visibility = stacks.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        bool isSingle = stacks.Count == 1;
+        EmptyText.Visibility = stacks.Count == 0 && call is null ? Visibility.Visible : Visibility.Collapsed;
+        bool isSingle = stacks.Count == 1 && call is null;
         Cards.VerticalAlignment = isSingle ? VerticalAlignment.Top : VerticalAlignment.Center;
         Cards.Margin = new Thickness(10, isSingle ? SingleTopDips : 0, 10, 0);
+
+        if (call is not null)
+        {
+            CallSymbol symbol = new(30, 16);
+            symbol.ShowKind(call.IsVideo);
+            FrameworkElement callCard = NotificationCard.Build(call.Notification, call.Description, null, isSingle: false, trailing: symbol);
+            callCard.MouseLeftButtonUp += SwallowClick;
+            Cards.Children.Add(callCard);
+        }
 
         for (int index = 0; index < stacks.Count; index++)
         {
@@ -87,7 +104,7 @@ public partial class NotificationsPageView : UserControl
             IslandNotification newest = stack.Newest;
             FrameworkElement card = NotificationCard.Build(newest, settings.PreviewFor(newest), logoFor(newest), isSingle, stack.CountText);
             FrameworkElement shown = StackCard.Wrap(card, stack.Count);
-            shown.Margin = new Thickness(0, index == 0 ? 0 : CardGapDips, 0, 0);
+            shown.Margin = new Thickness(0, Cards.Children.Count == 0 ? 0 : CardGapDips, 0, 0);
             if (stack.CanOpen)
             {
                 shown.Cursor = Cursors.Hand;

@@ -2,6 +2,8 @@
 // Tap (no real sideways movement) opens the notifications page (FR-15, FR-21). A sideways drag of more than 40
 // slides the banner 90 to that side while it fades, over 0.2 s (DESIGN_SPEC section 6), then
 // reports the swipe so the island shows the next waiting banner.
+// v1.4 (FR-38): as the call banner it shows the caller and the call circle, and a tap does
+// nothing, so a click during a game cannot answer or open anything; a swipe still hides it.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -22,6 +24,8 @@ public partial class NotificationBannerView : UserControl
 
     private Point? _pressedAt;
     private bool _isSwiping;
+    private CallSymbol? _callSymbol;
+    private bool _isCall;
 
     public NotificationBannerView()
     {
@@ -45,6 +49,42 @@ public partial class NotificationBannerView : UserControl
         int others = waitingCount - 1;
         Badge.Visibility = others > 0 ? Visibility.Visible : Visibility.Collapsed;
         BadgeText.Text = $"+{others}";
+    }
+
+    /// <summary>Shows a ringing call instead of a message (FR-38).</summary>
+    public void ShowCall(IncomingCall call)
+    {
+        ArgumentNullException.ThrowIfNull(call);
+
+        _isCall = true;
+        Cursor = Cursors.Arrow;
+        Icon.Show(call.Notification, null);
+        SenderText.Text = call.Caller;
+        PreviewText.Text = call.Description;
+        PreviewText.Visibility = Visibility.Visible;
+        Badge.Visibility = Visibility.Collapsed;
+
+        if (_callSymbol is null)
+        {
+            _callSymbol = new CallSymbol(36, 20) { VerticalAlignment = VerticalAlignment.Center };
+            Grid.SetColumn(_callSymbol, 2);
+            Row.Children.Add(_callSymbol);
+        }
+
+        _callSymbol.ShowKind(call.IsVideo);
+    }
+
+    /// <summary>The call circle pulses only while the call banner is on screen.</summary>
+    public void SetPulsing(bool isPulsing)
+    {
+        if (isPulsing)
+        {
+            _callSymbol?.Start();
+        }
+        else
+        {
+            _callSymbol?.Stop();
+        }
     }
 
     private void OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -85,7 +125,11 @@ public partial class NotificationBannerView : UserControl
         if (Math.Abs(moved) <= SwipeThresholdDips)
         {
             SwipeOffset.X = 0;
-            Tapped?.Invoke(this, EventArgs.Empty);
+            if (!_isCall)
+            {
+                Tapped?.Invoke(this, EventArgs.Empty);
+            }
+
             return;
         }
 
