@@ -219,9 +219,12 @@ public partial class GlassWindow : Window
             : 0;
         if (_blurWindow is not null)
         {
-            const int pad = 2;
-            NativeMethods.SetWindowRgn(_blurWindow.Handle, NativeMethods.CreateRoundRectRgn(left - pad, 0, right + 1 + pad, bottom + 1 + pad, corner + (2 * pad), corner + (2 * pad)), true);
-            _blurWindow.Backdrop?.Update(left, right - left, bottom, (float)(radius * dpi.DpiScaleX));
+            // The blur is drawn 1 pixel larger than the pill and the blur window's hard region is the
+            // pill itself, so the region always cuts through blur. In round 9 the region was larger
+            // than the blur and its smooth edge faded into black, which showed as a dark rim.
+            const int bleed = 1;
+            NativeMethods.SetWindowRgn(_blurWindow.Handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+            _blurWindow.Backdrop?.Update(left - bleed, right - left + (2 * bleed), bottom + bleed, (float)(radius * dpi.DpiScaleX) + bleed);
         }
 
         int boxType = NativeMethods.GetWindowRgnBox(_handle, out NativeMethods.Rect box);
