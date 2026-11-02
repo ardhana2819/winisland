@@ -12,6 +12,13 @@ internal static partial class NativeMethods
     public const long WsExNoActivate = 0x08000000;
     public const int WmMouseActivate = 0x0021;
     public const int MaNoActivate = 3;
+    public const int WmNcActivate = 0x0086;
+
+    // SetWindowCompositionAttribute (undocumented, in user32 since Windows 10): the older way to ask
+    // for a blurred backdrop, which does not depend on the window being active.
+    public const int WcaAccentPolicy = 19;
+    public const int AccentEnableBlurBehind = 3;
+    public const int AccentEnableAcrylicBlurBehind = 4;
 
     // DwmSetWindowAttribute values (dwmapi.h, Windows 11).
     public const int DwmwaUseImmersiveDarkMode = 20;
@@ -27,6 +34,29 @@ internal static partial class NativeMethods
         public int Top;
         public int Bottom;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct AccentPolicy
+    {
+        public int AccentState;
+        public int AccentFlags;
+        public uint GradientColor; // 0xAABBGGRR
+        public int AnimationId;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WindowCompositionAttributeData
+    {
+        public int Attribute;
+        public IntPtr Data;
+        public int SizeOfData;
+    }
+
+    [LibraryImport("user32.dll")]
+    public static partial int SetWindowCompositionAttribute(IntPtr windowHandle, ref WindowCompositionAttributeData data);
+
+    [LibraryImport("user32.dll", EntryPoint = "DefWindowProcW")]
+    public static partial IntPtr DefWindowProc(IntPtr windowHandle, int message, IntPtr wParam, IntPtr lParam);
 
     [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
     public static partial IntPtr GetWindowLongPtr(IntPtr windowHandle, int index);

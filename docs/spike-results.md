@@ -45,7 +45,7 @@ Branch `spike/v1.4-glass-and-call`. Waiting for Diva's run; steps are under "How
 
 | Test | Result | Evidence | What it means for the PRD |
 |---|---|---|---|
-| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Not run yet | | |
+| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Fail with the system backdrop (acrylic), 2 Nov 2026. Second round with `--keep-active` and `--accent` pending | Diva's screenshots: flat grey over the wallpaper and over Spotify, no blur. Status line: "DWM: extend 0x00000000, backdrop 0x00000000", so Windows accepted both calls | Windows draws the system backdrop only while the window is active and shows a flat fallback colour otherwise. The island is never active (FR-3), so the documented way does not work as is |
 | G2. The pill's edges look smooth enough (a window region has no edge smoothing) | Not run yet | | |
 | G3. The blur follows the pill when it changes shape, without flicker | Not run yet | | |
 | G4. Over a borderless game: blur visible, game keeps focus, no stutter | Not run yet | | |
@@ -91,7 +91,7 @@ GlassProbe shows a glass pill at the top center: Windows' own blur (acrylic) beh
    - G3: click the pill a few times. It grows to 420 x 190 and back. Does the blur follow the shape smoothly, or flicker, lag or show black corners? The expanded pill shows a status line; tell Claude what it says.
 5. G4: start a game in borderless mode, play a minute with the pill over it. Is the glass still there, does the game keep keyboard focus, any stutter?
 6. G5: over a bright scene and a dark scene, is the white clock easy to read? Then close it (right-click) and try a darker tint: add `--tint 0.55` to the command. Compare.
-7. If G1 shows no glass, also try `--backdrop mica` and `--backdrop tabbed`, and `--gpu`, and say which (if any) shows glass.
+7. If G1 shows no glass, also try `--keep-active` (keeps the frame looking active, no keyboard focus), `--accent acrylic` and `--accent blur` (the older, undocumented blur that does not depend on activation), and say which (if any) shows glass. `--backdrop mica`, `--backdrop tabbed` and `--gpu` are extra options.
 8. Right-click the pill to close it. Start WinIsland again from the Start menu.
 
 ### C1 to C5. Incoming calls (about 10 minutes, needs a second phone or a friend)
