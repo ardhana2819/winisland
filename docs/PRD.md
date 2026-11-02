@@ -220,7 +220,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - I make 3 concepts in the prototype; you pick one. [Confirmed 2 Nov 2026] You picked concept B, "Mono pill": a black tile with the white pill, artwork square and equalizer bars. [Confirmed 2 Nov 2026]
   - It is used for `WinIsland.App.exe` (File Explorer, the Start menu shortcut) and the Settings window.
   - [Confirmed 2 Nov 2026] The tray icon stays a simple white pill, because a detailed icon is hard to read at 16 pixels on the taskbar; the chosen concept may change it if it reads well that small.
-  - [Confirmed 2 Nov 2026] The icon is kept as a small `.ico` file in the repo, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
+  - [Confirmed 2 Nov 2026] The icon is kept as a small `.ico` file in the repo (`src/WinIsland.App/Assets/WinIsland.ico`), drawn from the design spec by `Assets/New-AppIcon.ps1`, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
 
 **Fixes [v1.1]**
 
@@ -338,6 +338,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - Notification with no text or image-only: show app and sender only.
 - Multiple notifications arrive together: newest first, +N badge.
 - Fullscreen exclusive game: island will not show. Documented limitation, not a bug.
+- [v1.3] Discord with its in-game overlay: in an exclusive fullscreen game, Discord shows its message in its own overlay and sends nothing to Windows, so the island cannot show it. In borderless or windowed games, and without a game, Discord messages reach the island as before (AC-4). Found in your test on 2 Nov 2026; accepted, nothing to build. [Confirmed 2 Nov 2026]
 - Windows Do Not Disturb on: behavior depends on U1.
 
 ## 14. Security, privacy, performance

@@ -11,7 +11,7 @@ Personal project, private repository.
 ## Requirements
 
 - Windows 11 (64-bit).
-- Games in **windowed or borderless** mode. Exclusive fullscreen is not supported.
+- Games in **windowed or borderless** mode. Exclusive fullscreen is not supported. In exclusive fullscreen, Discord also shows messages only in its own in-game overlay, so they do not reach the island.
 - Spotify desktop app for music.
 - For notifications: WhatsApp Web installed as an app from Chrome (Chrome menu > Cast, save and share > Install page as app), or WhatsApp desktop from the Microsoft Store, and Discord desktop. With both WhatsApp apps open, WinIsland shows each message once, from WhatsApp Web.
 
