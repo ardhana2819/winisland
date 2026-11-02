@@ -78,6 +78,7 @@ public partial class SettingsWindow : Window
         DiscordSwitch.IsChecked = settings.Notifications.ShowDiscord;
         OtherAppsSwitch.IsChecked = settings.Notifications.ShowOtherApps;
         HideTextSwitch.IsChecked = settings.Notifications.HideMessageText;
+        ClearFromWindowsSwitch.IsChecked = settings.Notifications.ClearFromWindows;
         StartupSwitch.IsChecked = settings.LaunchAtStartup;
         _isShowingSettings = false;
     }
@@ -93,6 +94,7 @@ public partial class SettingsWindow : Window
                 ShowDiscord = DiscordSwitch.IsChecked == true,
                 ShowOtherApps = OtherAppsSwitch.IsChecked == true,
                 HideMessageText = HideTextSwitch.IsChecked == true,
+                ClearFromWindows = ClearFromWindowsSwitch.IsChecked == true,
             },
             LaunchAtStartup = StartupSwitch.IsChecked == true,
         });

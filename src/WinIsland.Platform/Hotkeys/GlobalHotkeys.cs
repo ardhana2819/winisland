@@ -78,6 +78,15 @@ public sealed class GlobalHotkeys : IDisposable
     }
 
     /// <summary>Gives the expanded island's keys back to the game and other programs when the island closes.</summary>
+    /// <summary>Releases one expanded shortcut, for keys that live shorter than the open island.</summary>
+    public void UnregisterExpandedShortcut(HotkeyAction action)
+    {
+        if (_expandedShortcuts.Remove(action))
+        {
+            NativeMethods.UnregisterHotKey(_windowHandle, (int)action);
+        }
+    }
+
     public void UnregisterExpandedShortcuts()
     {
         foreach (HotkeyAction action in _expandedShortcuts)

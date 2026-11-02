@@ -1,9 +1,11 @@
 // NotificationCard.cs: builds one grey notification card for the notifications page
 // (PRD FR-26, DESIGN_SPEC section 9).
-//   Card #1C1C1E, radius 18, 52 high, padding 12 on the left and 22 on the right (the page dots
+//   Card #1C1C1E, radius 18, 48 high (52 before v1.4, so three stacks fit; DESIGN_SPEC section
+//   11), padding 12 on the left and 22 on the right (the page dots
 //   sit on the right edge, so text keeps clear of them), 10 gap.
 //   App icon circle 32 with a 14 letter. Top line: sender 14 semibold, and on the right the time
-//   it arrived, 11 in #A6ABB6, 24-hour. Second line: preview 13 in #A6ABB6.
+//   it arrived, 11 in #A6ABB6, 24-hour; a stack (v1.4, FR-35) says "3 messages" before the time,
+//   also 11 in #A6ABB6. Second line: preview 13 in #A6ABB6.
 //   A single notification shows up to 3 lines of preview at line height 18 and grows to fit.
 // Long text is cut with an ellipsis, so a card never grows past the island.
 
@@ -17,7 +19,7 @@ namespace WinIsland.App.Notifications;
 
 internal static class NotificationCard
 {
-    public const double Height = 52;
+    public const double Height = 48;
     public const double MaxLines = 3;
 
     private const double Radius = 18;
@@ -34,8 +36,9 @@ internal static class NotificationCard
     private static readonly FontFamily IslandFont = new("Segoe UI Variable Text, Segoe UI");
 
     /// <summary>A card; isSingle lets the preview wrap to 3 lines and the card grow to fit.</summary>
-    public static FrameworkElement Build(IslandNotification notification, string preview, ImageSource? logo, bool isSingle)
+    public static FrameworkElement Build(IslandNotification notification, string preview, ImageSource? logo, bool isSingle, string countText = "")
     {
+        ArgumentNullException.ThrowIfNull(countText);
         ArgumentNullException.ThrowIfNull(notification);
 
         Grid content = new();
@@ -48,7 +51,7 @@ internal static class NotificationCard
         content.Children.Add(icon);
 
         StackPanel texts = new() { Margin = new Thickness(GapDips, 0, 0, 0), VerticalAlignment = alignment };
-        texts.Children.Add(TopLine(notification));
+        texts.Children.Add(TopLine(notification, countText));
         if (!string.IsNullOrEmpty(preview))
         {
             texts.Children.Add(PreviewLine(preview, isSingle));
@@ -72,10 +75,11 @@ internal static class NotificationCard
         return card;
     }
 
-    private static Grid TopLine(IslandNotification notification)
+    private static Grid TopLine(IslandNotification notification, string countText)
     {
         Grid line = new();
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         line.Children.Add(new TextBlock
@@ -98,8 +102,24 @@ internal static class NotificationCard
             VerticalAlignment = VerticalAlignment.Center,
         };
         time.Typography.NumeralAlignment = FontNumeralAlignment.Tabular;
-        Grid.SetColumn(time, 1);
+        Grid.SetColumn(time, 2);
         line.Children.Add(time);
+
+        if (countText.Length > 0)
+        {
+            TextBlock count = new()
+            {
+                Text = countText,
+                Foreground = SecondaryText,
+                FontFamily = IslandFont,
+                FontSize = 11,
+                Margin = new Thickness(8, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            Grid.SetColumn(count, 1);
+            line.Children.Add(count);
+        }
+
         return line;
     }
 
