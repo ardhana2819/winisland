@@ -173,7 +173,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 <section class="panel" aria-label="Prototype controls">
   <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-play">Play in Spotify</button><button class="btn" id="a-pausesp">Pause in Spotify</button><button class="btn" id="a-close">Close Spotify</button><button class="btn" id="a-cover">Next song (new cover)</button><button class="btn" id="a-noart" aria-pressed="false">Artwork missing</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Paused: the compact island shows the paused song for 5 seconds, then the clock. Click the clock to get the paused song back and press play. With Spotify closed, opening the island shows the empty view. The four sample covers are red, blue, very light and black and white; their colours are worked out from the cover pixels, as the app will.</p></div>
-  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-same">Same chat again</button><button class="btn" id="a-4">Four from one chat</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner. v1.4: messages from the same chat stack into one card that says how many there are; click a stack to see its last 3 messages, click again to go back.</p></div>
+  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-same">Same chat again</button><button class="btn" id="a-4">Four from one chat</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner. v1.4: messages from the same chat stack into one card that says how many there are; click a stack to see its last 3 messages, click again or press Alt+Left to go back.</p></div>
   <div class="group"><h2>Settings (v1.4)</h2><div class="btns"><button class="btn" id="a-clearwin" aria-pressed="false">Also clear from Windows notification center: Off</button></div><p class="note" id="winnote"></p></div>
   <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Open or close (Ctrl+Alt+I)</button><button class="btn" id="a-pg">Switch page (Alt+Up / Alt+Down)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
   <div class="group"><h2>Island size (Settings)</h2><div class="btns" id="sizes"><button class="btn" data-k=".85" aria-pressed="false">Small</button><button class="btn" data-k="1" aria-pressed="true">Medium</button><button class="btn" data-k="1.15" aria-pressed="false">Large</button><button class="btn" data-k="1.3" aria-pressed="false">Extra large</button></div><p class="note" id="szn"></p></div>
@@ -366,10 +366,30 @@ $("bpp").onclick=()=>{S.playing=!S.playing;render()};
 $("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
 $("dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;e.stopPropagation();setPage(+b.dataset.p)});
 $("sizes").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.size=+b.dataset.k;[...$("sizes").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout();log(b.textContent+" island. Saved in Settings and shown at once.")};
+// v1.4 (FR-35): opening a chat pushes it in from the right, like the iPhone; going back mirrors it.
+// The list slides 24 left and fades (0.15 s), then the chat slides in from 40 with the page-switch
+// spring (0.5 s) and its rows follow 0.04 s apart. With reduced motion it is instant.
+const SPRING="cubic-bezier(.3,1.12,.5,1)";
+function swapChat(key){
+  if(S.swapping||key===S.chat)return;
+  const pn=$("pn"),dir=key?1:-1;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){S.chat=key;renderList();return}
+  S.swapping=true;
+  const out=pn.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX("+(-24*dir)+"px)"}],{duration:150,easing:"ease-in",fill:"forwards"});
+  // A timer, not the animation's end event, so the view still changes when the page is not drawn.
+  setTimeout(()=>{
+    out.cancel();S.chat=key;renderList();
+    pn.animate([{opacity:0,transform:"translateX("+(40*dir)+"px)"},{opacity:1,offset:.5},{opacity:1,transform:"none"}],{duration:500,easing:SPRING});
+    [...pn.querySelectorAll(".hd,.msg,.card")].forEach((r,i)=>r.animate([{opacity:0,transform:"translateX("+(16*dir)+"px)"},{opacity:1,transform:"none"}],{duration:350,delay:60+i*40,easing:SPRING,fill:"backwards"}));
+    S.swapping=false;
+  },150);
+}
+function openChat(key){swapChat(key);log("Opened the chat: its last 3 messages. Click again or press Alt+Left to go back.")}
+function closeChat(){if(!S.chat)return;swapChat(null);log("Back to the list.")}
 $("pn").addEventListener("click",e=>{
-  if(e.target.closest(".chatv")){e.stopPropagation();S.chat=null;renderList();log("Back to the list.");return}
+  if(e.target.closest(".chatv")){e.stopPropagation();closeChat();return}
   const c=e.target.closest(".card");if(!c)return;e.stopPropagation();
-  if(c.classList.contains("stack2")||c.classList.contains("stack3")){S.chat=c.dataset.k;renderList();log("Opened the chat: its last 3 messages. Click again to go back.")}
+  if(c.classList.contains("stack2")||c.classList.contains("stack3"))openChat(c.dataset.k);
 });
 $("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};
 pill.addEventListener("click",e=>{
@@ -400,6 +420,7 @@ addEventListener("keydown",e=>{
   else if(e.ctrlKey&&e.altKey&&e.code==="KeyH"){e.preventDefault();$("a-hide").click()}
   else if(e.altKey&&!e.ctrlKey&&e.code==="KeyX"){e.preventDefault();clearAll()}
   else if(e.altKey&&!e.ctrlKey&&(e.code==="ArrowDown"||e.code==="ArrowUp")&&S.ov==="exp"){e.preventDefault();setPage(e.code==="ArrowDown"?1:0)}
+  else if(e.altKey&&!e.ctrlKey&&e.code==="ArrowLeft"&&S.ov==="exp"&&S.chat){e.preventDefault();closeChat()}
 });
 setInterval(()=>{
   $("clk").textContent=now();

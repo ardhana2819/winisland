@@ -218,4 +218,7 @@ Opening a stack (PRD FR-35, click to see the last 3 messages). [Proposed, 2 Nov 
 - Header, 36 high: a back chevron 20 in `#A6ABB6`, the app icon circle 32, the chat name 14 semibold (ellipsis), and "N messages" 11 in `#A6ABB6` on the right.
 - Up to 3 message rows, newest first: `#1C1C1E`, radius 14, 34 high, padding 12 left and 22 right. Text 13 in `#E5E5EA`, one line with ellipsis; time 11 in `#A6ABB6` on the right.
 - Total height 36 + 3 x 34 + 3 x 6 = 156, inside the 190 island.
-- Clicking anywhere on the view goes back to the list.
+- Clicking anywhere on the view, or Alt+Left, goes back to the list.
+- Opening: the list slides 24 to the left while fading out over 0.15 seconds (ease-in). Then the chat view slides in from 40 on the right over 0.5 seconds with the page-switch spring cubic-bezier(0.3, 1.12, 0.5, 1), fully visible halfway. Its header and rows follow, each from 16 to the right over 0.35 seconds with the same spring, 0.04 seconds apart.
+- Going back is the mirror image: the chat slides right and out, the list comes in from the left.
+- With Windows animation effects off, the change is instant.
