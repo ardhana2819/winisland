@@ -1,6 +1,6 @@
 # WinIsland PRD (v1.3)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written on 2 Nov 2026 from your answers in chat; waiting for your approval of this PRD and of the prototype before any code.**
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Exact values are in `docs/design/DESIGN_SPEC.md` section 10.
 
 ### What v1.3 adds, in short
 
@@ -199,28 +199,28 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 **v1.3 [Confirmed 2 Nov 2026]**
 
 - FR-30. Discord notifications show the white Discord logo on a round blurple circle (#5865F2), the same way WhatsApp shows its logo: one look, whatever Windows sends. It replaces both the letter "D" and the logo Discord sends. [Confirmed 2 Nov 2026]
-  - The logo shape is drawn by WinIsland, like the WhatsApp logo. [Proposed: the Discord icon from Simple Icons, CC0, as for WhatsApp]
+  - The logo shape is drawn by WinIsland, like the WhatsApp logo. [Confirmed 2 Nov 2026: the Discord icon from Simple Icons, CC0, as for WhatsApp]
 - FR-31. Page dots show only while they help. [Confirmed 2 Nov 2026]
   - When the island expands, the dots show, so you see there is a second page. They fade out after 1.5 seconds without a page change.
   - Changing page (scroll, Alt+Up or Alt+Down, a dot click) shows them again, and they fade out 1.5 seconds after the last change.
-  - [Proposed] With the pointer over the dot area, the dots show and stay, so they can still be clicked; they fade out 1.5 seconds after the pointer leaves that area.
-  - [Proposed] Fading in and out takes about 0.2 seconds. With Windows animation effects off, they appear and disappear at once.
+  - [Confirmed 2 Nov 2026] With the pointer over the dot area, the dots show and stay, so they can still be clicked; they fade out 1.5 seconds after the pointer leaves that area.
+  - [Confirmed 2 Nov 2026] Fading in and out takes about 0.2 seconds. With Windows animation effects off, they appear and disappear at once.
 - FR-32. Island size setting: Small, Medium, Large, Extra large, in the Settings window. [Confirmed 2 Nov 2026]
   - The sizes are 85, 100, 115 and 130 percent of today's island. Medium is today's size and the default. [Confirmed 2 Nov 2026]
   - Everything scales together: the pill, text, icons, artwork, cards and spacing, in every state (compact, expanded, banner). The setting multiplies the automatic scale of FR-1, so the island still suits the monitor. Example at automatic scale 1: Extra large expanded is 546 x 247.
   - A change shows at once, without a restart, and is saved with the other settings.
-  - [Proposed] Settings shows it as one choice with four options, not a slider.
+  - [Confirmed 2 Nov 2026] Settings shows it as one choice with four options, not a slider.
 - FR-33. Unread dot on the idle island. [Confirmed 2 Nov 2026]
   - A small white dot at the right of the clock shows when at least one notification on the notifications page has not been seen there yet.
   - A notification counts as seen when the notifications page has been open while it was on it. Only seeing its banner does not count.
   - The dot goes away when you open the notifications page, or when Windows removes every unseen notification (for example you read them in the app).
-  - [Proposed] It also shows on the compact music pill, at its right end. The exact place is set in the prototype.
+  - [Confirmed 2 Nov 2026] It also shows on the compact music pill, at its right end. The exact place is set in the prototype.
   - Nothing new comes in while paused (FR-6), so the dot does not appear then. It is hidden while the island is hidden.
 - FR-34. WinIsland app icon. [Confirmed 2 Nov 2026]
-  - I make 3 concepts in the prototype; you pick one. [Confirmed 2 Nov 2026]
+  - I make 3 concepts in the prototype; you pick one. [Confirmed 2 Nov 2026] You picked concept B, "Mono pill": a black tile with the white pill, artwork square and equalizer bars. [Confirmed 2 Nov 2026]
   - It is used for `WinIsland.App.exe` (File Explorer, the Start menu shortcut) and the Settings window.
-  - [Proposed] The tray icon stays a simple white pill, because a detailed icon is hard to read at 16 pixels on the taskbar; the chosen concept may change it if it reads well that small.
-  - [Proposed] The icon is kept as a small `.ico` file in the repo, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
+  - [Confirmed 2 Nov 2026] The tray icon stays a simple white pill, because a detailed icon is hard to read at 16 pixels on the taskbar; the chosen concept may change it if it reads well that small.
+  - [Confirmed 2 Nov 2026] The icon is kept as a small `.ico` file in the repo, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
 
 **Fixes [v1.1]**
 
@@ -401,7 +401,7 @@ v1.1 [Confirmed 1 Nov 2026]:
 - Phase 9: Colours from the artwork (FR-25).
 - Then a new beta release.
 
-v1.3 [Proposed]:
+v1.3 [Confirmed 2 Nov 2026]:
 
 - Phase 10: Prototype design pass for the v1.3 states (section 8), then your approval and your pick of the icon.
 - Phase 11: Discord logo (FR-30), page dots (FR-31), unread dot (FR-33).
@@ -437,3 +437,4 @@ v1.3 [Proposed]:
 14. v1.2, 1 Nov 2026: WhatsApp Web notifications show the WhatsApp logo, borrowed from WhatsApp desktop, because the Chrome app sends none (your request). Released as v1.2.0-beta.1 the same day.
 15. 2 Nov 2026 [Confirmed]: your new requests are split in two batches of about five. v1.3: app icon, size setting, page dots that hide, unread dot, Discord logo. v1.4: glass or blur look (needs a spike), grouping notifications by category, removing a notification from Windows when hidden, and an incoming call banner without buttons (needs a spike: whether WhatsApp sends call notifications to Windows at all). Answering calls and replying to messages are not possible with the notification listener and stay out (section 4). The installer (backlog F7) waits for a later release.
 16. v1.3 answers, 2 Nov 2026 [Confirmed]: sizes 85/100/115/130 percent, in the Settings window only; page dots show on expand and on page change and fade after 1.5 seconds; the unread dot is small, white, right of the clock; Discord blurple #5865F2; 3 icon concepts to pick from.
+17. v1.3 approved by you on 2 Nov 2026: the PRD with all its proposals, and app icon concept B, "Mono pill".
