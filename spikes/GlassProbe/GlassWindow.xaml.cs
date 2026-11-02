@@ -92,6 +92,12 @@ public partial class GlassWindow : Window
         // Set the shape once before the first frame too, so the window never shows as a full rectangle.
         UpdateLayout();
         UpdateRegion();
+        // And once more after the first show, in case showing the window reset its shape.
+        ContentRendered += (_, _) =>
+        {
+            _regionSize = default;
+            UpdateRegion();
+        };
         CompositionTarget.Rendering += (_, _) => UpdateRegion();
         ShowStatus();
     }
@@ -159,6 +165,7 @@ public partial class GlassWindow : Window
         double progress = Math.Clamp((size.Height - CompactHeight) / (ExpandedHeight - CompactHeight), 0, 1.2);
         double radius = CompactRadius + (progress * (ExpandedRadius - CompactRadius));
         Pill.CornerRadius = new CornerRadius(radius);
+        Edge.CornerRadius = new CornerRadius(Math.Max(0, radius - 1.5));
 
         DpiScale dpi = VisualTreeHelper.GetDpi(this);
         // The window's fixed Width, not ActualWidth: ActualWidth is still 0 before the first show,

@@ -24,11 +24,16 @@
             CornerRadius="17"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            BorderBrush="#33FFFFFF"
-            BorderThickness="1"
             MouseLeftButtonUp="OnPillClicked"
             MouseRightButtonUp="OnPillRightClicked">
         <Grid>
+            <!-- The light edge sits 1.5 inside the pill, so the window region's hard (unsmoothed) cut
+                 only ever crosses blur, never the white line. -->
+            <Border x:Name="Edge"
+                    Margin="1.5"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1"
+                    IsHitTestVisible="False" />
             <TextBlock x:Name="ClockText"
                        Text="16:20"
                        Foreground="#FFFFFF"
