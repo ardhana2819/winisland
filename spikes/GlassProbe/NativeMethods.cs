@@ -52,6 +52,39 @@ internal static partial class NativeMethods
         public int SizeOfData;
     }
 
+    public const int DwmBbEnable = 1;
+    public const int DwmBbBlurRegion = 2;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DwmBlurBehind
+    {
+        public int Flags;
+        public int Enable;
+        public IntPtr BlurRegion;
+        public int TransitionOnMaximized;
+    }
+
+    /// <summary>Limits the blur to a region. DWM copies the region, so the caller frees it.</summary>
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmEnableBlurBehindWindow(IntPtr windowHandle, ref DwmBlurBehind blurBehind);
+
+    [LibraryImport("gdi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DeleteObject(IntPtr gdiObject);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    /// <summary>The window region's bounds. Returns 0 error, 1 empty, 2 simple, 3 complex.</summary>
+    [LibraryImport("user32.dll")]
+    public static partial int GetWindowRgnBox(IntPtr windowHandle, out Rect box);
+
     [LibraryImport("user32.dll")]
     public static partial int SetWindowCompositionAttribute(IntPtr windowHandle, ref WindowCompositionAttributeData data);
 

@@ -13,6 +13,7 @@
 //   --keep-active                         tell Windows the frame is always active (WM_NCACTIVATE), so the
 //                                         backdrop does not turn flat grey when another window has focus.
 //                                         Keyboard focus is not taken; only the frame's look changes.
+//   --shadow                              a soft dark glow behind the clock text (readability on light glass)
 //   --accent acrylic|blur                 use the older SetWindowCompositionAttribute blur instead of the
 //                                         system backdrop. It does not depend on the window being active.
 
@@ -37,10 +38,12 @@ public partial class GlassWindow : Window
     private readonly bool _gpu;
     private readonly bool _keepActive;
     private readonly string? _accent;
+    private readonly bool _shadow;
     private IntPtr _handle;
     private bool _expanded;
     private Size _regionSize;
     private string _dwmResult = "not set";
+    private string _regionInfo = "not set";
 
     public GlassWindow()
     {
@@ -50,12 +53,19 @@ public partial class GlassWindow : Window
         _gpu = args.Contains("--gpu");
         _keepActive = args.Contains("--keep-active");
         _accent = ValueAfter(args, "--accent");
+        _shadow = args.Contains("--shadow");
         if (!_gpu)
         {
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
         }
 
         InitializeComponent();
+        if (_shadow)
+        {
+            // A soft dark glow behind the clock, so white text stays readable on a light blur.
+            ClockText.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 8, ShadowDepth = 0, Opacity = 0.7 };
+        }
+
         Pill.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(_tint * 255), 0, 0, 0));
         SourceInitialized += OnSourceInitialized;
     }
@@ -165,7 +175,6 @@ public partial class GlassWindow : Window
         double progress = Math.Clamp((size.Height - CompactHeight) / (ExpandedHeight - CompactHeight), 0, 1.2);
         double radius = CompactRadius + (progress * (ExpandedRadius - CompactRadius));
         Pill.CornerRadius = new CornerRadius(radius);
-        Edge.CornerRadius = new CornerRadius(Math.Max(0, radius - 1.5));
 
         DpiScale dpi = VisualTreeHelper.GetDpi(this);
         // The window's fixed Width, not ActualWidth: ActualWidth is still 0 before the first show,
@@ -174,7 +183,22 @@ public partial class GlassWindow : Window
         int right = (int)Math.Round((Width + size.Width) / 2 * dpi.DpiScaleX);
         int bottom = (int)Math.Round(size.Height * dpi.DpiScaleY);
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
-        NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+
+        // Also limit the blur itself to the pill, in case DWM draws the blur outside the window region.
+        IntPtr blurRegion = NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner);
+        NativeMethods.DwmBlurBehind blurBehind = new()
+        {
+            Flags = NativeMethods.DwmBbEnable | NativeMethods.DwmBbBlurRegion,
+            Enable = 1,
+            BlurRegion = blurRegion,
+        };
+        int blurResult = NativeMethods.DwmEnableBlurBehindWindow(_handle, ref blurBehind);
+        NativeMethods.DeleteObject(blurRegion);
+
+        int boxType = NativeMethods.GetWindowRgnBox(_handle, out NativeMethods.Rect box);
+        _regionInfo = $"region set {setResult}, box type {boxType} {box.Right - box.Left}x{box.Bottom - box.Top}, blur region 0x{blurResult:X8}";
+        ShowStatus();
     }
 
     private void OnPillClicked(object sender, MouseButtonEventArgs e)
@@ -194,7 +218,7 @@ public partial class GlassWindow : Window
     private void ShowStatus()
     {
         string mode = _accent is null ? $"backdrop {_backdrop}" : $"accent {_accent}";
-        StatusText.Text = $"Mode: {mode}{(_keepActive ? ", keep-active" : "")}, tint {_tint:0.00}, drawing: {(_gpu ? "graphics card" : "CPU")}.\nDWM: {_dwmResult}. Click to shrink, right-click to close.";
+        StatusText.Text = $"Mode: {mode}{(_keepActive ? ", keep-active" : "")}, tint {_tint:0.00}, drawing: {(_gpu ? "graphics card" : "CPU")}.\nDWM: {_dwmResult}.\n{_regionInfo}. Click to shrink, right-click to close.";
     }
 
     // Windows draws the system backdrop only while the frame looks active. The island is never the
