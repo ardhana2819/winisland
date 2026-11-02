@@ -8,20 +8,27 @@
 // when the island changes or lays out, and stops once the pill has been still for half a second.
 // If Windows refuses the blur, Enable returns false and logs why; the island then shows Solid and
 // tries Glass again on the next start.
+// Every 2 seconds the blur is refreshed, because after some games are minimized Windows keeps
+// their last frame in it (Diva, Bleach, 2 Nov 2026). The blur reaches full strength halfway
+// through the island's fade-in, so the text never shows before its glass (also Diva's test).
 
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace WinIsland.App.Island;
 
 internal sealed class GlassLook : IDisposable
 {
     private const int StillFramesBeforeStop = 30;
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(2);
 
     private readonly Window _island;
     private readonly Border _pill;
+    private readonly DispatcherTimer _refresh;
     private BlurWindow? _blur;
     private bool _isFollowing;
     private int _stillFrames;
@@ -34,6 +41,8 @@ internal sealed class GlassLook : IDisposable
         _island = island;
         _pill = pill;
         _pill.LayoutUpdated += (_, _) => Follow();
+        _refresh = new DispatcherTimer(DispatcherPriority.Background) { Interval = RefreshInterval };
+        _refresh.Tick += (_, _) => RefreshIfShown();
     }
 
     public bool IsOn => _blur?.Backdrop is not null;
@@ -57,7 +66,9 @@ internal sealed class GlassLook : IDisposable
 
         _blur = blur;
         _island.Owner = blur;
+        blur.Backdrop.PlaceBelow(new WindowInteropHelper(_island).Handle);
         _shown = default;
+        _refresh.Start();
         Follow();
         return true;
     }
@@ -70,6 +81,7 @@ internal sealed class GlassLook : IDisposable
         }
 
         StopFollowing();
+        _refresh.Stop();
         _island.Owner = null;
         _blur.Close();
         _blur = null;
@@ -93,8 +105,17 @@ internal sealed class GlassLook : IDisposable
     public void Dispose()
     {
         StopFollowing();
+        _refresh.Stop();
         _blur?.Close();
         _blur = null;
+    }
+
+    private void RefreshIfShown()
+    {
+        if (_blur?.Backdrop is not null && _shown.Opacity > 0)
+        {
+            _blur.Backdrop.RefreshBackdrop();
+        }
     }
 
     private void OnRendering(object? sender, EventArgs e)
@@ -153,7 +174,7 @@ internal sealed class GlassLook : IDisposable
             (int)Math.Round(bounds.Width * dpi.DpiScaleX),
             (int)Math.Round(bounds.Height * dpi.DpiScaleY),
             radius,
-            (float)Math.Round(_pill.Opacity, 2));
+            (float)Math.Round(Math.Min(1, _pill.Opacity * 2), 2));
     }
 
     private void StopFollowing()

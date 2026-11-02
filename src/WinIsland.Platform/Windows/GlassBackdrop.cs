@@ -8,6 +8,11 @@
 //     the window's hard region is the island's shape itself, so the hard cut only ever crosses
 //     blur and never shows a dark rim (round 10).
 // Windows draws the blur; nothing here captures or reads the screen (PRD section 7).
+// Two fixes from Diva's first test (2 Nov 2026):
+//   - PlaceBelow puts the blur window right under the island; shown later, it had covered the
+//     island until something reordered the windows, so the island looked empty.
+//   - RefreshBackdrop asks for a fresh blur. After a game (Bleach) was minimized, Windows kept
+//     showing its last dark frame in the blur until another app was clicked.
 
 using System.ComponentModel;
 using System.Numerics;
@@ -30,6 +35,7 @@ public sealed class GlassBackdrop
     private static IntPtr s_dispatcherQueueController;
 
     private readonly IntPtr _window;
+    private readonly Compositor _compositor;
     private readonly DesktopWindowTarget _target;
     private readonly SpriteVisual _blur;
     private readonly CompositionRoundedRectangleGeometry _shape;
@@ -54,12 +60,12 @@ public sealed class GlassBackdrop
         Marshal.ThrowExceptionForHR(NativeMethods.DwmSetWindowAttribute(window, NativeMethods.DwmwaUseHostBackdropBrush, ref useHostBackdrop, sizeof(int)));
 
         EnsureDispatcherQueue();
-        Compositor compositor = new();
-        _target = CreateTarget(compositor, window);
-        _shape = compositor.CreateRoundedRectangleGeometry();
-        _blur = compositor.CreateSpriteVisual();
-        _blur.Brush = compositor.CreateHostBackdropBrush();
-        _blur.Clip = compositor.CreateGeometricClip(_shape);
+        _compositor = new Compositor();
+        _target = CreateTarget(_compositor, window);
+        _shape = _compositor.CreateRoundedRectangleGeometry();
+        _blur = _compositor.CreateSpriteVisual();
+        _blur.Brush = _compositor.CreateHostBackdropBrush();
+        _blur.Clip = _compositor.CreateGeometricClip(_shape);
         _target.Root = _blur;
     }
 
@@ -80,6 +86,18 @@ public sealed class GlassBackdrop
             int corner = 2 * radius;
             NativeMethods.SetWindowRgn(_window, NativeMethods.CreateRoundRectRgn(left, top, left + width + 1, top + height + 1, corner, corner), true);
         }
+    }
+
+    /// <summary>Puts the blur window directly under the given window (the island), without activating either.</summary>
+    public void PlaceBelow(IntPtr window)
+    {
+        NativeMethods.SetWindowPos(_window, window, 0, 0, 0, 0, NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+    }
+
+    /// <summary>A fresh blur brush, so Windows samples what is behind the island again.</summary>
+    public void RefreshBackdrop()
+    {
+        _blur.Brush = _compositor.CreateHostBackdropBrush();
     }
 
     private static void MakeClickThroughAndNonActivating(IntPtr window)

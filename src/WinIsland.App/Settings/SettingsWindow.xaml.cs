@@ -52,7 +52,9 @@ public partial class SettingsWindow : Window
         }
 
         LookBox.Items.Add(new ComboBoxItem { Content = "Solid", Tag = IslandLook.Solid });
-        LookBox.Items.Add(new ComboBoxItem { Content = "Glass", Tag = IslandLook.Glass });
+        // Diva, 2 Nov 2026: Glass stays marked beta, also after the release, so anyone choosing it
+        // knows it may not look right in every game.
+        LookBox.Items.Add(new ComboBoxItem { Content = "Glass (beta)", Tag = IslandLook.Glass });
 
         SourceInitialized += (_, _) => DarkTitleBar.Apply(new WindowInteropHelper(this).Handle);
         PreviewKeyDown += OnPreviewKeyDown;

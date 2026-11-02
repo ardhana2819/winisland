@@ -200,8 +200,15 @@
             <!-- v1.4 (FR-37): Solid or Glass. -->
             <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">
                 <DockPanel>
-                    <ComboBox x:Name="LookBox" DockPanel.Dock="Right" Style="{StaticResource DarkDropdown}" AutomationProperties.Name="Look" SelectionChanged="OnLookChanged" />
-                    <TextBlock Text="Look" Style="{StaticResource RowLabel}" />
+                    <ComboBox x:Name="LookBox" DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource DarkDropdown}" AutomationProperties.Name="Look" SelectionChanged="OnLookChanged" />
+                    <StackPanel Margin="0,0,16,0">
+                        <TextBlock Text="Look" Style="{StaticResource RowLabel}" />
+                        <TextBlock Text="Glass is in beta: it may not look right in every game."
+                                   Foreground="#A6ABB6"
+                                   FontSize="12"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
                 </DockPanel>
             </Border>
             <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">
