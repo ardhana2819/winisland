@@ -1,5 +1,6 @@
 // IslandWindow.xaml.cs: connects the island window to the island's rules.
-// Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1),
+// Makes the window non-activating (FR-3), places and scales it on the primary monitor (FR-1) at
+// the size chosen in Settings (FR-32),
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
 // shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), shows
 // notification banners (FR-15), switches the expanded island's pages by scroll, Alt+Up and
@@ -47,8 +48,9 @@ public partial class IslandWindow : Window
     private IslandView _shownView = IslandView.Compact;
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
+    private IslandSize _size;
 
-    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys)
+    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys, IslandSize size)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
@@ -57,6 +59,7 @@ public partial class IslandWindow : Window
         _island = island;
         _music = music;
         _startHotkeys = startHotkeys;
+        _size = size;
 
         InitializeComponent();
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
@@ -114,6 +117,18 @@ public partial class IslandWindow : Window
 
     /// <summary>The island's hotkeys; Settings changes them. Available once the window is shown.</summary>
     internal IslandHotkeys? Hotkeys { get; private set; }
+
+    /// <summary>A new island size from Settings (FR-32): shown at once, without a restart.</summary>
+    internal void ApplySize(IslandSize size)
+    {
+        if (size == _size)
+        {
+            return;
+        }
+
+        _size = size;
+        PlaceOnPrimaryDisplay();
+    }
 
     /// <summary>The conflict found when the hotkeys were first registered, for the Settings window.</summary>
     internal string? StartHotkeyConflict { get; private set; }
@@ -281,7 +296,7 @@ public partial class IslandWindow : Window
     {
         // The window lives on the primary monitor, so its DPI is that monitor's DPI.
         double displayWidthDips = PrimaryDisplay.WidthInPixels() / PixelsPerDip();
-        IslandLayout layout = IslandLayout.ForPrimaryDisplay(displayWidthDips);
+        IslandLayout layout = IslandLayout.ForPrimaryDisplay(displayWidthDips, _size);
 
         IslandScaleTransform.ScaleX = layout.Scale;
         IslandScaleTransform.ScaleY = layout.Scale;

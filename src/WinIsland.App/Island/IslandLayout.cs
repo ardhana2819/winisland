@@ -2,6 +2,7 @@
 // The window has a fixed size, big enough for the largest island shape plus room for the spring
 // overshoot, so it never has to resize while the island animates (resizing a transparent window
 // every frame is slow). Clicks on the clear parts of the window pass through to the game.
+// The size setting (FR-32) scales the window and everything in it together with the display scale.
 
 using WinIsland.Core.Island;
 
@@ -14,9 +15,9 @@ internal readonly record struct IslandLayout(double Scale, double Left, double T
     public const double CanvasWidthDips = 480;
     public const double CanvasHeightDips = 230;
 
-    public static IslandLayout ForPrimaryDisplay(double displayWidthDips)
+    public static IslandLayout ForPrimaryDisplay(double displayWidthDips, IslandSize size)
     {
-        double scale = IslandScale.ForDisplayWidth(displayWidthDips);
+        double scale = IslandScale.ForDisplayWidth(displayWidthDips, size);
         double width = CanvasWidthDips * scale;
         double height = CanvasHeightDips * scale;
         double left = (displayWidthDips - width) / 2;
