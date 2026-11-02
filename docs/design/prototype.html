@@ -96,8 +96,12 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
    peek out underneath, like the iPhone: one for 2 messages, two for 3 or more. Each peeks 4px and is
    8px narrower per side. To fit three stacks in the same 190 tall island, page cards are 48 tall. */
 .top .cnt{font-size:11px;color:#a6abb6;flex:none}
-.pg-notif .card{height:48px;position:relative;flex:none}
-.card.stack2,.card.stack3{cursor:pointer}
+.pg-notif .card{height:48px}
+/* Each page card sits in a wrapper that also holds the peeking cards, so the peeking cards stay
+   behind it even while it animates (an animated element would otherwise draw them on top). */
+.stk{position:relative;flex:none}
+.stk>.card{position:relative;z-index:1}
+.stk.stack2 .card,.stk.stack3 .card{cursor:pointer}
 /* v1.4 (FR-35): a clicked stack opens its chat, the last 3 messages, newest first. */
 .chatv{display:flex;flex-direction:column;gap:6px;cursor:pointer}
 .chatv .hd{display:flex;align-items:center;gap:10px;height:36px;padding:0 22px 0 4px}
@@ -106,10 +110,10 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .chatv .msg{background:#1c1c1e;border-radius:14px;height:34px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:0 22px 0 12px}
 .chatv .msg span{flex:1;min-width:0;font-size:13px;color:#e5e5ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chatv .msg time{font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums;flex:none}
-.card.stack2,.card.stack3{margin-bottom:4px}
-.card.stack3{margin-bottom:8px}
-.card.stack2::after,.card.stack3::after{content:"";position:absolute;left:8px;right:8px;top:12px;bottom:-4px;border-radius:14px;background:#3a3a3c;z-index:-1}
-.card.stack3::before{content:"";position:absolute;left:16px;right:16px;top:12px;bottom:-8px;border-radius:12px;background:#2e2e31;z-index:-1}
+.stk.stack2,.stk.stack3{margin-bottom:4px}
+.stk.stack3{margin-bottom:8px}
+.stk.stack2::after,.stk.stack3::after{content:"";position:absolute;left:8px;right:8px;top:12px;bottom:-4px;border-radius:14px;background:#3a3a3c;z-index:0}
+.stk.stack3::before{content:"";position:absolute;left:16px;right:16px;top:12px;bottom:-8px;border-radius:12px;background:#2e2e31;z-index:0}
 .nb span{font-size:13px;color:#a6abb6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pg-notif.one{justify-content:flex-start;padding-top:10px}
 .pg-notif.one .card{height:auto;align-items:flex-start;padding:12px 22px 12px 12px}
@@ -285,7 +289,7 @@ function renderList(){
   if(S.chat&&!chat)S.chat=null;
   pn.classList.toggle("one",!chat&&S.hist.length===1);
   if(chat){pn.innerHTML='<div class="chatv"><div class="hd"><span class="bk">&lsaquo;</span><div class="ni" style="background:'+appColor(chat.app)+'">'+iconHtml(chat.app)+'</div><b>'+chat.sender+'</b><span class="cnt">'+(chat.count>99?"99+":chat.count)+' messages</span></div>'+chat.msgs.map(m=>'<div class="msg"><span>'+m.text+'</span><time>'+m.time+'</time></div>').join("")+'</div>';return}
-  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card'+(x.count>2?" stack3":x.count>1?" stack2":"")+'" data-k="'+x.app+"|"+x.sender+'"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="stk'+(x.count>2?" stack3":x.count>1?" stack2":"")+'" data-k="'+x.app+"|"+x.sender+'"><div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div></div>').join(""):'<div class="none">No notifications</div>';
   $("winnote").textContent="Off: hiding only hides it on the island. On: swiping a banner, or Alt+X on banners, also clears it from Windows, so it leaves the notifications page too. Clearing does not mark it read in WhatsApp or Discord. Now in the Windows notification center: "+S.win.length+".";
 }
 function logPalette(){
@@ -380,7 +384,7 @@ function swapChat(key){
   setTimeout(()=>{
     out.cancel();S.chat=key;renderList();
     pn.animate([{opacity:0,transform:"translateX("+(40*dir)+"px)"},{opacity:1,offset:.5},{opacity:1,transform:"none"}],{duration:500,easing:SPRING});
-    [...pn.querySelectorAll(".hd,.msg,.card")].forEach((r,i)=>r.animate([{opacity:0,transform:"translateX("+(16*dir)+"px)"},{opacity:1,transform:"none"}],{duration:350,delay:60+i*40,easing:SPRING,fill:"backwards"}));
+    [...pn.querySelectorAll(".hd,.msg,.stk")].forEach((r,i)=>r.animate([{opacity:0,transform:"translateX("+(16*dir)+"px)"},{opacity:1,transform:"none"}],{duration:350,delay:60+i*40,easing:SPRING,fill:"backwards"}));
     S.swapping=false;
   },150);
 }
@@ -388,7 +392,7 @@ function openChat(key){swapChat(key);log("Opened the chat: its last 3 messages. 
 function closeChat(){if(!S.chat)return;swapChat(null);log("Back to the list.")}
 $("pn").addEventListener("click",e=>{
   if(e.target.closest(".chatv")){e.stopPropagation();closeChat();return}
-  const c=e.target.closest(".card");if(!c)return;e.stopPropagation();
+  const c=e.target.closest(".stk");if(!c)return;e.stopPropagation();
   if(c.classList.contains("stack2")||c.classList.contains("stack3"))openChat(c.dataset.k);
 });
 $("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};
