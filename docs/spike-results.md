@@ -62,9 +62,9 @@ Settings that worked for Diva: tint 0 (as light as her TranslucentTB taskbar), a
 | Test | Result | Evidence | What it means for the PRD |
 |---|---|---|---|
 | C1. WhatsApp desktop: an incoming voice call sends a Windows notification | Skipped, 2 Nov 2026 | Diva uses WhatsApp Web only; WhatsApp desktop stays closed | Build for WhatsApp Web; desktop is not in scope for FR-38 |
-| C2. When the call notification goes away (Web) | Partly answered, 2 Nov 2026 | Three Web calls: each notification was REMOVED by Windows when the call stopped, after 10.0 s, 4.6 s and 7.1 s of ringing. Which call was declined, answered or let ring is still to confirm | The banner can stay exactly while the notification exists and leave on REMOVED |
+| C2. When the call notification goes away (Web) | Pass, 2 Nov 2026 | Answered after 10.0 s, declined after 4.6 s, video declined after 7.1 s, let ring out after 60.0 s: each time Windows REMOVED the call notification at that moment | The banner can stay exactly while the notification exists and leave on REMOVED |
 | C3. WhatsApp Web (Chrome app): an incoming call sends a notification | Pass, 2 Nov 2026 | ADDED within 0.4 s, app "WhatsApp Web" (Chrome app). Two texts: the caller's name, then an emoji plus "Incoming voice call" | A call is recognised by the second text ending in "Incoming voice call" or "Incoming video call" (English WhatsApp). The caller is the first text |
-| C4. A missed call leaves a notification, and what it says | No notification seen, to confirm | After the three calls no new ADDED line followed any REMOVED line | If one of the calls was missed, WhatsApp Web leaves nothing behind, so FR-38's missed-call card cannot be built |
+| C4. A missed call leaves a notification, and what it says | Pass, 2 Nov 2026 | Answered and declined calls leave nothing. A call left to ring out: the incoming notification is REMOVED after 60 s and 0.05 s later a new one is ADDED: caller's name, then an emoji plus "Missed voice call" | A missed call arrives as an ordinary WhatsApp Web notification, so it already becomes a normal banner and card |
 | C5. Video call instead of voice call | Pass (Web), 2 Nov 2026 | Same shape; second text: emoji plus "Incoming video call"; REMOVED after 7.1 s | The banner can say "Incoming video call" |
 
 ### Extra findings

@@ -234,3 +234,10 @@ Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
 - Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork.
 - Unchanged on Glass: the page dots and the unread dot.
 - The prototype imitates the blur with CSS `backdrop-filter: blur(22px) saturate(1.3)`; the app uses Windows' own blur, which looks lighter and smoother. "Game scene: Bright" in the prototype puts a bright scene behind the island to check readability.
+
+Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
+
+- Same size and card as a message banner: 420 x 72, radius 36, card radius 28.
+- Left: the WhatsApp icon circle 36. Middle: caller name 14 semibold, under it "Incoming voice call" or "Incoming video call" 13 in `#A6ABB6` (near-white on Glass). No time, no +N badge.
+- Right: a green `#30D158` circle 36 with a white phone symbol 20. It pulses gently: a green ring grows from 0 to 7 and fades out, every 1.6 seconds. No pulse with Windows animation effects off.
+- It shows over everything else and stays until the call notification is removed. The banner that was showing before comes back afterwards.

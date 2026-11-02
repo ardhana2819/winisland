@@ -15,7 +15,7 @@ Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, 
 - Messages from the same chat stack into one card on the notifications page (FR-35).
 - An optional setting that also clears a notification from Windows when you hide it on the island (FR-36).
 - A Glass look next to the solid black one (FR-37). Spike G1 to G5 passed on 2 Nov 2026.
-- An incoming call banner for WhatsApp calls, without buttons, if spike C1 to C5 shows WhatsApp tells Windows about calls (FR-38).
+- An incoming call banner for WhatsApp Web calls, without buttons (FR-38). Spike C1 to C5 passed on 2 Nov 2026.
 
 ### What v1.2 adds, in short
 
@@ -268,11 +268,14 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - If Windows refuses the blur (for example right after sign-in, or a Windows update changes it), the island quietly shows the Solid look instead, logs the error type, and tries Glass again on the next start. It never shows a grey or black box. [Proposed]
   - The music page keeps its solid artwork colour while a song with artwork is shown, so text stays readable (FR-25). When Spotify is closed or the song has no artwork, the music page is glass too. [Confirmed by Diva 2 Nov 2026; a glass music page while playing is backlog F8]
   - Banners, notification cards, stacks and the opened chat use a light see-through white fill on the glass (14 percent white), not the dark `#1C1C1E`, so they match the glass. No second blur of their own. [Confirmed by Diva 2 Nov 2026: "cukup blur yang gak begitu gelap"]
-- FR-38. Incoming call banner for WhatsApp, without buttons. [Confirmed 2 Nov 2026; depends on spike C1 to C5]
-  - When WhatsApp tells Windows about an incoming call, the island shows a call banner: WhatsApp icon, caller name, "Incoming call" (or "Incoming video call"), and a green phone symbol. No answer or decline buttons (section 4).
-  - [Proposed] It stays while the call rings, instead of the normal banner time, and goes away when Windows removes the call notification (answered, declined or stopped ringing). Exact behaviour follows spike C2.
-  - [Proposed] A missed call shows as a normal notification card ("Missed call"), so it is on the notifications page later. Exact text follows spike C4.
-  - Built only for what the spike shows: if WhatsApp Web sends no call notification, only WhatsApp desktop gets the banner; if neither does, this requirement moves back to the backlog.
+- FR-38. Incoming call banner for WhatsApp Web, without buttons. [Confirmed 2 Nov 2026; spike C1 to C5 passed 2 Nov 2026]
+  - When a WhatsApp Web notification's second text ends in "Incoming voice call" or "Incoming video call", the island shows a call banner instead of a message banner: WhatsApp icon, caller name (the first text), "Incoming voice call" or "Incoming video call", and a green phone symbol that gently pulses. No answer or decline buttons (section 4). [Verified in spike C3 and C5]
+  - It stays as long as the call notification exists, instead of the normal 6 seconds, and leaves the moment Windows removes it: when the call is answered, declined or stops ringing (WhatsApp stops after about 60 seconds). [Verified in spike C2]
+  - A call comes before everything else: it shows over a message banner or the open island, and the island goes back to what it showed when the call banner leaves. [Proposed]
+  - Swipe or Alt+X hides the call banner on the island only; the call keeps ringing in WhatsApp. Clicking the call banner does nothing, so a click during a game cannot answer or open anything. [Proposed]
+  - The call notification never becomes a card on the notifications page. A missed call arrives from WhatsApp as an ordinary notification ("Missed voice call"), so it shows as a normal banner and card. [Verified in spike C4]
+  - Only WhatsApp Web. WhatsApp desktop is not covered, because you do not use it (spike C1 skipped). [Confirmed by Diva 2 Nov 2026]
+  - Limitation: the check reads WhatsApp's English words. If WhatsApp is set to another language, calls show as normal message banners. [Proposed: document it in the README]
 
 **Fixes [v1.1]**
 
@@ -445,7 +448,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-26b. Five messages from one chat, then clicking its card, shows "5 messages" and the last 3 messages with their times. Clicking again, or Alt+Left, shows the list. The game keeps keyboard focus throughout, and Alt+Left reaches the game again once the chat is closed.
 - AC-27. With "Also clear from Windows notification center" off, swiping a banner leaves the notification in the Windows notification center. With it on, the swiped notification is gone from the notification center and from the notifications page.
 - AC-28. Choosing Glass shows a blurred, pill-shaped island with no box or rim around it, over the desktop and over a borderless game; the game keeps keyboard focus, and the clock stays readable over a bright and a dark scene. Solid looks the same as v1.3.
-- AC-29. (If FR-38 is built) An incoming WhatsApp call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.
+- AC-29. An incoming WhatsApp Web call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.
 - AC-30. Idle memory stays under 150 MB working set with the v1.4 features (G4).
 
 ## 16. Phased plan
@@ -476,7 +479,7 @@ v1.4 [Proposed]:
 
 - Phase 13: spikes G1 to G5 (glass) and C1 to C5 (calls), run by you; at the same time this PRD and a prototype pass for stacks, the new switch, and (after the spikes) the glass look and the call banner.
 - Phase 14: stacks per chat (FR-35) and clearing from Windows (FR-36).
-- Phase 15: glass look (FR-37) and call banner (FR-38), only what the spikes allow.
+- Phase 15: glass look (FR-37) and call banner (FR-38). Both spikes passed on 2 Nov 2026.
 - Then release `v1.4.0-beta.1`.
 
 ## 17. Top risks
@@ -513,3 +516,4 @@ v1.4 [Proposed]:
 18. v1.3 released as v1.3.0-beta.1 on 2 Nov 2026 (your request). Next: the v1.4 batch (decision 15).
 19. v1.4 answers, 2 Nov 2026 [Confirmed]: grouping means stacking messages per chat; clearing from Windows is a Settings switch, off by default; glass is a Solid or Glass choice; spikes for glass and calls run alongside the PRD and the two sure features.
 20. Glass look, 2 Nov 2026 [Confirmed]: built on the documented host backdrop blur in a second window behind the island, after 10 spike rounds (docs/spike-results.md). Light (no tint), soft shadow behind text, no edge line. The undocumented accent blur was rejected because it cannot follow the pill's shape.
+21. Call banner, 2 Nov 2026 [Confirmed]: WhatsApp Web only, recognised by its "Incoming voice call" or "Incoming video call" text, shown while the call notification exists, no buttons. Missed calls need nothing new: WhatsApp sends them as ordinary notifications.
