@@ -25,6 +25,22 @@ internal static partial class NativeMethods
     public const int DwmwaWindowCornerPreference = 33;
     public const int DwmwaSystemBackdropType = 38;
     public const int DwmwcpDoNotRound = 1;
+    public const int DwmwaUseHostBackdropBrush = 17;
+
+    // CreateDispatcherQueueController (CoreMessaging): Windows.UI.Composition needs a dispatcher queue.
+    public const int DqTypeThreadCurrent = 2;
+    public const int DqtatComSta = 2;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DispatcherQueueOptions
+    {
+        public int Size;
+        public int ThreadType;
+        public int ApartmentType;
+    }
+
+    [LibraryImport("CoreMessaging.dll")]
+    public static partial int CreateDispatcherQueueController(DispatcherQueueOptions options, out IntPtr controller);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Margins

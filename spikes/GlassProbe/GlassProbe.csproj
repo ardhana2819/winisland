@@ -13,7 +13,8 @@
     <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs. Our own code has no unsafe blocks. -->
+    <!-- Needed by LibraryImport's generated code, and by HostBackdrop.cs, which calls one COM method
+         that .NET has no projection for through its vtable. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

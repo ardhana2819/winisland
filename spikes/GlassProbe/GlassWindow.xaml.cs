@@ -14,6 +14,8 @@
 //                                         backdrop does not turn flat grey when another window has focus.
 //                                         Keyboard focus is not taken; only the frame's look changes.
 //   --shadow                              a soft dark glow behind the clock text (readability on light glass)
+//   --host                                the documented way (round 6): Windows.UI.Composition's host
+//                                         backdrop brush, clipped to the pill with smoothed edges
 //   --accent acrylic|blur                 use the older SetWindowCompositionAttribute blur instead of the
 //                                         system backdrop. It does not depend on the window being active.
 
@@ -39,6 +41,8 @@ public partial class GlassWindow : Window
     private readonly bool _keepActive;
     private readonly string? _accent;
     private readonly bool _shadow;
+    private readonly bool _host;
+    private HostBackdrop? _hostBackdrop;
     private IntPtr _handle;
     private bool _expanded;
     private Size _regionSize;
@@ -54,6 +58,7 @@ public partial class GlassWindow : Window
         _keepActive = args.Contains("--keep-active");
         _accent = ValueAfter(args, "--accent");
         _shadow = args.Contains("--shadow");
+        _host = args.Contains("--host");
         if (!_gpu)
         {
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
@@ -90,7 +95,11 @@ public partial class GlassWindow : Window
         Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
         Top = TopMarginDips;
 
-        if (_accent is null)
+        if (_host)
+        {
+            ApplyHostBackdrop();
+        }
+        else if (_accent is null)
         {
             ApplyBackdrop();
         }
@@ -132,6 +141,24 @@ public partial class GlassWindow : Window
         };
         int backdrop = NativeMethods.DwmSetWindowAttribute(_handle, NativeMethods.DwmwaSystemBackdropType, ref type, sizeof(int));
         _dwmResult = $"extend 0x{extend:X8}, backdrop 0x{backdrop:X8}";
+    }
+
+    private void ApplyHostBackdrop()
+    {
+        NativeMethods.Margins wholeWindow = new() { Left = -1, Right = -1, Top = -1, Bottom = -1 };
+        NativeMethods.DwmExtendFrameIntoClientArea(_handle, ref wholeWindow);
+        int noRounding = NativeMethods.DwmwcpDoNotRound;
+        NativeMethods.DwmSetWindowAttribute(_handle, NativeMethods.DwmwaWindowCornerPreference, ref noRounding, sizeof(int));
+        try
+        {
+            _hostBackdrop = new HostBackdrop(_handle);
+            _dwmResult = "host backdrop ready";
+        }
+        catch (Exception exception)
+        {
+            // A spike: show the failure on the pill so Diva can read it out.
+            _dwmResult = $"host backdrop failed: {exception.GetType().Name} {exception.Message}";
+        }
     }
 
     private void ApplyAccent()
@@ -183,7 +210,11 @@ public partial class GlassWindow : Window
         int right = (int)Math.Round((Width + size.Width) / 2 * dpi.DpiScaleX);
         int bottom = (int)Math.Round(size.Height * dpi.DpiScaleY);
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
-        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+        // With the host backdrop the blur has its own smooth clip, so the hard window region is made
+        // 2 pixels larger all round and never cuts the smooth edge.
+        int pad = _hostBackdrop is null ? 0 : 2;
+        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left - pad, 0, right + 1 + pad, bottom + 1 + pad, corner + (2 * pad), corner + (2 * pad)), true);
+        _hostBackdrop?.Update(left, right - left, bottom, (float)(radius * dpi.DpiScaleX));
 
         int boxType = NativeMethods.GetWindowRgnBox(_handle, out NativeMethods.Rect box);
         _regionInfo = $"region set {setResult}, box type {boxType} {box.Right - box.Left}x{box.Bottom - box.Top}";
@@ -206,7 +237,7 @@ public partial class GlassWindow : Window
 
     private void ShowStatus()
     {
-        string mode = _accent is null ? $"backdrop {_backdrop}" : $"accent {_accent}";
+        string mode = _host ? "host" : _accent is null ? $"backdrop {_backdrop}" : $"accent {_accent}";
         StatusText.Text = $"Mode: {mode}{(_keepActive ? ", keep-active" : "")}, tint {_tint:0.00}, drawing: {(_gpu ? "graphics card" : "CPU")}.\nDWM: {_dwmResult}.\n{_regionInfo}. Click to shrink, right-click to close.";
     }
 
