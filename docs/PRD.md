@@ -240,13 +240,19 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 
 - FR-35. Messages from the same chat stack into one card on the notifications page, like the iPhone. [Confirmed 2 Nov 2026: "tumpuk per chat"]
   - "Same chat" is the rule WinIsland already uses for WhatsApp's replacements (FR-15): same app and same chat name. A group is one chat.
-  - The card shows the chat, the newest message, the time of the newest message, and how many messages are in the stack. [Proposed: "3 messages" in grey under the time, only when there are 2 or more]
+  - The card shows the chat, the newest message, the time of the newest message, and how many messages are in the stack. [Confirmed 2 Nov 2026: "3 messages" in grey before the time, only when there are 2 or more; the cards behind it peek out underneath like the iPhone, see DESIGN_SPEC section 11]
   - The page still shows at most 3 cards, newest chat first, so it can now stand for more than 3 messages. [Proposed: a stack counts up to 99, shown as "99+" above that]
   - Read in the app (Windows removes that chat's notification): the whole stack leaves, as today. [Confirmed rule, FR-15]
   - With only one card on the page, it shows the newest message's full text, up to 3 lines, as today. [Proposed]
-  - Clicking a stack does nothing, like a card today (FR-22). [Proposed]
+  - Clicking a stack opens that chat on the notifications page: the chat name, the message count, and its last 3 messages, newest first, each on one line with its time. Clicking it again goes back to the list. Closing the island or switching to the music page also goes back to the list. [Proposed, Diva's idea 2 Nov 2026]
+    - A chat with more than 3 messages still shows only the last 3; the count says how many there are.
+    - Only messages that arrived while WinIsland was running can show. WhatsApp replaces its older notification, so earlier text cannot be read back from Windows.
+    - If the chat leaves (read in the app, or cleared from Windows), the page goes back to the list.
+    - "Hide message text" is respected: each line shows the same placeholder as the card.
+    - Mouse only, no new hotkey, so nothing new can clash with a game's keys.
+    - Clicking a single message card still does nothing (FR-22).
   - The banner is unchanged: one banner per new message, with +N for the others waiting.
-  - Message text stays in memory only (FR-18). [Proposed: a stack keeps only its newest message's text and a count, not every older message]
+  - Message text stays in memory only (FR-18). [Proposed: a stack keeps its last 3 messages' text and a count, nothing older; at most 9 texts in total]
 - FR-36. Optional: hiding a notification on the island also clears it from Windows. [Confirmed 2 Nov 2026: a setting, off by default]
   - A new Settings switch, "Also clear from Windows notification center", off by default. Off: everything works as today.
   - On: swiping a banner away clears that chat's notifications from Windows, and Alt+X on a banner clears the notifications of every waiting banner's chat. [Proposed: the whole chat, because Discord leaves one Windows notification per message, and clearing only one would leave the older ones behind while the island's card is already gone] WinIsland uses the listener's own remove call (`UserNotificationListener.RemoveNotification`). [Verified 2 Nov 2026: the method exists in the Microsoft docs]
@@ -433,6 +439,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 ### Acceptance criteria (v1.4, draft)
 
 - AC-26. Three messages from one chat and one from another give two cards on the notifications page: the first with the newest message and "3 messages", the second with its single message. Reading the first chat in WhatsApp removes its whole card.
+- AC-26b. Five messages from one chat, then clicking its card, shows "5 messages" and the last 3 messages with their times. Clicking again shows the list. The game keeps keyboard focus throughout.
 - AC-27. With "Also clear from Windows notification center" off, swiping a banner leaves the notification in the Windows notification center. With it on, the swiped notification is gone from the notification center and from the notifications page.
 - AC-28. (If FR-37 is built) Choosing Glass shows a blurred, tinted island over the desktop and over a borderless game, the game keeps keyboard focus, and the clock stays readable over a bright and a dark scene. Solid looks the same as v1.3.
 - AC-29. (If FR-38 is built) An incoming WhatsApp call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.

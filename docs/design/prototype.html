@@ -97,6 +97,15 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
    8px narrower per side. To fit three stacks in the same 190 tall island, page cards are 48 tall. */
 .top .cnt{font-size:11px;color:#a6abb6;flex:none}
 .pg-notif .card{height:48px;position:relative;flex:none}
+.card.stack2,.card.stack3{cursor:pointer}
+/* v1.4 (FR-35): a clicked stack opens its chat, the last 3 messages, newest first. */
+.chatv{display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.chatv .hd{display:flex;align-items:center;gap:10px;height:36px;padding:0 22px 0 4px}
+.chatv .hd .bk{font-size:20px;color:#a6abb6;line-height:1;width:12px}
+.chatv .hd b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chatv .msg{background:#1c1c1e;border-radius:14px;height:34px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:0 22px 0 12px}
+.chatv .msg span{flex:1;min-width:0;font-size:13px;color:#e5e5ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chatv .msg time{font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums;flex:none}
 .card.stack2,.card.stack3{margin-bottom:4px}
 .card.stack3{margin-bottom:8px}
 .card.stack2::after,.card.stack3::after{content:"";position:absolute;left:8px;right:8px;top:12px;bottom:-4px;border-radius:14px;background:#3a3a3c;z-index:-1}
@@ -164,7 +173,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 <section class="panel" aria-label="Prototype controls">
   <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-play">Play in Spotify</button><button class="btn" id="a-pausesp">Pause in Spotify</button><button class="btn" id="a-close">Close Spotify</button><button class="btn" id="a-cover">Next song (new cover)</button><button class="btn" id="a-noart" aria-pressed="false">Artwork missing</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Paused: the compact island shows the paused song for 5 seconds, then the clock. Click the clock to get the paused song back and press play. With Spotify closed, opening the island shows the empty view. The four sample covers are red, blue, very light and black and white; their colours are worked out from the cover pixels, as the app will.</p></div>
-  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-same">Same chat again</button><button class="btn" id="a-4">Four from one chat</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner. v1.4: messages from the same chat stack into one card that says how many there are.</p></div>
+  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-same">Same chat again</button><button class="btn" id="a-4">Four from one chat</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner. v1.4: messages from the same chat stack into one card that says how many there are; click a stack to see its last 3 messages, click again to go back.</p></div>
   <div class="group"><h2>Settings (v1.4)</h2><div class="btns"><button class="btn" id="a-clearwin" aria-pressed="false">Also clear from Windows notification center: Off</button></div><p class="note" id="winnote"></p></div>
   <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Open or close (Ctrl+Alt+I)</button><button class="btn" id="a-pg">Switch page (Alt+Up / Alt+Down)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
   <div class="group"><h2>Island size (Settings)</h2><div class="btns" id="sizes"><button class="btn" data-k=".85" aria-pressed="false">Small</button><button class="btn" data-k="1" aria-pressed="true">Medium</button><button class="btn" data-k="1.15" aria-pressed="false">Large</button><button class="btn" data-k="1.3" aria-pressed="false">Extra large</button></div><p class="note" id="szn"></p></div>
@@ -272,8 +281,11 @@ function render(){
   $("a-zoom").setAttribute("aria-pressed",!S.zoom);$("a-noart").setAttribute("aria-pressed",S.noArt);
 }
 function renderList(){
-  const pn=$("pn");pn.classList.toggle("one",S.hist.length===1);
-  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card'+(x.count>2?" stack3":x.count>1?" stack2":"")+'"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+  const pn=$("pn");const chat=S.chat&&S.hist.find(x=>x.app+"|"+x.sender===S.chat);
+  if(S.chat&&!chat)S.chat=null;
+  pn.classList.toggle("one",!chat&&S.hist.length===1);
+  if(chat){pn.innerHTML='<div class="chatv"><div class="hd"><span class="bk">&lsaquo;</span><div class="ni" style="background:'+appColor(chat.app)+'">'+iconHtml(chat.app)+'</div><b>'+chat.sender+'</b><span class="cnt">'+(chat.count>99?"99+":chat.count)+' messages</span></div>'+chat.msgs.map(m=>'<div class="msg"><span>'+m.text+'</span><time>'+m.time+'</time></div>').join("")+'</div>';return}
+  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card'+(x.count>2?" stack3":x.count>1?" stack2":"")+'" data-k="'+x.app+"|"+x.sender+'"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
   $("winnote").textContent="Off: hiding only hides it on the island. On: swiping a banner, or Alt+X on banners, also clears it from Windows, so it leaves the notifications page too. Clearing does not mark it read in WhatsApp or Discord. Now in the Windows notification center: "+S.win.length+".";
 }
 function logPalette(){
@@ -293,9 +305,9 @@ function markSeen(){if(S.ov==="exp"&&S.page===1)S.hist.forEach(x=>x.seen=true)}
 // Dots show on expand and on a page change, and fade 1.5 s after.
 function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
 function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;markSeen();render();flashDots()}
-function collapse(msg){if(S.ov!=="exp")return;S.ov=null;clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
+function collapse(msg){if(S.ov!=="exp")return;S.ov=null;S.chat=null;renderList();clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
 function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
-function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;markSeen();render();flashDots();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
+function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;S.chat=null;renderList();markSeen();render();flashDots();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
 
 /* ---------- Notifications ---------- */
 function clearNotif(){clearTimeout(S.tm);S.q=[];if(S.ov==="notif")S.ov=null}
@@ -305,7 +317,7 @@ function notify(app,sender,text){
   const n={app,sender,text,time:now()};S.win.unshift(n);
   // FR-35: the same app and chat stack into one card: newest message, newest time, a count.
   const i=S.hist.findIndex(x=>x.app===app&&x.sender===sender);const st=i>=0?S.hist.splice(i,1)[0]:{app,sender,count:0};
-  Object.assign(st,{text,time:n.time,count:st.count+1,seen:S.ov==="exp"&&S.page===1});
+  Object.assign(st,{text,time:n.time,count:st.count+1,seen:S.ov==="exp"&&S.page===1,msgs:[{text,time:n.time},...(st.msgs||[])].slice(0,3)});
   S.hist.unshift(st);S.hist=S.hist.slice(0,3);renderList();
   if(S.ov==="exp"&&S.page===1){render();log(app+" message added to the top of the page, no banner.");return}
   S.q.unshift(n);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
@@ -354,7 +366,11 @@ $("bpp").onclick=()=>{S.playing=!S.playing;render()};
 $("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
 $("dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;e.stopPropagation();setPage(+b.dataset.p)});
 $("sizes").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.size=+b.dataset.k;[...$("sizes").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout();log(b.textContent+" island. Saved in Settings and shown at once.")};
-$("pn").addEventListener("click",e=>{if(e.target.closest(".card"))e.stopPropagation()});
+$("pn").addEventListener("click",e=>{
+  if(e.target.closest(".chatv")){e.stopPropagation();S.chat=null;renderList();log("Back to the list.");return}
+  const c=e.target.closest(".card");if(!c)return;e.stopPropagation();
+  if(c.classList.contains("stack2")||c.classList.contains("stack3")){S.chat=c.dataset.k;renderList();log("Opened the chat: its last 3 messages. Click again to go back.")}
+});
 $("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};
 pill.addEventListener("click",e=>{
   if(S.hidden||S.paused)return;const m=mode();
