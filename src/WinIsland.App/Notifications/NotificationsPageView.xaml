@@ -7,6 +7,8 @@
     One notification: the card sits 10 from the top and grows to fit up to 3 lines.
     None: "No notifications", 13, #A6ABB6, centered.
   Cards are built in NotificationCard.cs and StackCard.cs. Clicking a single card does nothing (FR-22).
+  While a WhatsApp Web call rings, it is the top card with its green call circle, followed by the
+  2 newest chats (FR-38).
 -->
 <UserControl x:Class="WinIsland.App.Notifications.NotificationsPageView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -21,7 +23,7 @@
                    AutomationProperties.AutomationId="NoNotifications"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Foreground="#A6ABB6"
+                   Foreground="{DynamicResource IslandSecondaryTextBrush}"
                    FontFamily="Segoe UI Variable Text, Segoe UI"
                    FontSize="13"
                    Visibility="Collapsed" />

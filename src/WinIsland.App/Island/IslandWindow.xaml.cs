@@ -6,6 +6,7 @@
 // notification banners (FR-15), switches the expanded island's pages by scroll, Alt+Up and
 // Alt+Down or the page dots (FR-21), shows the unread dot on the compact island (FR-33), and
 // animates whenever the island's state changes (FR-4).
+// v1.4: the Solid or Glass look (FR-37, GlassLook.cs) and the call banner (FR-38).
 
 using System.Windows;
 using System.Windows.Input;
@@ -50,8 +51,11 @@ public partial class IslandWindow : Window
     private PillShape _shownShape = PillShape.For(IslandView.Compact);
     private bool _shownVisible = true;
     private IslandSize _size;
+    private readonly GlassLook _glass;
+    private IslandLook _wantedLook;
+    private IslandLook _shownLook = IslandLook.Solid;
 
-    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys, IslandSize size)
+    internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys, IslandSize size, IslandLook look)
     {
         ArgumentNullException.ThrowIfNull(island);
         ArgumentNullException.ThrowIfNull(music);
@@ -61,14 +65,18 @@ public partial class IslandWindow : Window
         _music = music;
         _startHotkeys = startHotkeys;
         _size = size;
+        _wantedLook = look;
 
+        // The island's colors exist before its content loads; the chosen look follows once it is shown.
+        IslandLookResources.Apply(Application.Current.Resources, IslandLook.Solid, this);
         InitializeComponent();
+        _glass = new GlassLook(this, Pill);
         _animator = new PillAnimator(Pill, PillScale, PillOffset);
         _animator.SetShape(PillShape.For(IslandView.Compact));
         _musicPresenter = new IslandMusicPresenter(island, music, MusicLayer, ExpandedLayer.Music);
         _leaveCollapser = new PointerLeaveCollapser(island, Pill);
         _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
-        _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, ExpandedLayer.Notifications);
+        _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, CallLayer, ExpandedLayer.Notifications);
         ExpandedLayer.PageRequested += (_, page) => _island.ShowPage(page);
         _pillColors = new PillColors(Pill, PillShade);
         _resizeAnimator = new IslandResizeAnimator(IslandGrowScale);
@@ -83,6 +91,7 @@ public partial class IslandWindow : Window
         };
 
         SourceInitialized += OnSourceInitialized;
+        ContentRendered += (_, _) => ShowLook();
         Closed += OnClosed;
     }
 
@@ -120,6 +129,21 @@ public partial class IslandWindow : Window
     /// <summary>The island's hotkeys; Settings changes them. Available once the window is shown.</summary>
     internal IslandHotkeys? Hotkeys { get; private set; }
 
+    /// <summary>A new look from Settings (FR-37): shown at once, without a restart.</summary>
+    internal void ApplyLook(IslandLook look)
+    {
+        if (look == _wantedLook)
+        {
+            return;
+        }
+
+        _wantedLook = look;
+        if (IsLoaded)
+        {
+            ShowLook();
+        }
+    }
+
     /// <summary>
     /// A new island size from Settings (FR-32): shown at once, without a restart, growing or
     /// shrinking with the shape spring. Only the island inside changes; the window keeps its size
@@ -136,6 +160,7 @@ public partial class IslandWindow : Window
         double fromScale = LayoutFor(_size).Scale;
         _size = size;
         _resizeAnimator.Run(fromScale, LayoutFor(size).Scale, ApplyIslandScale);
+        _glass.Follow();
     }
 
     /// <summary>The conflict found when the hotkeys were first registered, for the Settings window.</summary>
@@ -279,6 +304,32 @@ public partial class IslandWindow : Window
             _animator.SetVisible(_island.IsVisible);
             _shownVisible = _island.IsVisible;
         }
+
+        // The blur follows the pill while it moves (FR-37).
+        _glass.Follow();
+    }
+
+    // Glass when chosen and Windows allows it; otherwise Solid, and Glass is tried again next start.
+    private void ShowLook()
+    {
+        IslandLook look = _wantedLook;
+        if (look == IslandLook.Glass && !_glass.Enable())
+        {
+            look = IslandLook.Solid;
+        }
+        else if (look == IslandLook.Solid)
+        {
+            _glass.Disable();
+        }
+
+        if (look == _shownLook)
+        {
+            return;
+        }
+
+        _shownLook = look;
+        IslandLookResources.Apply(Application.Current.Resources, look, Pill);
+        UpdatePillColors();
     }
 
     /// <summary>The artwork color behind the open music page; black everywhere else (FR-25).</summary>
@@ -286,7 +337,7 @@ public partial class IslandWindow : Window
     {
         ArtworkPalette palette = _musicPresenter.CurrentPalette;
         bool onMusicPage = _island.View == IslandView.Expanded && _island.Page == ExpandedPage.Music;
-        _pillColors.Show(onMusicPage && palette != ArtworkPalette.Black, palette);
+        _pillColors.Show(onMusicPage && palette != ArtworkPalette.Black, palette, _shownLook == IslandLook.Glass);
     }
 
     private FrameworkElement LayerFor(IslandView view)
@@ -298,6 +349,7 @@ public partial class IslandWindow : Window
             IslandView.Music => MusicLayer,
             IslandView.Expanded => ExpandedLayer,
             IslandView.Notification => BannerLayer,
+            IslandView.Call => CallLayer,
             IslandView.PermissionPrompt => PermissionLayer,
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No layer exists for this view."),
         };
@@ -319,6 +371,7 @@ public partial class IslandWindow : Window
 
         // Display changes are one moment Windows can rearrange windows; check the island is still on top.
         _topmostGuard?.CheckNow();
+        _glass.Follow();
     }
 
     private IslandLayout LayoutFor(IslandSize size)
@@ -373,6 +426,7 @@ public partial class IslandWindow : Window
         _expandedKeys?.Dispose();
         _minuteTimer.Dispose();
         _topmostGuard?.Dispose();
+        _glass.Dispose();
         Hotkeys?.Dispose();
     }
 }

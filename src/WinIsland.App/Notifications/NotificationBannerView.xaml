@@ -7,6 +7,9 @@
   The card never grows past the pill: long text is cut with an ellipsis.
   Section 3: sender 14 semibold, preview 13 one line with ellipsis, badge text 12 semibold.
   Tap opens the notifications page; a sideways drag of more than 40 swipes the banner away (section 6).
+  v1.4: the same view is also the call banner (FR-38, ShowCall): caller, "Incoming voice call" or
+  "Incoming video call", and the green call circle instead of the badge; tapping it does nothing.
+  Colors come from IslandLookResources, so the Glass look (FR-37) can change them.
 -->
 <UserControl x:Class="WinIsland.App.Notifications.NotificationBannerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -22,13 +25,13 @@
              MouseLeftButtonUp="OnMouseUp">
     <Border x:Name="BannerContent"
             Margin="8"
-            Background="#1C1C1E"
+            Background="{DynamicResource IslandCardBrush}"
             CornerRadius="28"
             Padding="10,0,14,0">
         <Border.RenderTransform>
             <TranslateTransform x:Name="SwipeOffset" />
         </Border.RenderTransform>
-        <Grid>
+        <Grid x:Name="Row">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -47,7 +50,7 @@
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock x:Name="PreviewText"
                            AutomationProperties.AutomationId="BannerPreview"
-                           Foreground="#A6ABB6"
+                           Foreground="{DynamicResource IslandSecondaryTextBrush}"
                            FontFamily="Segoe UI Variable Text, Segoe UI"
                            FontSize="13"
                            TextTrimming="CharacterEllipsis" />
@@ -56,7 +59,7 @@
             <Border x:Name="Badge"
                     Grid.Column="2"
                     VerticalAlignment="Center"
-                    Background="#3A3A3C"
+                    Background="{DynamicResource IslandBadgeBrush}"
                     CornerRadius="12"
                     Padding="9,3,9,3">
                 <TextBlock x:Name="BadgeText"

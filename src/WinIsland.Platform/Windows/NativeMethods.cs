@@ -87,4 +87,46 @@ internal static partial class NativeMethods
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool DestroyIcon(IntPtr iconHandle);
+
+    // v1.4 Glass look (PRD FR-37): the blur window behind the island.
+    public const long WsExTransparent = 0x00000020;
+    public const int DwmwaUseHostBackdropBrush = 17;
+    public const int DwmwaWindowCornerPreference = 33;
+    public const int DwmwcpDoNotRound = 1;
+    public const int DqTypeThreadCurrent = 2;
+    public const int DqtatComSta = 2;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Margins
+    {
+        public int Left;
+        public int Right;
+        public int Top;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DispatcherQueueOptions
+    {
+        public int Size;
+        public int ThreadType;
+        public int ApartmentType;
+    }
+
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmExtendFrameIntoClientArea(IntPtr windowHandle, ref Margins margins);
+
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmSetWindowAttribute(IntPtr windowHandle, int attribute, ref int value, int size);
+
+    /// <summary>A rounded rectangle; corner width and height are the full ellipse sizes, in pixels.</summary>
+    [LibraryImport("gdi32.dll")]
+    public static partial IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int cornerWidth, int cornerHeight);
+
+    /// <summary>Gives the window this shape. Windows owns the region afterwards, so it is not freed here.</summary>
+    [LibraryImport("user32.dll")]
+    public static partial int SetWindowRgn(IntPtr windowHandle, IntPtr region, [MarshalAs(UnmanagedType.Bool)] bool redraw);
+
+    [LibraryImport("CoreMessaging.dll")]
+    public static partial int CreateDispatcherQueueController(DispatcherQueueOptions options, out IntPtr controller);
 }

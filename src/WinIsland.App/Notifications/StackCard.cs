@@ -5,10 +5,14 @@
 //   3 or more:  also a second one, #2E2E31, 16 narrower on each side, radius 12, 4 more showing.
 // The peeking cards are part of the same element as the card, so they move and fade with it and
 // always stay behind it, also mid-animation (Diva saw a grey box flash in the prototype otherwise).
+// Only the part that peeks out is drawn: on the Glass look (FR-37) the card on top is see-through,
+// and the cards behind would otherwise show through it. Colors come from IslandLookResources.
 
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+
+using WinIsland.App.Island;
 
 namespace WinIsland.App.Notifications;
 
@@ -20,8 +24,6 @@ internal static class StackCard
     private const double SecondInsetDips = 16;
     private const double PeekTopDips = 12;
 
-    private static readonly Brush FirstBehind = Frozen(Color.FromRgb(0x3A, 0x3A, 0x3C));
-    private static readonly Brush SecondBehind = Frozen(Color.FromRgb(0x2E, 0x2E, 0x31));
 
     /// <summary>Wraps a card; messageCount 1 returns it with no cards behind.</summary>
     public static FrameworkElement Wrap(FrameworkElement card, int messageCount)
@@ -40,32 +42,27 @@ internal static class StackCard
 
         if (behind == 2)
         {
-            stack.Children.Add(Behind(SecondBehind, SecondInsetDips, 12, bottomGap: 0));
+            stack.Children.Add(Behind(IslandLookResources.SecondBehindBrush, SecondInsetDips, 12, bottomGap: 0));
         }
 
-        stack.Children.Add(Behind(FirstBehind, FirstInsetDips, 14, bottomGap: (behind - 1) * PeekDips));
+        stack.Children.Add(Behind(IslandLookResources.FirstBehindBrush, FirstInsetDips, 14, bottomGap: (behind - 1) * PeekDips));
         stack.Children.Add(card);
         return stack;
     }
 
     // Starts under the card (from 12 down) and reaches past its bottom edge by the peek.
-    private static Border Behind(Brush color, double inset, double radius, double bottomGap)
+    private static Border Behind(string colorKey, double inset, double radius, double bottomGap)
     {
         Border card = new()
         {
-            Background = color,
             CornerRadius = new CornerRadius(radius),
             Margin = new Thickness(inset, PeekTopDips, inset, bottomGap),
             IsHitTestVisible = false,
         };
+        card.SetResourceReference(Border.BackgroundProperty, colorKey);
+        card.SizeChanged += (_, e) =>
+            card.Clip = new RectangleGeometry(new Rect(0, Math.Max(0, e.NewSize.Height - PeekDips), e.NewSize.Width, PeekDips));
         Grid.SetRowSpan(card, 2);
         return card;
-    }
-
-    private static Brush Frozen(Color color)
-    {
-        SolidColorBrush brush = new(color);
-        brush.Freeze();
-        return brush;
     }
 }

@@ -10,7 +10,8 @@
     <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
     <!-- The tray icon uses the WinForms NotifyIcon that ships with .NET (PRD FR-6), so no extra package. -->
     <UseWindowsForms>true</UseWindowsForms>
-    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs. Our own code has no unsafe blocks. -->
+    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs, and by GlassBackdrop.cs,
+         which calls one COM method that .NET has no projection for through its vtable (v1.4, FR-37). -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

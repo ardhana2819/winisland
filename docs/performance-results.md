@@ -6,6 +6,35 @@ Labels follow `docs/spike-results.md`: "Claude ran" means Claude Code ran it on 
 
 Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650 Super (4 GB), 16 GB DDR4 2666 MHz, Windows 11 Pro 24H2 (build 26100).
 
+## v1.4 Glass look vs Solid (2 Nov 2026)
+
+**Summary:** the Glass look (FR-37) costs nothing measurable at idle. Glass: working set 136.9 to 140.7 MB, private memory 51.2 to 54.5 MB, CPU 0.38 to 0.64 % on average. Solid: 133.4 to 143.6 MB, 50.0 to 59.3 MB, 0.48 to 1.91 %. Both meet AC-30 (under 150 MB working set) and stay in the v1.1 range. While Diva was actively testing (animations, a game running) one 60 s sample showed 154.9 MB average and 3.72 % CPU; that is use, not idle.
+
+### Method
+
+Claude ran, 2 Nov 2026, on branch `feat/v1.4-glass-and-call` at `e2d817e` (Release build, run from the build folder with package identity for notifications):
+
+1. Three rounds; in each, Glass first, then Solid. Before each run: stopped `WinIsland.App`, set `"Look"` in `settings.json`, started it, waited 15 s.
+2. Ran `spikes/measure-idle.ps1 -ProcessName WinIsland.App -Seconds 30`. The island sat idle with the clock showing and the PC untouched (Diva left it alone).
+3. Afterwards `"Look"` was set back to Glass, as Diva had it.
+
+### Raw data
+
+| Look | Run | CPU avg / peak (%) | Working set avg / peak (MB) | Private avg / peak (MB) |
+|---|---|---|---|---|
+| Glass | 1 | 0.57 / 2.07 | 139.5 / 150.0 | 51.9 / 62.8 |
+| Solid | 1 | 1.91 / 15.97 | 143.6 / 147.7 | 59.3 / 63.0 |
+| Glass | 2 | 0.64 / 1.81 | 140.7 / 143.0 | 54.5 / 56.8 |
+| Solid | 2 | 0.57 / 2.31 | 133.4 / 144.2 | 50.0 / 61.1 |
+| Glass | 3 | 0.38 / 1.29 | 136.9 / 142.1 | 51.2 / 56.7 |
+| Solid | 3 | 0.48 / 1.55 | 140.8 / 146.6 | 57.0 / 62.8 |
+
+### What it means
+
+- The differences between Glass and Solid are smaller than the 15 MB the same setting moves between runs (see v1.1 below), so they are noise.
+- The blur window follows the island only while it moves, and refreshes the blur every 2 s; neither shows up in idle CPU.
+- Solid run 1 had one CPU spike (16 %), a one-off like the v1.1 baseline's; the other runs are under 2.5 %.
+
 ## v1.1.0-beta.1: .NET runtime settings (1 Nov 2026)
 
 **Summary:** v1.1.0-beta.1 meets G4 with room to spare: idle working set 128 to 143 MB, private memory 49 to 61 MB, CPU under 1 % on average. Of the .NET runtime settings tried, only turning off tiered compilation lowered memory (about 122 MB working set, 46 MB private) without costing CPU. **Decision (Diva, 1 Nov 2026): change nothing.** Memory is within target and does not affect smoothness at this level. Revisit if a new feature pushes idle memory toward 150 MB.

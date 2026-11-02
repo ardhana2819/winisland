@@ -22,6 +22,10 @@
 //         chat leaves.
 //   FR-36 (v1.4) a swipe or hotkey 3 on banners reports the hidden notifications, so the app can
 //         also clear them from Windows when that setting is on.
+//   FR-38 (v1.4) a ringing WhatsApp Web call shows a call banner over message banners until
+//         Windows removes the call notification; swipe or hotkey 3 hide only the banner, and the
+//         call stays the top card of the notifications page; opening the island during a call
+//         opens that page. The call never becomes a card of its own.
 //   12    paused wins over everything.
 //   13    paused music shows for 5 seconds, then the clock; while the island is expanded the
 //         music stays, and the 5 seconds start when it closes.
@@ -42,6 +46,7 @@ public sealed class IslandStateMachine
     private IslandOverlay _overlay = IslandOverlay.None;
     private DateTimeOffset? _pausedMusicEndsAt;
     private IslandNotification? _openChat;
+    private bool _isCallBannerHidden;
 
     /// <summary>Raised after any change that affects what the island shows.</summary>
     public event EventHandler? Changed;
@@ -80,6 +85,9 @@ public sealed class IslandStateMachine
     /// <summary>The notifications page's chats, newest first (FR-35).</summary>
     public IReadOnlyList<NotificationStack> NotificationStacks => _notifications.Stacks;
 
+    /// <summary>The WhatsApp Web call ringing right now, or null (FR-38).</summary>
+    public IncomingCall? Call { get; private set; }
+
     /// <summary>The chat opened on the notifications page, or null when the page shows the list (FR-35).</summary>
     public NotificationStack? OpenChat => _openChat is null ? null : FindStack(_openChat);
 
@@ -106,6 +114,12 @@ public sealed class IslandStateMachine
             if (IsPermissionPromptShown)
             {
                 return IslandView.PermissionPrompt;
+            }
+
+            // A ringing call comes before message banners, but not over an island you opened (FR-38).
+            if (Call is not null && !_isCallBannerHidden && _overlay != IslandOverlay.Expanded)
+            {
+                return IslandView.Call;
             }
 
             return _overlay switch
@@ -152,7 +166,8 @@ public sealed class IslandStateMachine
             return;
         }
 
-        OpenExpanded(ExpandedPage.Music);
+        // During a call the island opens where the call is: the notifications page (FR-38).
+        OpenExpanded(Call is null ? ExpandedPage.Music : ExpandedPage.Notifications);
         RaiseChanged();
     }
 
@@ -283,6 +298,14 @@ public sealed class IslandStateMachine
             return;
         }
 
+        if (IncomingCall.From(notification) is IncomingCall call)
+        {
+            Call = call;
+            _isCallBannerHidden = false;
+            RaiseChanged();
+            return;
+        }
+
         if (!_notifications.Add(notification, now, NotificationSettings.BannerDuration))
         {
             return;
@@ -309,6 +332,15 @@ public sealed class IslandStateMachine
     /// <summary>Windows removed a notification: read in the app, or replaced by a newer message (decided 1 s later).</summary>
     public void RemoveNotification(uint windowsId, DateTimeOffset now)
     {
+        // The call was answered, declined or stopped ringing: its banner and card leave at once (FR-38).
+        if (Call?.Notification.WindowsId == windowsId)
+        {
+            Call = null;
+            _isCallBannerHidden = false;
+            RaiseChanged();
+            return;
+        }
+
         _notifications.MarkRemoved(windowsId, now);
         // Nothing visible changes yet, but the read check is now due: let the app reschedule.
         RaiseChanged();
@@ -354,6 +386,12 @@ public sealed class IslandStateMachine
     /// </summary>
     public void HideNotifications(DateTimeOffset now)
     {
+        if (View == IslandView.Call)
+        {
+            HideCallBanner();
+            return;
+        }
+
         // Only banners count as hidden for FR-36; on the notifications page hotkey 3 only closes.
         List<IslandNotification> hidden = _overlay == IslandOverlay.Banner ? [.. _notifications.Waiting] : [];
         _notifications.HideAllBanners();
@@ -368,6 +406,21 @@ public sealed class IslandStateMachine
         {
             BannersDismissed?.Invoke(this, hidden);
         }
+    }
+
+    /// <summary>
+    /// Swipe on the call banner, or hotkey 3 while it shows: hides the banner on the island only.
+    /// The call keeps ringing in WhatsApp and stays on the notifications page (FR-38).
+    /// </summary>
+    public void HideCallBanner()
+    {
+        if (Call is null || _isCallBannerHidden)
+        {
+            return;
+        }
+
+        _isCallBannerHidden = true;
+        RaiseChanged();
     }
 
     /// <summary>A click on a stack of 2 or more on the notifications page opens that chat (FR-35).</summary>

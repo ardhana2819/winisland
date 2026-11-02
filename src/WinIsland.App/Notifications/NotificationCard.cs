@@ -8,11 +8,14 @@
 //   also 11 in #A6ABB6. Second line: preview 13 in #A6ABB6.
 //   A single notification shows up to 3 lines of preview at line height 18 and grows to fit.
 // Long text is cut with an ellipsis, so a card never grows past the island.
+// Colors come from IslandLookResources, so the Glass look (FR-37) can change them. A trailing
+// element (the call circle of a ringing call, FR-38) can sit at the right end.
 
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using WinIsland.App.Island;
 using WinIsland.Core.Notifications;
 
 namespace WinIsland.App.Notifications;
@@ -31,12 +34,10 @@ internal static class NotificationCard
 
     private static readonly Thickness CardPadding = new(12, 0, 22, 0);
     private static readonly Thickness SingleCardPadding = new(12, 12, 22, 12);
-    private static readonly Brush CardBackground = Frozen(Color.FromRgb(0x1C, 0x1C, 0x1E));
-    private static readonly Brush SecondaryText = Frozen(Color.FromRgb(0xA6, 0xAB, 0xB6));
     private static readonly FontFamily IslandFont = new("Segoe UI Variable Text, Segoe UI");
 
     /// <summary>A card; isSingle lets the preview wrap to 3 lines and the card grow to fit.</summary>
-    public static FrameworkElement Build(IslandNotification notification, string preview, ImageSource? logo, bool isSingle, string countText = "")
+    public static FrameworkElement Build(IslandNotification notification, string preview, ImageSource? logo, bool isSingle, string countText = "", FrameworkElement? trailing = null)
     {
         ArgumentNullException.ThrowIfNull(countText);
         ArgumentNullException.ThrowIfNull(notification);
@@ -44,6 +45,7 @@ internal static class NotificationCard
         Grid content = new();
         content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         VerticalAlignment alignment = isSingle ? VerticalAlignment.Top : VerticalAlignment.Center;
         AppIconView icon = new() { Width = IconDips, Height = IconDips, LetterSize = LetterSize, VerticalAlignment = alignment };
@@ -60,13 +62,21 @@ internal static class NotificationCard
         Grid.SetColumn(texts, 1);
         content.Children.Add(texts);
 
+        if (trailing is not null)
+        {
+            trailing.Margin = new Thickness(GapDips, 0, 0, 0);
+            trailing.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetColumn(trailing, 2);
+            content.Children.Add(trailing);
+        }
+
         Border card = new()
         {
-            Background = CardBackground,
             CornerRadius = new CornerRadius(Radius),
             Padding = isSingle ? SingleCardPadding : CardPadding,
             Child = content,
         };
+        card.SetResourceReference(Border.BackgroundProperty, IslandLookResources.CardBrush);
         if (!isSingle)
         {
             card.Height = Height;
@@ -95,13 +105,13 @@ internal static class NotificationCard
         TextBlock time = new()
         {
             Text = notification.ReceivedAt.ToLocalTime().ToString(TimeFormat, System.Globalization.CultureInfo.InvariantCulture),
-            Foreground = SecondaryText,
             FontFamily = IslandFont,
             FontSize = 11,
             Margin = new Thickness(8, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
         };
         time.Typography.NumeralAlignment = FontNumeralAlignment.Tabular;
+        time.SetResourceReference(TextBlock.ForegroundProperty, IslandLookResources.SecondaryTextBrush);
         Grid.SetColumn(time, 2);
         line.Children.Add(time);
 
@@ -110,12 +120,12 @@ internal static class NotificationCard
             TextBlock count = new()
             {
                 Text = countText,
-                Foreground = SecondaryText,
                 FontFamily = IslandFont,
                 FontSize = 11,
                 Margin = new Thickness(8, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center,
             };
+            count.SetResourceReference(TextBlock.ForegroundProperty, IslandLookResources.SecondaryTextBrush);
             Grid.SetColumn(count, 1);
             line.Children.Add(count);
         }
@@ -128,7 +138,6 @@ internal static class NotificationCard
         TextBlock block = new()
         {
             Text = preview,
-            Foreground = SecondaryText,
             FontFamily = IslandFont,
             FontSize = 13,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -142,13 +151,7 @@ internal static class NotificationCard
             block.MaxHeight = MaxLines * TextLineDips;
         }
 
+        block.SetResourceReference(TextBlock.ForegroundProperty, IslandLookResources.SecondaryTextBrush);
         return block;
-    }
-
-    private static Brush Frozen(Color color)
-    {
-        SolidColorBrush brush = new(color);
-        brush.Freeze();
-        return brush;
     }
 }

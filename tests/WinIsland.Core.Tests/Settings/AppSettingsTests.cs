@@ -58,7 +58,8 @@ public class AppSettingsTests
                 new Hotkey(HotkeyModifiers.Alt, 'Z')),
             new NotificationSettings(ShowWhatsApp: true, ShowDiscord: false, ShowOtherApps: true, HideMessageText: true, TimeSpan.FromSeconds(10), ClearFromWindows: true),
             LaunchAtStartup: false,
-            IslandSize.ExtraLarge);
+            IslandSize.ExtraLarge,
+            IslandLook.Glass);
 
         AppSettings readBack = AppSettingsJson.Read(AppSettingsJson.Write(changed));
 
@@ -108,6 +109,17 @@ public class AppSettingsTests
         Assert.True(read.Notifications.ShowWhatsApp);
         Assert.True(read.LaunchAtStartup);
         Assert.False(read.Notifications.ClearFromWindows);
+    }
+
+    [Theory]
+    [InlineData("\"Glass\"", IslandLook.Glass)]
+    [InlineData("\"glass\"", IslandLook.Glass)]
+    [InlineData("\"Frosted\"", IslandLook.Solid)]
+    [InlineData("\"1\"", IslandLook.Solid)]
+    public void The_look_is_read_by_name_and_anything_else_is_Solid(string value, IslandLook expected)
+    {
+        Assert.Equal(expected, AppSettingsJson.Read($"{{ \"Look\": {value} }}").Look);
+        Assert.Equal(IslandLook.Solid, AppSettings.Defaults.Look);
     }
 
     [Fact]

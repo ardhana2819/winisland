@@ -51,6 +51,7 @@ In words:
 | `Island/` | `PageScroll.cs` | Turns mouse wheel and touchpad scrolling into page changes, one gesture per page. |
 | `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island or a notification banner. The latest request wins. |
 | `Island/` | `IslandScale.cs`, `IslandSize.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25), times the size chosen in Settings (Small 0.85, Medium 1, Large 1.15, Extra large 1.3). |
+| `Island/` | `IslandLook.cs` | The look chosen in Settings: Solid (black, default) or Glass (v1.4). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
 | `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
 | `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
@@ -70,6 +71,7 @@ In words:
 | `Notifications/` | `WhatsAppWebPriority.cs` | WhatsApp Web comes first: drops desktop's "You may have new messages" and desktop notifications for chats Web covered in the last 10 minutes. |
 | `Notifications/` | `NotificationFeed.cs` | The last 3 chats with their last 3 messages and a count, the waiting banners with their shared timer, the read or replaced rule for removals, and which messages are still unseen. |
 | `Notifications/` | `NotificationStack.cs` | One chat on the notifications page: its last 3 messages, how many it sent, and the "3 messages" or "99+ messages" text (v1.4). |
+| `Notifications/` | `IncomingCall.cs` | Recognises a ringing WhatsApp Web call from its "Incoming voice call" or "Incoming video call" text (v1.4). |
 | `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
@@ -79,6 +81,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Part | File | What it does |
 |---|---|---|
 | Platform | `Windows/NonActivatingWindow.cs` | Makes the island window stay on top and take clicks without stealing focus from the game. |
+| Platform | `Windows/GlassBackdrop.cs` | Puts Windows' own blur (the host backdrop brush) into a window, cut to the island's rounded shape with smooth edges (v1.4 Glass). |
 | Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |
 | Platform | `Windows/NativeMethods.cs` | The Win32 functions above, in one place. They only touch WinIsland's own windows. |
 | Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (a white pill drawn in code, dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |
@@ -95,6 +98,8 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display, at the chosen island size. |
 | App | `Island/IslandResizeAnimator.cs` | Grows or shrinks the island with the shape spring when the size changes in Settings. |
+| App | `Island/GlassLook.cs`, `Island/BlurWindow.cs` | The Glass look: an empty, click-through window right behind the island carries the blur, and follows the island's shape and opacity while it moves. Falls back to Solid if Windows refuses (v1.4). |
+| App | `Island/IslandLookResources.cs` | The colors inside the island that change with the look (cards, second lines, badge, peeking cards) and the soft text shadow on Glass (v1.4). |
 | App | `Assets/WinIsland.ico`, `Assets/New-AppIcon.ps1` | The app icon (black tile with the white pill) for the exe, the Start menu and the Settings window, and the script that draws it from the design spec. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
@@ -115,6 +120,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Notifications/NotificationController.cs` | Asks for notification access, moves new and removed notifications to the UI thread, hands them to Core, keeps app logos. |
 | App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner on a grey card: app logo or letter circle (centered by its shape), sender, preview, +N badge; tap opens the notifications page, a sideways drag swipes it away. |
 | App | `Notifications/AppLogoGlyph.cs` | The WhatsApp and Discord logo shapes, drawn white on their green or blurple circle. |
+| App | `Notifications/CallSymbol.cs` | The green call circle with a phone or a video camera, pulsing on the call banner while a call rings (v1.4). |
 | App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 chats on grey cards with the time and message count, the full text of a single one (up to 3 lines), or "No notifications". |
 | App | `Notifications/StackCard.cs` | Puts the cards of older messages behind a chat's card, peeking out underneath like the iPhone (v1.4). |
 | App | `Notifications/ChatView.cs` | An opened chat: its name, count and last 3 messages with their times (v1.4). |

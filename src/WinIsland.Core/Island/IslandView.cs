@@ -24,4 +24,7 @@ public enum IslandView
 
     /// <summary>"Allow notification access", shown when Windows did not give access (FR-12, section 13).</summary>
     PermissionPrompt,
+
+    /// <summary>A WhatsApp Web call ringing: caller, voice or video, no buttons (FR-38, v1.4).</summary>
+    Call,
 }

@@ -16,7 +16,7 @@ internal readonly record struct PillShape(double Width, double Height, double Co
             IslandView.Music => new PillShape(280, 36, 18),
             IslandView.Expanded => new PillShape(420, 190, 28),
             IslandView.HotkeyConflict => new PillShape(400, 52, 26),
-            IslandView.Notification => new PillShape(420, 72, 36),
+            IslandView.Notification or IslandView.Call => new PillShape(420, 72, 36),
             IslandView.PermissionPrompt => new PillShape(360, 52, 26),
             _ => throw new ArgumentOutOfRangeException(nameof(view), view, "No island shape is defined for this view."),
         };
