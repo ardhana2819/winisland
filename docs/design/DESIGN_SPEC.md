@@ -163,8 +163,7 @@ Approved by Diva on 2 Nov 2026 after reviewing the prototype, together with ever
 ### Page dots (FR-31)
 
 - Hidden (opacity 0) while the island is still. They fade in over 0.2 seconds when the island expands and on every page change (scroll, Alt+Up or Alt+Down, a dot click), and fade out over 0.2 seconds 1.5 seconds after the last change.
-- With the pointer over the dot area they fade in and stay; 1.5 seconds after the pointer leaves it they fade out. The dot area reaches 14 above and below the dots, 14 to their left and 11 to their right (to the island's edge).
-- Hidden dots can still be clicked: the pointer shows them first.
+- The pointer does not show them (Diva, 2 Nov 2026, after testing): only expanding and a page change do. Hidden dots can still be clicked.
 - With Windows animation effects off they appear and disappear at once.
 
 ### Unread dot (FR-33)

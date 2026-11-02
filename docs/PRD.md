@@ -203,7 +203,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-31. Page dots show only while they help. [Confirmed 2 Nov 2026]
   - When the island expands, the dots show, so you see there is a second page. They fade out after 1.5 seconds without a page change.
   - Changing page (scroll, Alt+Up or Alt+Down, a dot click) shows them again, and they fade out 1.5 seconds after the last change.
-  - [Confirmed 2 Nov 2026] With the pointer over the dot area, the dots show and stay, so they can still be clicked; they fade out 1.5 seconds after the pointer leaves that area.
+  - Changed 2 Nov 2026 after your test: pointing at the island does not show the dots; they show only on expanding and on a page change. Hidden dots can still be clicked. [Confirmed 2 Nov 2026]
   - [Confirmed 2 Nov 2026] Fading in and out takes about 0.2 seconds. With Windows animation effects off, they appear and disappear at once.
 - FR-32. Island size setting: Small, Medium, Large, Extra large, in the Settings window. [Confirmed 2 Nov 2026]
   - The sizes are 85, 100, 115 and 130 percent of today's island. Medium is today's size and the default. [Confirmed 2 Nov 2026]
@@ -378,7 +378,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 ### Acceptance criteria (v1.3)
 
 - AC-20. Every Discord notification, on the banner and on a card, shows the white Discord logo on a blurple circle, also right after WinIsland starts.
-- AC-21. On expanding, the page dots show and fade out after 1.5 seconds; a page change shows them again and they fade out 1.5 seconds later. With the pointer over them they stay and can be clicked.
+- AC-21. On expanding, the page dots show and fade out after 1.5 seconds; a page change shows them again and they fade out 1.5 seconds later. Moving the pointer onto the island does not show them.
 - AC-22. Choosing each of the four sizes in Settings resizes the island at once, in compact, expanded and banner states, and the choice is still there after a restart. Medium looks the same as v1.2.
 - AC-23. A notification that arrives while the island is closed puts a white dot next to the clock after its banner ends. Opening the notifications page removes the dot. Reading the message in WhatsApp or Discord also removes it when Windows removes that notification.
 - AC-24. WinIsland.App.exe, the Start menu shortcut and the Settings window show the chosen icon.

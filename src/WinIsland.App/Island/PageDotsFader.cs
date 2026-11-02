@@ -1,12 +1,10 @@
 // PageDotsFader.cs: shows the page dots only while they help (PRD FR-31, DESIGN_SPEC section 10).
 // They fade in over 0.2 s when the island opens and on every page change, and fade out 1.5 s
-// after the last change. With the pointer over the dot area they stay, so they can be clicked;
-// they fade out 1.5 s after the pointer leaves. Closing the island hides them at once, so the
-// next opening fades them in again. With Windows animation effects off they appear and
-// disappear at once (Motion).
+// after the last change. Pointing at the island does not bring them back (Diva, 2 Nov 2026).
+// Closing the island hides them at once, so the next opening fades them in again. With Windows
+// animation effects off they appear and disappear at once (Motion).
 
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -24,10 +22,9 @@ internal sealed class PageDotsFader
     private readonly UIElement _dots;
     private readonly DispatcherTimer _hideTimer;
 
-    public PageDotsFader(UIElement dots, UIElement dotArea)
+    public PageDotsFader(UIElement dots)
     {
         ArgumentNullException.ThrowIfNull(dots);
-        ArgumentNullException.ThrowIfNull(dotArea);
         _dots = dots;
         _dots.Opacity = 0;
 
@@ -37,49 +34,22 @@ internal sealed class PageDotsFader
             _hideTimer.Stop();
             FadeTo(0);
         };
-
-        dotArea.MouseEnter += OnPointerEntered;
-        dotArea.MouseLeave += OnPointerLeft;
     }
-
-    private bool IsPointerOver { get; set; }
 
     /// <summary>The island opened or changed page: show the dots, then fade them out 1.5 s later.</summary>
     public void Flash()
     {
         FadeTo(1);
-        RestartHideTimer();
+        _hideTimer.Stop();
+        _hideTimer.Start();
     }
 
     /// <summary>The island closed: hide the dots at once.</summary>
     public void HideNow()
     {
         _hideTimer.Stop();
-        IsPointerOver = false;
         _dots.BeginAnimation(UIElement.OpacityProperty, null);
         _dots.Opacity = 0;
-    }
-
-    private void OnPointerEntered(object sender, MouseEventArgs e)
-    {
-        IsPointerOver = true;
-        _hideTimer.Stop();
-        FadeTo(1);
-    }
-
-    private void OnPointerLeft(object sender, MouseEventArgs e)
-    {
-        IsPointerOver = false;
-        RestartHideTimer();
-    }
-
-    private void RestartHideTimer()
-    {
-        _hideTimer.Stop();
-        if (!IsPointerOver)
-        {
-            _hideTimer.Start();
-        }
     }
 
     private void FadeTo(double opacity)

@@ -98,7 +98,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
 | App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page), and the unread dot at the end. |
 | App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
-| App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, or under the pointer, and fades them out 1.5 s later. |
+| App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, and fades them out 1.5 s later. |
 | App | `Notifications/UnreadDot.cs` | The small white dot on the clock and the compact music pill when a notification has not been seen yet. |
 | App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the grey placeholder with a music note) and the title shown when a song has none. |

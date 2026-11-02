@@ -37,7 +37,7 @@ public partial class ExpandedIslandView : UserControl
     public ExpandedIslandView()
     {
         InitializeComponent();
-        _dotsFader = new PageDotsFader(Dots, DotArea);
+        _dotsFader = new PageDotsFader(Dots);
     }
 
     /// <summary>A page dot was clicked.</summary>
