@@ -249,7 +249,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Message text stays in memory only (FR-18). [Proposed: a stack keeps only its newest message's text and a count, not every older message]
 - FR-36. Optional: hiding a notification on the island also clears it from Windows. [Confirmed 2 Nov 2026: a setting, off by default]
   - A new Settings switch, "Also clear from Windows notification center", off by default. Off: everything works as today.
-  - On: swiping a banner away clears that notification from Windows, and Alt+X on a banner clears all the waiting banners' notifications from Windows. WinIsland uses the listener's own remove call (`UserNotificationListener.RemoveNotification`). [Verified 2 Nov 2026: the method exists in the Microsoft docs]
+  - On: swiping a banner away clears that chat's notifications from Windows, and Alt+X on a banner clears the notifications of every waiting banner's chat. [Proposed: the whole chat, because Discord leaves one Windows notification per message, and clearing only one would leave the older ones behind while the island's card is already gone] WinIsland uses the listener's own remove call (`UserNotificationListener.RemoveNotification`). [Verified 2 Nov 2026: the method exists in the Microsoft docs]
   - Once cleared from Windows, the notification also leaves the notifications page, because Windows reports it as removed. [Proposed: say so under the switch]
   - [Proposed] Alt+X on the open notifications page only closes the island, as today; it does not clear the page.
   - Clearing from Windows does not mark the message as read in WhatsApp or Discord.

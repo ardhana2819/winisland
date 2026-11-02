@@ -92,6 +92,10 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .top{display:flex;align-items:baseline;gap:8px}
 .top b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top time{font-size:11px;color:#a6abb6;font-variant-numeric:tabular-nums;flex:none}
+/* v1.4 (FR-35): a stack shows how many messages it holds before the time, and a thin second card
+   peeks out under it, like the iPhone. */
+.top .cnt{font-size:11px;color:#a6abb6;flex:none}
+.card.stack{box-shadow:0 3px 0 -1px #2c2c2e}
 .nb span{font-size:13px;color:#a6abb6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pg-notif.one{justify-content:flex-start;padding-top:10px}
 .pg-notif.one .card{height:auto;align-items:flex-start;padding:12px 22px 12px 12px}
@@ -123,7 +127,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 <body>
 <main>
 <h1>WinIsland prototype</h1>
-<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds, a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
+<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds, a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. New in v1.4 (draft): messages from the same chat stack into one card ("Same chat again", "Four from one chat"), and a Settings switch that also clears hidden notifications from Windows. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
 
 <div class="stage" id="stage">
   <div class="scene" aria-hidden="true">Game running in a borderless window</div>
@@ -155,7 +159,8 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 <section class="panel" aria-label="Prototype controls">
   <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-play">Play in Spotify</button><button class="btn" id="a-pausesp">Pause in Spotify</button><button class="btn" id="a-close">Close Spotify</button><button class="btn" id="a-cover">Next song (new cover)</button><button class="btn" id="a-noart" aria-pressed="false">Artwork missing</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Paused: the compact island shows the paused song for 5 seconds, then the clock. Click the clock to get the paused song back and press play. With Spotify closed, opening the island shows the empty view. The four sample covers are red, blue, very light and black and white; their colours are worked out from the cover pixels, as the app will.</p></div>
-  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner.</p></div>
+  <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-same">Same chat again</button><button class="btn" id="a-4">Four from one chat</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner. v1.4: messages from the same chat stack into one card that says how many there are.</p></div>
+  <div class="group"><h2>Settings (v1.4)</h2><div class="btns"><button class="btn" id="a-clearwin" aria-pressed="false">Also clear from Windows notification center: Off</button></div><p class="note" id="winnote"></p></div>
   <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Open or close (Ctrl+Alt+I)</button><button class="btn" id="a-pg">Switch page (Alt+Up / Alt+Down)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
   <div class="group"><h2>Island size (Settings)</h2><div class="btns" id="sizes"><button class="btn" data-k=".85" aria-pressed="false">Small</button><button class="btn" data-k="1" aria-pressed="true">Medium</button><button class="btn" data-k="1.15" aria-pressed="false">Large</button><button class="btn" data-k="1.3" aria-pressed="false">Extra large</button></div><p class="note" id="szn"></p></div>
   <div class="group"><h2>Monitor</h2><div class="btns" id="mons"><button class="btn" data-dip="1920" aria-pressed="false">24 in, 1080p</button><button class="btn" data-dip="2560" aria-pressed="true">27 in, 1440p</button><button class="btn" data-dip="3072" aria-pressed="false">32 in, 4K at 125%</button></div>
@@ -214,7 +219,7 @@ const T=[{t:"Song Title One",a:"Artist Name",d:221,k:"red"},{t:"Song Title Two",
 T.forEach(x=>Object.assign(x,cover(x.k)));
 
 /* ---------- State ---------- */
-const S={size:1,ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
+const S={win:[],clearWin:false,size:1,ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
 const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
 layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
@@ -263,7 +268,8 @@ function render(){
 }
 function renderList(){
   const pn=$("pn");pn.classList.toggle("one",S.hist.length===1);
-  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b><time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card'+(x.count>1?" stack":"")+'"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+  $("winnote").textContent="Off: hiding only hides it on the island. On: swiping a banner, or Alt+X on banners, also clears it from Windows, so it leaves the notifications page too. Clearing does not mark it read in WhatsApp or Discord. Now in the Windows notification center: "+S.win.length+".";
 }
 function logPalette(){
   const P=currentPalette();
@@ -291,14 +297,23 @@ function clearNotif(){clearTimeout(S.tm);S.q=[];if(S.ov==="notif")S.ov=null}
 function arm(){clearTimeout(S.tm);S.tm=setTimeout(()=>{clearNotif();render();log("Notification dismissed after 6 seconds.")},6000)}
 function notify(app,sender,text){
   if(S.paused){log("Paused, so the notification was silenced.");return}
-  const n={app,sender,text,time:now(),seen:S.ov==="exp"&&S.page===1};S.hist.unshift(n);S.hist=S.hist.slice(0,3);renderList();
+  const n={app,sender,text,time:now()};S.win.unshift(n);
+  // FR-35: the same app and chat stack into one card: newest message, newest time, a count.
+  const i=S.hist.findIndex(x=>x.app===app&&x.sender===sender);const st=i>=0?S.hist.splice(i,1)[0]:{app,sender,count:0};
+  Object.assign(st,{text,time:n.time,count:st.count+1,seen:S.ov==="exp"&&S.page===1});
+  S.hist.unshift(st);S.hist=S.hist.slice(0,3);renderList();
   if(S.ov==="exp"&&S.page===1){render();log(app+" message added to the top of the page, no banner.");return}
   S.q.unshift(n);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
 }
+// FR-36: cleared from Windows, so Windows reports them removed and their chats leave the page.
+// Every Windows notification of a cleared chat goes, so none of its older messages stay behind.
+function clearFromWindows(msgs){S.win=S.win.filter(m=>!msgs.some(g=>g.app===m.app&&g.sender===m.sender));S.hist=S.hist.filter(x=>!msgs.some(m=>m.app===x.app&&m.sender===x.sender));renderList()}
 function clearAll(){
   if(S.ov==="exp"&&S.page===1){collapse("Alt+X closed the notifications page. Nothing was deleted.");return}
   if(!S.q.length){log("Nothing to hide.");return}
-  clearNotif();render();log("Hidden from the island only. The notifications stay in Windows and on the notifications page.");
+  const hidden=[...S.q];clearNotif();
+  if(S.clearWin){clearFromWindows(hidden);render();log("Hidden, and cleared from the Windows notification center, so those chats left the notifications page too.");return}
+  render();log("Hidden from the island only. The notifications stay in Windows and on the notifications page.");
 }
 function nextT(d){S.ti=(S.ti+d+T.length)%T.length;S.pos=0;render();logPalette()}
 
@@ -311,7 +326,10 @@ $("a-noart").onclick=()=>{S.noArt=!S.noArt;render();logPalette()};
 $("a-wa").onclick=()=>notify("WhatsApp","Sender Name","Message preview text goes here and gets cut cleanly when it is long. With only one notification, the page shows up to three lines of it.");
 $("a-dc").onclick=()=>notify("Discord","Sender Name","Short Discord message");
 $("a-3").onclick=()=>{notify("WhatsApp","Sender One","First message");notify("Discord","Sender Two","Second message");notify("WhatsApp","Sender Three","Third message")};
-$("a-read").onclick=()=>{if(!S.hist.length){log("No notification to clear.");return}const n=S.hist.shift();S.q=S.q.filter(x=>x!==n);renderList();if(S.ov==="notif"){if(!S.q.length){clearTimeout(S.tm);S.ov=null}else arm()}render();log("Simulated: the app cleared the notification in Windows, so the island removed it too.")};
+$("a-same").onclick=()=>notify("WhatsApp","Sender One","Another message in the same chat");
+$("a-4").onclick=()=>{["Hey","Are you on?","Match in 5","Ok joining"].forEach(t=>notify("Discord","Sender Two",t))};
+$("a-clearwin").onclick=()=>{S.clearWin=!S.clearWin;$("a-clearwin").setAttribute("aria-pressed",S.clearWin);$("a-clearwin").textContent="Also clear from Windows notification center: "+(S.clearWin?"On":"Off");renderList();log(S.clearWin?"On: hiding a banner also clears it from Windows.":"Off: hiding only hides it on the island.")};
+$("a-read").onclick=()=>{if(!S.hist.length){log("No notification to clear.");return}const n=S.hist.shift();S.win=S.win.filter(m=>!(m.app===n.app&&m.sender===n.sender));S.q=S.q.filter(x=>!(x.app===n.app&&x.sender===n.sender));renderList();if(S.ov==="notif"){if(!S.q.length){clearTimeout(S.tm);S.ov=null}else arm()}render();log("Simulated: the app cleared the notification in Windows, so the island removed it too.")};
 $("a-perm").onclick=()=>{S.ov="perm";render();log("Permission prompt shown once if access is denied.")};
 $("ballow").onclick=()=>{S.ov=null;render();log("Access granted (simulated).")};
 $("a-exp").onclick=toggleOpen;
@@ -346,7 +364,7 @@ pill.addEventListener("wheel",e=>{
 },{passive:false});
 pill.addEventListener("mouseleave",()=>{if(S.ov==="exp"){clearTimeout(S.lt);S.lt=setTimeout(()=>collapse("Pointer left, island closed."),2000)}});
 pill.addEventListener("mouseenter",()=>clearTimeout(S.lt));
-function swipeOut(dx){S.sw=true;setTimeout(()=>{S.sw=false},300);const nl=$("nl");nl.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX("+(dx>0?90:-90)+"px)",opacity:0}],{duration:200}).finished.then(()=>{S.q.shift();if(!S.q.length){clearTimeout(S.tm);if(S.ov==="notif")S.ov=null}else arm();render();log("Swiped away. "+(S.q.length?S.q.length+" left.":""))})}
+function swipeOut(dx){S.sw=true;setTimeout(()=>{S.sw=false},300);const nl=$("nl");nl.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX("+(dx>0?90:-90)+"px)",opacity:0}],{duration:200}).finished.then(()=>{const gone=S.q.shift();if(S.clearWin)clearFromWindows([gone]);if(!S.q.length){clearTimeout(S.tm);if(S.ov==="notif")S.ov=null}else arm();render();log("Swiped away"+(S.clearWin?" and cleared from Windows":"")+". "+(S.q.length?S.q.length+" left.":""))})}
 let sx=null;
 $("nl").addEventListener("pointerdown",e=>{sx=e.clientX});
 $("nl").addEventListener("pointerup",e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)swipeOut(dx)});
