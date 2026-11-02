@@ -44,7 +44,7 @@ The corner radius is half the height for the compact and banner states (a true p
 | Progress fill | `#FFFFFF` |
 | Equalizer bars | `#4ADE80` |
 | Notification badge background | `#2C2C2E` |
-| WhatsApp icon circle | `#177A40` |
+| WhatsApp icon circle | `#30D158` (v1.4, was `#177A40`) |
 | Discord icon circle | `#4752C4` |
 | Album art placeholder | gradient 135 degrees, `#7C3AED` to `#06B6D4` (replace with real artwork) |
 
@@ -136,7 +136,7 @@ Only the open music page is coloured. The compact pill, banner and notifications
 - None: "No notifications", 13, `#A6ABB6`, centered.
 - Banner: the 420 x 72 black pill holds one card inset by 8: 56 high, radius 28 (the pill's 36 minus 8), padding 0 14 0 10, icon circle 36, sender and preview, and the +N badge on the right (`#3A3A3C` so it stands out on the card, radius 12, padding 3 by 9, text 12 semibold). The banner shows no time: it is always "now". The card fills the pill's width and never grows past it.
 - App icons: the WhatsApp and Discord logos are centered in their circle, horizontally and vertically. The prototype's letters are stand-ins.
-- WhatsApp icon (desktop and Web, Diva 1 Nov 2026): always the `#177A40` circle with the white WhatsApp logo at 58 percent of the circle, drawn by WinIsland, whatever logo Windows sends.
+- WhatsApp icon (desktop and Web, Diva 1 Nov 2026): always the `#30D158` circle (v1.4, Diva 2 Nov 2026: brighter, the same green as the call symbol; was `#177A40`) with the white WhatsApp logo at 58 percent of the circle, drawn by WinIsland, whatever logo Windows sends.
 - Clicking a card does nothing.
 
 ### Motion
