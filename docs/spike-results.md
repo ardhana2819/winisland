@@ -45,7 +45,7 @@ Branch `spike/v1.4-glass-and-call`. Waiting for Diva's run; steps are under "How
 
 | Test | Result | Evidence | What it means for the PRD |
 |---|---|---|---|
-| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Fail with the system backdrop (acrylic), 2 Nov 2026. Second round with `--keep-active` and `--accent` pending | Diva's screenshots: flat grey over the wallpaper and over Spotify, no blur. Status line: "DWM: extend 0x00000000, backdrop 0x00000000", so Windows accepted both calls | Windows draws the system backdrop only while the window is active and shows a flat fallback colour otherwise. The island is never active (FR-3), so the documented way does not work as is |
+| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Fail with the system backdrop (acrylic), 2 Nov 2026. Second round, same day: `--accent blur` shows a real blur of the wallpaper; `--accent acrylic` and `--keep-active` to be confirmed | Diva's screenshots: flat grey over the wallpaper and over Spotify, no blur. Status line: "DWM: extend 0x00000000, backdrop 0x00000000", so Windows accepted both calls | Windows draws the system backdrop only while the window is active and shows a flat fallback colour otherwise. The island is never active (FR-3), so the documented way does not work as is |
 | G2. The pill's edges look smooth enough (a window region has no edge smoothing) | Not run yet | | |
 | G3. The blur follows the pill when it changes shape, without flicker | Not run yet | | |
 | G4. Over a borderless game: blur visible, game keeps focus, no stutter | Not run yet | | |

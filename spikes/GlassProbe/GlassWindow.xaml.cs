@@ -161,8 +161,10 @@ public partial class GlassWindow : Window
         Pill.CornerRadius = new CornerRadius(radius);
 
         DpiScale dpi = VisualTreeHelper.GetDpi(this);
-        int left = (int)Math.Round((ActualWidth - size.Width) / 2 * dpi.DpiScaleX);
-        int right = (int)Math.Round((ActualWidth + size.Width) / 2 * dpi.DpiScaleX);
+        // The window's fixed Width, not ActualWidth: ActualWidth is still 0 before the first show,
+        // which put the first region off to the left and left the whole window visible.
+        int left = (int)Math.Round((Width - size.Width) / 2 * dpi.DpiScaleX);
+        int right = (int)Math.Round((Width + size.Width) / 2 * dpi.DpiScaleX);
         int bottom = (int)Math.Round(size.Height * dpi.DpiScaleY);
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
         NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
