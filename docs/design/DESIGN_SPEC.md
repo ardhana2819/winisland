@@ -239,5 +239,7 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 
 - Same size and card as a message banner: 420 x 72, radius 36, card radius 28.
 - Left: the WhatsApp icon circle 36. Middle: caller name 14 semibold, under it "Incoming voice call" or "Incoming video call" 13 in `#A6ABB6` (near-white on Glass). No time, no +N badge.
-- Right: a green `#30D158` circle 36 with a white phone symbol 20. It pulses gently: a green ring grows from 0 to 7 and fades out, every 1.6 seconds. No pulse with Windows animation effects off.
-- It shows over everything else and stays until the call notification is removed. The banner that was showing before comes back afterwards.
+- Right: a green `#30D158` circle 36 with a white phone symbol 20 for a voice call, or a white video camera symbol 20 for a video call. It pulses gently: a green ring grows from 0 to 7 and fades out, every 1.6 seconds. No pulse with Windows animation effects off.
+- It shows over message banners and stays until the call notification is removed. The banner that was showing before comes back afterwards.
+- The banner card sits 8 inside the island, like a message banner.
+- Notifications page while ringing: the call is the top card (48 high, same layout, call circle 30 with a 16 symbol at the right), followed by the 2 newest notifications.

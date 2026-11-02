@@ -137,11 +137,17 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .card.bn{flex:1;height:56px;border-radius:28px;padding:0 14px 0 10px;cursor:pointer}
 .card.bn .top time{display:none}
 .card.bn .ni{width:36px;height:36px;font-size:16px}
-.ph{width:36px;height:36px;border-radius:50%;background:#30d158;display:flex;align-items:center;justify-content:center;flex:none;animation:ring 1.6s ease-in-out infinite}
-.ph svg{width:20px;height:20px;fill:#fff}
+.callsym{width:36px;height:36px;border-radius:50%;background:#30d158;display:flex;align-items:center;justify-content:center;flex:none;animation:ring 1.6s ease-in-out infinite}
+.callsym svg{width:20px;height:20px;fill:#fff}
+/* A video call shows a camera instead of the phone, so it is never mistaken for a voice call. */
+.callsym .vi,.callsym.video .vo{display:none}
+.callsym.video .vi{display:block}
+.l[data-m=call]{padding:8px;cursor:default}
+.card .callsym{width:30px;height:30px}
+.card .callsym svg{width:16px;height:16px}
 /* v1.4 (FR-38): the call symbol pulses gently while the call rings. */
 @keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(48,209,88,.55)}50%{box-shadow:0 0 0 7px rgba(48,209,88,0)}}
-@media (prefers-reduced-motion: reduce){.ph{animation:none}}
+@media (prefers-reduced-motion: reduce){.callsym{animation:none}}
 .bd{background:#3a3a3c;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600;flex:none}
 .l[data-m=perm]{padding:0 10px 0 20px;gap:12px;font-size:13px}
 .l[data-m=perm] span,.l[data-m=conflict] span{flex:1}
@@ -187,7 +193,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
         </div>
         <div class="dots" id="dots"><button class="dot" data-p="0" aria-label="Music page"></button><button class="dot" data-p="1" aria-label="Notifications page"></button></div>
       </div>
-      <div class="l" data-m="call" id="cl"><div class="card bn"><div class="ni" id="ci"></div><div class="nb"><div class="top"><b id="cs"></b></div><span id="ct"></span></div><span class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg></span></div></div>
+      <div class="l" data-m="call" id="cl"><div class="card bn"><div class="ni" id="ci"></div><div class="nb"><div class="top"><b id="cs"></b></div><span id="ct"></span></div><span class="callsym" id="csym"><svg class="vo" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg><svg class="vi" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11z"/></svg></span></div></div>
       <div class="l" data-m="notif" id="nl"><div class="card bn"><div class="ni" id="ni">W</div><div class="nb"><div class="top"><b id="ns"></b><time id="ntm"></time></div><span id="nt"></span></div><span class="bd" id="nbd"></span></div></div>
       <div class="l" data-m="perm"><span>Allow notification access</span><button class="allow" id="ballow">Allow</button></div>
       <div class="l" data-m="conflict"><svg class="warn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zM11 10h2v5h-2zM11 17h2v2h-2z"/></svg><span>Alt+X is used by another app</span><button class="allow" id="bset">Change</button></div>
@@ -271,7 +277,8 @@ const LOGO={
 const iconHtml=a=>LOGO[a]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LOGO[a]+'"/></svg>':a[0];
 const DOTS_SHOWN_MS=1500;
 function mode(){
-  if(S.call)return "call";
+  // A ringing call shows before everything, unless you opened the island yourself or hid the banner.
+  if(S.call&&!S.call.hidden&&S.ov!=="exp")return "call";
   if(S.ov)return S.ov;
   if(S.music&&(S.playing||Date.now()-S.pausedAt<PAUSED_SHOWN_MS))return "music";
   return "idle";
@@ -302,7 +309,7 @@ function render(){
   $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
   $("ppi").innerHTML=S.playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M7 5v14l12-7z"/>';
   const unread=S.hist.some(x=>!x.seen);$("ud1").classList.toggle("on",unread);$("ud2").classList.toggle("on",unread);
-  if(S.call){$("ci").innerHTML=iconHtml("WhatsApp");$("ci").style.background=appColor("WhatsApp");$("cs").textContent=S.call.sender;$("ct").textContent=S.call.video?"Incoming video call":"Incoming voice call"}
+  if(S.call){$("ci").innerHTML=iconHtml("WhatsApp");$("ci").style.background=appColor("WhatsApp");$("cs").textContent=S.call.sender;$("ct").textContent=S.call.video?"Incoming video call":"Incoming voice call";$("csym").classList.toggle("video",S.call.video)}
   if(q){$("ni").innerHTML=iconHtml(q.app);$("ni").style.background=appColor(q.app);$("ns").textContent=q.sender;$("ntm").textContent=q.time;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
   $("a-pause").setAttribute("aria-pressed",S.paused);$("a-pause").textContent=S.paused?"Resume":"Pause for 1 hour";
   $("a-zoom").setAttribute("aria-pressed",!S.zoom);$("a-noart").setAttribute("aria-pressed",S.noArt);
@@ -310,9 +317,12 @@ function render(){
 function renderList(){
   const pn=$("pn");const chat=S.chat&&S.hist.find(x=>x.app+"|"+x.sender===S.chat);
   if(S.chat&&!chat)S.chat=null;
-  pn.classList.toggle("one",!chat&&S.hist.length===1);
+  pn.classList.toggle("one",!chat&&!S.call&&S.hist.length===1);
   if(chat){pn.innerHTML='<div class="chatv"><div class="hd"><span class="bk">&lsaquo;</span><div class="ni" style="background:'+appColor(chat.app)+'">'+iconHtml(chat.app)+'</div><b>'+chat.sender+'</b><span class="cnt">'+(chat.count>99?"99+":chat.count)+' messages</span></div>'+chat.msgs.map(m=>'<div class="msg"><span>'+m.text+'</span><time>'+m.time+'</time></div>').join("")+'</div>';return}
-  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="stk'+(x.count>2?" stack3":x.count>1?" stack2":"")+'" data-k="'+x.app+"|"+x.sender+'"><div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div></div>').join(""):'<div class="none">No notifications</div>';
+  // FR-38: while a call rings it is the top card of the page, so opening the island never hides it.
+  const callCard=S.call?'<div class="stk"><div class="card"><div class="ni" style="background:'+appColor("WhatsApp")+'">'+iconHtml("WhatsApp")+'</div><div class="nb"><div class="top"><b>'+S.call.sender+'</b></div><span>'+(S.call.video?"Incoming video call":"Incoming voice call")+'</span></div><span class="callsym'+(S.call.video?" video":"")+'"><svg class=\"vo\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z\"/></svg><svg class="vi" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11z"/></svg></span></div></div>':"";
+  const list=S.call?S.hist.slice(0,2):S.hist;
+  pn.innerHTML=callCard+(list.length?list.map(x=>'<div class="stk'+(x.count>2?" stack3":x.count>1?" stack2":"")+'" data-k="'+x.app+"|"+x.sender+'"><div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b>'+(x.count>1?'<span class="cnt">'+(x.count>99?"99+":x.count)+' messages</span>':'')+'<time>'+x.time+'</time></div><span>'+x.text+'</span></div></div></div>').join(""):(S.call?"":'<div class="none">No notifications</div>'));
   $("winnote").textContent="Off: hiding only hides it on the island. On: swiping a banner, or Alt+X on banners, also clears it from Windows, so it leaves the notifications page too. Clearing does not mark it read in WhatsApp or Discord. Now in the Windows notification center: "+S.win.length+".";
 }
 function logPalette(){
@@ -333,7 +343,7 @@ function markSeen(){if(S.ov==="exp"&&S.page===1)S.hist.forEach(x=>x.seen=true)}
 function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
 function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;markSeen();render();flashDots()}
 function collapse(msg){if(S.ov!=="exp")return;S.ov=null;S.chat=null;renderList();clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
-function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
+function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(S.call?1:0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
 function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;S.chat=null;renderList();markSeen();render();flashDots();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
 
 /* ---------- Notifications ---------- */
@@ -353,7 +363,7 @@ function notify(app,sender,text){
 // Every Windows notification of a cleared chat goes, so none of its older messages stay behind.
 function clearFromWindows(msgs){S.win=S.win.filter(m=>!msgs.some(g=>g.app===m.app&&g.sender===m.sender));S.hist=S.hist.filter(x=>!msgs.some(m=>m.app===x.app&&m.sender===x.sender));renderList()}
 function clearAll(){
-  if(S.call){S.call=null;render();log("Call banner hidden on the island. The call keeps ringing in WhatsApp.");return}
+  if(mode()==="call"){S.call.hidden=true;render();log("Call banner hidden on the island. The call keeps ringing in WhatsApp and stays on the notifications page.");return}
   if(S.ov==="exp"&&S.page===1){collapse("Alt+X closed the notifications page. Nothing was deleted.");return}
   if(!S.q.length){log("Nothing to hide.");return}
   const hidden=[...S.q];clearNotif();
@@ -373,8 +383,8 @@ $("a-dc").onclick=()=>notify("Discord","Sender Name","Short Discord message");
 $("a-3").onclick=()=>{notify("WhatsApp","Sender One","First message");notify("Discord","Sender Two","Second message");notify("WhatsApp","Sender Three","Third message")};
 $("a-same").onclick=()=>notify("WhatsApp","Sender One","Another message in the same chat");
 $("a-4").onclick=()=>{["Hey","Are you on?","Match in 5","Ok joining"].forEach(t=>notify("Discord","Sender Two",t))};
-function startCall(video){S.call={sender:"Sender One",video};render();log((video?"Video":"Voice")+" call ringing: the call banner stays until the call stops.")}
-function endCall(missed){if(!S.call){log("No call ringing.");return}const c=S.call;S.call=null;render();if(missed)notify("WhatsApp",c.sender,"📞 Missed "+(c.video?"video":"voice")+" call");else log("Call answered or declined: Windows removed the call notification, so the banner left.")}
+function startCall(video){S.call={sender:"Sender One",video,hidden:false};render();renderList();log((video?"Video":"Voice")+" call ringing: the call banner stays until the call stops.")}
+function endCall(missed){if(!S.call){log("No call ringing.");return}const c=S.call;S.call=null;render();renderList();if(missed)notify("WhatsApp",c.sender,"📞 Missed "+(c.video?"video":"voice")+" call");else log("Call answered or declined: Windows removed the call notification, so the banner left.")}
 $("a-call").onclick=()=>startCall(false);$("a-vcall").onclick=()=>startCall(true);
 $("a-callend").onclick=()=>endCall(false);$("a-callmiss").onclick=()=>endCall(true);
 $("cl").addEventListener("click",e=>{e.stopPropagation();log("Clicking the call banner does nothing.")});
