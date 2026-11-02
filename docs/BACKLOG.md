@@ -10,6 +10,8 @@ Size rule [Confirmed]: the island may change size for these features, but every 
 
 F1 to F5 and the first-song artwork issue moved into v1.1 of `docs/PRD.md` on 1 Nov 2026 (FR-21 to FR-27). The PRD is now the source of truth for them; the notes below stay for history. F6 stays here.
 
+2 Nov 2026: your new requests were split in two batches (PRD section 18, decision 15). v1.3 is in the PRD (FR-30 to FR-34): app icon, size setting, page dots that hide, unread dot (from "Other ideas noted"), Discord logo. Planned for v1.4, still notes here until its PRD: F6 glass or blur, grouping by category, removing a notification from Windows when hidden, and an incoming call banner without buttons. F7 (installer) waits for a later release. Answering calls and replying to messages were asked for and are not possible (PRD section 4).
+
 ### F1. Paused music stays one click away [Confirmed]
 
 Today, when Spotify is paused, the island goes back to the clock, and the only way to play again is to open Spotify. Instead:

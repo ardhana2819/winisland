@@ -1,6 +1,16 @@
-# WinIsland PRD (v1.2)
+# WinIsland PRD (v1.3)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed].
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written on 2 Nov 2026 from your answers in chat; waiting for your approval of this PRD and of the prototype before any code.**
+
+### What v1.3 adds, in short
+
+- A WinIsland app icon, picked by you from 3 concepts in the prototype (FR-34).
+- An island size setting: Small, Medium, Large, Extra large (FR-32).
+- The page dots hide when the island is still and show while pages change (FR-31).
+- A small white dot on the idle island when there are notifications you have not seen (FR-33).
+- Discord notifications show the white Discord logo on a blurple circle, like WhatsApp (FR-30).
+
+v1.4 (second batch, planned, not yet specified): glass or blur look, grouping notifications by category, removing a notification from Windows when you hide it, and an incoming call banner. See section 18, decision 15.
 
 ### What v1.2 adds, in short
 
@@ -61,12 +71,21 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 
 - WhatsApp Web notifications from Chrome, because WhatsApp desktop has become heavy and you plan to use Web. No new look: Web messages show like desktop ones.
 
+### In scope for v1.3 [Confirmed 2 Nov 2026]
+
+- WinIsland app icon.
+- Island size setting: Small, Medium, Large, Extra large.
+- Page dots that hide when the island is still.
+- Unread dot on the idle island.
+- Discord logo on a blurple circle.
+
 ### Out of scope for MVP
 
 - Exclusive fullscreen and any game injection or hooking. [Confirmed]
-- Replying to messages from the island. [Confirmed]
+- Replying to messages from the island. [Confirmed] [v1.3] Asked for again on 2 Nov 2026 and kept out: the notification listener gives WinIsland only the notification's text and images, not its buttons or reply box [Verified: the `Notification` class has only `Visual` and `ExpirationTime`], and typing would take keyboard focus from the game (FR-3). [Confirmed 2 Nov 2026]
+- [v1.3] Answering or declining a WhatsApp call from the island. Same reason: WinIsland cannot press another app's notification buttons without controlling that app's window, which section 7 rules out. An incoming call banner without buttons is planned for v1.4 instead. [Confirmed 2 Nov 2026]
 - Spotify Web API, playlists, library browsing. Decided: use the Spotify desktop app only, no Web API.
-- Light theme, movable position, size setting, multi-monitor, animation tuning. Also later (see the backlog doc): glass or blur look, grouping notifications by category.
+- Light theme, movable position, size setting ([v1.3] now in scope, FR-32), multi-monitor, animation tuning. Also later (see the backlog doc): glass or blur look, grouping notifications by category.
 - Notification sources beyond WhatsApp, Discord, and generic Windows toasts.
 - [v1.1] Opening WhatsApp or Discord when you tap a notification. Removed from the plans on 1 Nov 2026: an accidental click during a game would pull you out of it. [Confirmed]
 - [v1.1] Shuffle and repeat buttons. Removed from the plans on 1 Nov 2026, to keep the controls clean. [Confirmed]
@@ -85,12 +104,16 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 10. [v1.1] As a player, I scroll or press Alt+Down on the open island to see my last 3 notifications, even when no banner is showing.
 11. [v1.1] As a player, the music view takes the colour of the song's artwork, so it feels like the iPhone.
 12. [v1.1] As a player, each notification sits on its own grey card, so it is easy to read.
+13. [v1.3] As a player, I pick how big the island is, so it suits my monitor and my eyes.
+14. [v1.3] As a player, I see at a glance on the idle island that a message came in, even after its banner is gone.
+15. [v1.3] As a player, I recognise WinIsland by its own icon in the Start menu and Settings.
 
 ## 6. Functional requirements
 
 **Overlay**
 
 - FR-1. Topmost, borderless, transparent window, top center of the primary monitor, fixed default size. The size follows the display automatically so it suits 24 to 32 inch monitors: per-monitor DPI aware, with a scale of display width in DIPs divided by 2560, limited to 0.85 to 1.25. No manual size setting. [Confirmed]
+  - [v1.3] Changed: there is now a size setting on top of this automatic scale (FR-32). "No manual size setting" no longer applies. [Confirmed 2 Nov 2026]
 - FR-2. Three visual states: compact (clock or music), expanded (music controls), notification (preview). Expanding: click the compact island with the mouse, or press hotkey 1. A click only expands. Play/pause, next and previous work only once it is expanded. With nothing playing, neither the click nor the hotkey does anything. [Confirmed] Clicking the open island outside its buttons closes it immediately, and it also closes about 2 seconds after the pointer leaves. [Confirmed] There is no Escape key to close it: the island never has keyboard focus (FR-3), so keys go to the game. [Confirmed 31 Oct 2026] If a notification arrives while the island is expanded, the banner replaces the expanded view. [Confirmed 31 Oct 2026, follows the prototype] A mouse click anywhere outside the open island (for example in the game) also closes it right away; the click still reaches the game. WinIsland checks the mouse buttons only while the island is open and uses no mouse hook. [Confirmed 31 Oct 2026, Diva's request]
   - [v1.1] Changed: the click and hotkey 1 always expand the island, also from the idle clock. The expanded island opens on the music page, which shows the playing song, the paused song (FR-23) or the empty view (FR-24). This replaces "with nothing playing, neither the click nor the hotkey does anything". [Confirmed 1 Nov 2026]
   - [v1.1] The expanded state now has two pages (FR-21). A notification that arrives while the island is open on the music page replaces it with the banner, as in v1.0. On the notifications page no banner shows: the new notification appears at the top of the page. [Confirmed 1 Nov 2026]
@@ -173,6 +196,32 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Desktop's one-line "You may have new messages", which it sends while it is closed, is always ignored.
   - With WhatsApp Web not in use, desktop notifications show as before.
 
+**v1.3 [Confirmed 2 Nov 2026]**
+
+- FR-30. Discord notifications show the white Discord logo on a round blurple circle (#5865F2), the same way WhatsApp shows its logo: one look, whatever Windows sends. It replaces both the letter "D" and the logo Discord sends. [Confirmed 2 Nov 2026]
+  - The logo shape is drawn by WinIsland, like the WhatsApp logo. [Proposed: the Discord icon from Simple Icons, CC0, as for WhatsApp]
+- FR-31. Page dots show only while they help. [Confirmed 2 Nov 2026]
+  - When the island expands, the dots show, so you see there is a second page. They fade out after 1.5 seconds without a page change.
+  - Changing page (scroll, Alt+Up or Alt+Down, a dot click) shows them again, and they fade out 1.5 seconds after the last change.
+  - [Proposed] With the pointer over the dot area, the dots show and stay, so they can still be clicked; they fade out 1.5 seconds after the pointer leaves that area.
+  - [Proposed] Fading in and out takes about 0.2 seconds. With Windows animation effects off, they appear and disappear at once.
+- FR-32. Island size setting: Small, Medium, Large, Extra large, in the Settings window. [Confirmed 2 Nov 2026]
+  - The sizes are 85, 100, 115 and 130 percent of today's island. Medium is today's size and the default. [Confirmed 2 Nov 2026]
+  - Everything scales together: the pill, text, icons, artwork, cards and spacing, in every state (compact, expanded, banner). The setting multiplies the automatic scale of FR-1, so the island still suits the monitor. Example at automatic scale 1: Extra large expanded is 546 x 247.
+  - A change shows at once, without a restart, and is saved with the other settings.
+  - [Proposed] Settings shows it as one choice with four options, not a slider.
+- FR-33. Unread dot on the idle island. [Confirmed 2 Nov 2026]
+  - A small white dot at the right of the clock shows when at least one notification on the notifications page has not been seen there yet.
+  - A notification counts as seen when the notifications page has been open while it was on it. Only seeing its banner does not count.
+  - The dot goes away when you open the notifications page, or when Windows removes every unseen notification (for example you read them in the app).
+  - [Proposed] It also shows on the compact music pill, at its right end. The exact place is set in the prototype.
+  - Nothing new comes in while paused (FR-6), so the dot does not appear then. It is hidden while the island is hidden.
+- FR-34. WinIsland app icon. [Confirmed 2 Nov 2026]
+  - I make 3 concepts in the prototype; you pick one. [Confirmed 2 Nov 2026]
+  - It is used for `WinIsland.App.exe` (File Explorer, the Start menu shortcut) and the Settings window.
+  - [Proposed] The tray icon stays a simple white pill, because a detailed icon is hard to read at 16 pixels on the taskbar; the chosen concept may change it if it reads well that small.
+  - [Proposed] The icon is kept as a small `.ico` file in the repo, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
+
 **Fixes [v1.1]**
 
 - FR-27. The artwork shows for the first song after WinIsland starts, not only from the second song on. Seen in your v1.0 tests. This is what AC-2 already asks for. [Confirmed]
@@ -185,6 +234,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - Safety with games: no injection, no hooks into game processes, so anti-cheat should have nothing to flag. We still cannot promise this for every game.
 - Accessibility: keyboard-operable settings, readable contrast. The island itself is glanceable, not a full accessibility surface. Animations follow the Windows "Animation effects" setting: when it is off, states change instantly. [Confirmed 31 Oct 2026, from the design spec]
 - [v1.1] Size: any change to the island's size is confirmed with you first and must not make it much bigger. [Confirmed 1 Nov 2026] The only v1.1 size change is the expanded island at 420 x 190 (FR-21).
+- [v1.3] Size: the size setting (FR-32) is the one approved size change in v1.3. The largest size, Extra large, is 130 percent of today's island. [Confirmed 2 Nov 2026]
 - [v1.1] Performance: the v1.1 features stay inside the G4 target (under 150 MB working set, near-zero CPU when idle). The artwork colour is worked out once per song, not every frame.
 
 ## 8. UI and UX direction
@@ -209,6 +259,14 @@ States to prototype first:
 9. Notifications page at 420 x 190 with 3, 1 and 0 notifications, on grey cards (FR-22, FR-26).
 10. Notification banner on a grey card (FR-26).
 11. The vertical slide between the two pages (FR-21).
+
+[v1.3] States to add in the prototype, before any v1.3 code:
+
+12. The 3 app icon concepts, at large size and at 16, 32 and 48 pixels (FR-34).
+13. The island at Small, Medium, Large and Extra large, compact and expanded (FR-32).
+14. Page dots fading in on expand and on a page change, and out after 1.5 seconds (FR-31).
+15. The unread dot on the clock and on the compact music pill (FR-33).
+16. The Discord logo on a blurple circle, on a card and on the banner (FR-30).
 
 The new exact values (card colour and radius, page dots, spacing at 190 high, slide motion) go into `docs/design/DESIGN_SPEC.md` after you approve the updated prototype.
 
@@ -317,6 +375,15 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-18. With both open, each message shows once (one banner, one card), from WhatsApp Web; reading it in Web or in desktop removes it.
 - AC-19. Notifications from other Chrome sites do not show.
 
+### Acceptance criteria (v1.3)
+
+- AC-20. Every Discord notification, on the banner and on a card, shows the white Discord logo on a blurple circle, also right after WinIsland starts.
+- AC-21. On expanding, the page dots show and fade out after 1.5 seconds; a page change shows them again and they fade out 1.5 seconds later. With the pointer over them they stay and can be clicked.
+- AC-22. Choosing each of the four sizes in Settings resizes the island at once, in compact, expanded and banner states, and the choice is still there after a restart. Medium looks the same as v1.2.
+- AC-23. A notification that arrives while the island is closed puts a white dot next to the clock after its banner ends. Opening the notifications page removes the dot. Reading the message in WhatsApp or Discord also removes it when Windows removes that notification.
+- AC-24. WinIsland.App.exe, the Start menu shortcut and the Settings window show the chosen icon.
+- AC-25. Idle memory stays under 150 MB working set with the v1.3 features (G4).
+
 ## 16. Phased plan
 
 - Phase 0: Prototype in Claude chat (visual states and animation), then your design approval.
@@ -333,6 +400,13 @@ v1.1 [Confirmed 1 Nov 2026]:
 - Phase 8: Two pages and notification cards (FR-21, FR-22, FR-26, changes to FR-2 and FR-15).
 - Phase 9: Colours from the artwork (FR-25).
 - Then a new beta release.
+
+v1.3 [Proposed]:
+
+- Phase 10: Prototype design pass for the v1.3 states (section 8), then your approval and your pick of the icon.
+- Phase 11: Discord logo (FR-30), page dots (FR-31), unread dot (FR-33).
+- Phase 12: Size setting (FR-32) and app icon (FR-34).
+- Then release `v1.3.0-beta.1`, which also carries the WhatsApp logo fix and the README uninstall steps already on main.
 
 ## 17. Top risks
 
@@ -361,3 +435,5 @@ v1.1 [Confirmed 1 Nov 2026]:
 12. v1.1 released as v1.1.0-beta.1 on 1 Nov 2026.
 13. v1.2, 1 Nov 2026 [Confirmed]: add WhatsApp Web; Web comes first; decide from the notifications themselves (matching chat and text) instead of checking whether WhatsApp desktop runs, which would be process inspection. Spike W1 to W7 in `docs/spike-results.md`.
 14. v1.2, 1 Nov 2026: WhatsApp Web notifications show the WhatsApp logo, borrowed from WhatsApp desktop, because the Chrome app sends none (your request). Released as v1.2.0-beta.1 the same day.
+15. 2 Nov 2026 [Confirmed]: your new requests are split in two batches of about five. v1.3: app icon, size setting, page dots that hide, unread dot, Discord logo. v1.4: glass or blur look (needs a spike), grouping notifications by category, removing a notification from Windows when hidden, and an incoming call banner without buttons (needs a spike: whether WhatsApp sends call notifications to Windows at all). Answering calls and replying to messages are not possible with the notification listener and stay out (section 4). The installer (backlog F7) waits for a later release.
+16. v1.3 answers, 2 Nov 2026 [Confirmed]: sizes 85/100/115/130 percent, in the Settings window only; page dots show on expand and on page change and fade after 1.5 seconds; the unread dot is small, white, right of the clock; Discord blurple #5865F2; 3 icon concepts to pick from.

@@ -62,7 +62,10 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .ib svg{width:22px;height:22px;fill:var(--acc);transition:fill .45s}
 .pg-music.empty .xp,.pg-music.empty .xeq{display:none}
 .pg-music.empty .ctl{opacity:.35;pointer-events:none}
-.dots{position:absolute;right:11px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px}
+/* v1.3: the dots fade in on expand, on a page change and under the pointer, and out 1.5 s later. */
+.dots{position:absolute;right:11px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;opacity:0;transition:opacity .2s}
+.dots.show{opacity:1}
+.dots::before{content:"";position:absolute;inset:-14px -11px -14px -14px}
 .dot{position:relative;width:6px;height:6px;border:0;padding:0;border-radius:3px;background:rgba(255,255,255,.35);cursor:pointer;transition:height .3s,background-color .3s}
 .dot::before{content:"";position:absolute;inset:-5px}
 .dot[aria-current=true]{height:14px;background:#fff}
@@ -72,6 +75,20 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .pg-notif{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 10px}
 .card{background:#1c1c1e;border-radius:18px;height:52px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 22px 0 12px;cursor:default;min-width:0}
 .ni{width:32px;height:32px;border-radius:50%;background:#177a40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;line-height:1;flex:none}
+/* v1.3: WhatsApp and Discord both show their white logo, 58 percent of the circle. */
+.ni svg{width:58%;height:58%;fill:#fff}
+/* v1.3: unread dot, right of the clock and at the right end of the compact music pill. */
+.ud{width:6px;height:6px;border-radius:50%;background:#fff;flex:none;opacity:0;transform:scale(.4);transition:opacity .25s,transform .35s cubic-bezier(.34,1.4,.56,1)}
+.ud.on{opacity:1;transform:scale(1)}
+.l[data-m=idle]{justify-content:center}
+.l[data-m=idle] .clk{width:auto}
+.l[data-m=idle] .ud{position:absolute;right:12px;top:50%;margin-top:-3px}
+/* v1.3: app icon concepts. */
+.icons{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.ic{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.ic .sizes{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:8px 0}
+.ic .bar2{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;background:#202020;color:#fff;font-size:12px;margin-top:6px}
+.ic .bar2.light{background:#f3f3f3;color:#000}
 .nb{flex:1;min-width:0;display:flex;flex-direction:column}
 .top{display:flex;align-items:baseline;gap:8px}
 .top b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -107,14 +124,14 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 <body>
 <main>
 <h1>WinIsland prototype</h1>
-<p class="lead">Interactive mock with fake data, v1.1. It shows the look and the motion only. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
+<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds (hover them to bring them back), a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
 
 <div class="stage" id="stage">
   <div class="scene" aria-hidden="true">Game running in a borderless window</div>
   <div class="pw" id="pw">
     <div class="pill" id="pill">
-      <div class="l" data-m="idle"><span class="clk" id="clk">00:00</span></div>
-      <div class="l" data-m="music"><span class="art" id="mart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><span class="t" id="mt"></span><span class="eq"><i></i><i></i><i></i></span></div>
+      <div class="l" data-m="idle"><span class="clk" id="clk">00:00</span><span class="ud" id="ud1" aria-label="Unread notifications"></span></div>
+      <div class="l" data-m="music"><span class="art" id="mart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><span class="t" id="mt"></span><span class="eq"><i></i><i></i><i></i></span><span class="ud" id="ud2" aria-label="Unread notifications"></span></div>
       <div class="l" data-m="exp" id="xl">
         <div class="track" id="track">
           <div class="page pg-music" id="pm">
@@ -141,10 +158,16 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
   <div class="group"><h2>Music</h2><div class="btns"><button class="btn" id="a-play">Play in Spotify</button><button class="btn" id="a-pausesp">Pause in Spotify</button><button class="btn" id="a-close">Close Spotify</button><button class="btn" id="a-cover">Next song (new cover)</button><button class="btn" id="a-noart" aria-pressed="false">Artwork missing</button><button class="btn" id="a-seek" aria-pressed="true">Seek works</button></div><p class="note">Paused: the compact island shows the paused song for 5 seconds, then the clock. Click the clock to get the paused song back and press play. With Spotify closed, opening the island shows the empty view. The four sample covers are red, blue, very light and black and white; their colours are worked out from the cover pixels, as the app will.</p></div>
   <div class="group"><h2>Notifications</h2><div class="btns"><button class="btn" id="a-wa">WhatsApp message</button><button class="btn" id="a-dc">Discord message</button><button class="btn" id="a-3">Three at once</button><button class="btn" id="a-read">Mark newest as read</button><button class="btn" id="a-perm">Ask for access</button><button class="btn" id="a-clear">Hide all (Alt+X)</button></div><p class="note">Tap a banner to open the notifications page. Clicking a card does nothing. A message that arrives while the notifications page is open goes straight to the top of the page, without a banner.</p></div>
   <div class="group"><h2>Island</h2><div class="btns"><button class="btn" id="a-exp">Open or close (Ctrl+Alt+I)</button><button class="btn" id="a-pg">Switch page (Alt+Up / Alt+Down)</button><button class="btn" id="a-hide">Hide or show (Ctrl+Alt+H)</button><button class="btn" id="a-pause" aria-pressed="false">Pause for 1 hour</button><button class="btn" id="a-conf">Show hotkey conflict</button><button class="btn" id="a-rm" aria-pressed="false">Simulate reduced motion</button></div></div>
+  <div class="group"><h2>Island size (Settings)</h2><div class="btns" id="sizes"><button class="btn" data-k=".85" aria-pressed="false">Small</button><button class="btn" data-k="1" aria-pressed="true">Medium</button><button class="btn" data-k="1.15" aria-pressed="false">Large</button><button class="btn" data-k="1.3" aria-pressed="false">Extra large</button></div><p class="note" id="szn"></p></div>
   <div class="group"><h2>Monitor</h2><div class="btns" id="mons"><button class="btn" data-dip="1920" aria-pressed="false">24 in, 1080p</button><button class="btn" data-dip="2560" aria-pressed="true">27 in, 1440p</button><button class="btn" data-dip="3072" aria-pressed="false">32 in, 4K at 125%</button></div>
   <div class="btns" style="margin-top:8px"><button class="btn" id="a-zoom" aria-pressed="false">True proportion</button></div><p class="note" id="scl"></p></div>
 </section>
 <p id="log" role="status" aria-live="polite">Ready. Click the clock to open the island, start music or send a message.</p>
+
+<h2 style="margin-top:28px;font-size:18px">App icon: pick one of three (v1.3)</h2>
+<p class="note">Each concept at 256, 48, 32 and 16 pixels, then as it would look in a dark and a light Start menu row. The tray icon stays the small white pill unless you want the chosen icon there too.</p>
+<div class="icons" id="icons"></div>
+
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -192,12 +215,18 @@ const T=[{t:"Song Title One",a:"Artist Name",d:221,k:"red"},{t:"Song Title Two",
 T.forEach(x=>Object.assign(x,cover(x.k)));
 
 /* ---------- State ---------- */
-const S={ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
+const S={size:1,dotHover:false,ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
 const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
 layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 const now=()=>new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-const appColor=a=>a==="Discord"?"#4752c4":"#177a40";
+const appColor=a=>a==="Discord"?"#5865f2":"#177a40";
+// v1.3: WhatsApp and Discord show their white logo (Simple Icons, CC0), drawn by WinIsland itself.
+const LOGO={
+  WhatsApp:"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1 -5.031 -1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1 -1.51 -5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0 -3.48 -8.413Z",
+  Discord:"M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"};
+const iconHtml=a=>LOGO[a]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LOGO[a]+'"/></svg>':a[0];
+const DOTS_SHOWN_MS=1500;
 function mode(){
   if(S.ov)return S.ov;
   if(S.music&&(S.playing||Date.now()-S.pausedAt<PAUSED_SHOWN_MS))return "music";
@@ -228,13 +257,14 @@ function render(){
   ["bprev","bpp","bnext"].forEach(id=>$(id).disabled=empty);
   $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
   $("ppi").innerHTML=S.playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M7 5v14l12-7z"/>';
-  if(q){$("ni").textContent=q.app[0];$("ni").style.background=appColor(q.app);$("ns").textContent=q.sender;$("ntm").textContent=q.time;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
+  const unread=S.hist.some(x=>!x.seen);$("ud1").classList.toggle("on",unread);$("ud2").classList.toggle("on",unread);
+  if(q){$("ni").innerHTML=iconHtml(q.app);$("ni").style.background=appColor(q.app);$("ns").textContent=q.sender;$("ntm").textContent=q.time;$("nt").textContent=q.text;$("nbd").textContent=S.q.length>1?"+"+(S.q.length-1):"";$("nbd").style.display=S.q.length>1?"":"none"}
   $("a-pause").setAttribute("aria-pressed",S.paused);$("a-pause").textContent=S.paused?"Resume":"Pause for 1 hour";
   $("a-zoom").setAttribute("aria-pressed",!S.zoom);$("a-noart").setAttribute("aria-pressed",S.noArt);
 }
 function renderList(){
   const pn=$("pn");pn.classList.toggle("one",S.hist.length===1);
-  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+x.app[0]+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b><time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
+  pn.innerHTML=S.hist.length?S.hist.map(x=>'<div class="card"><div class="ni" style="background:'+appColor(x.app)+'">'+iconHtml(x.app)+'</div><div class="nb"><div class="top"><b>'+x.sender+'</b><time>'+x.time+'</time></div><span>'+x.text+'</span></div></div>').join(""):'<div class="none">No notifications</div>';
 }
 function logPalette(){
   const P=currentPalette();
@@ -242,23 +272,27 @@ function logPalette(){
   log("Colours from the cover: background <span class=sw style=background:"+hex(P.bg)+"></span> "+hex(P.bg)+", accent <span class=sw style=background:"+hex(P.acc)+"></span> "+hex(P.acc)+". Contrast: title "+P.text.toFixed(1)+":1, grey text "+P.secRatio.toFixed(1)+":1, accent "+P.accRatio.toFixed(1)+":1"+(P.neutral?" (black and white cover, so a neutral grey).":"."));
 }
 function layout(){
-  const auto=Math.min(1.25,Math.max(.85,S.dip/2560)),k=$("stage").clientWidth/S.dip,f=k*auto*(S.zoom?3:1);
+  const auto=Math.min(1.25,Math.max(.85,S.dip/2560)),k=$("stage").clientWidth/S.dip,f=k*auto*S.size*(S.zoom?3:1);
+  $("szn").textContent="Island at "+Math.round(S.size*100)+" percent: expanded "+Math.round(420*S.size)+" x "+Math.round(190*S.size)+", clock "+Math.round(120*S.size)+" x "+Math.round(34*S.size)+" (before the monitor's auto scale). Everything scales together.";
   $("pw").style.transform="translateX(-50%) scale("+f+")";$("pw").style.top=(12*f)+"px";
   $("scl").textContent="Auto scale "+auto.toFixed(2)+"x for a "+S.dip+" px wide display (Windows DPI units). "+(S.zoom?"Pill drawn 3x larger so you can read it.":"Pill drawn at true proportion.");
 }
 
 /* ---------- Opening, closing and pages ---------- */
-function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;render()}
-function collapse(msg){if(S.ov!=="exp")return;S.ov=null;if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
+function markSeen(){if(S.ov==="exp"&&S.page===1)S.hist.forEach(x=>x.seen=true)}
+// Dots show on expand and on a page change, stay while the pointer is over them, and fade 1.5 s after.
+function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);if(!S.dotHover)S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
+function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;markSeen();render();flashDots()}
+function collapse(msg){if(S.ov!=="exp")return;S.ov=null;clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
 function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
-function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;render();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
+function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;markSeen();render();flashDots();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
 
 /* ---------- Notifications ---------- */
 function clearNotif(){clearTimeout(S.tm);S.q=[];if(S.ov==="notif")S.ov=null}
 function arm(){clearTimeout(S.tm);S.tm=setTimeout(()=>{clearNotif();render();log("Notification dismissed after 6 seconds.")},6000)}
 function notify(app,sender,text){
   if(S.paused){log("Paused, so the notification was silenced.");return}
-  const n={app,sender,text,time:now()};S.hist.unshift(n);S.hist=S.hist.slice(0,3);renderList();
+  const n={app,sender,text,time:now(),seen:S.ov==="exp"&&S.page===1};S.hist.unshift(n);S.hist=S.hist.slice(0,3);renderList();
   if(S.ov==="exp"&&S.page===1){render();log(app+" message added to the top of the page, no banner.");return}
   S.q.unshift(n);S.ov="notif";arm();render();log(app+" message shown. "+(S.q.length>1?S.q.length+" waiting.":""));
 }
@@ -297,6 +331,9 @@ $("a-seek").onclick=()=>{S.seekOK=!S.seekOK;$("seek").classList.toggle("nos",!S.
 $("bpp").onclick=()=>{S.playing=!S.playing;render()};
 $("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
 $("dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;e.stopPropagation();setPage(+b.dataset.p)});
+$("dots").addEventListener("mouseenter",()=>{S.dotHover=true;flashDots()});
+$("dots").addEventListener("mouseleave",()=>{S.dotHover=false;flashDots()});
+$("sizes").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.size=+b.dataset.k;[...$("sizes").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout();log(b.textContent+" island. Saved in Settings and shown at once.")};
 $("pn").addEventListener("click",e=>{if(e.target.closest(".card"))e.stopPropagation()});
 $("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};
 pill.addEventListener("click",e=>{
@@ -334,6 +371,19 @@ setInterval(()=>{
   render();
 },1000);
 $("clk").textContent=now();
+
+/* ---------- v1.3 app icon concepts ---------- */
+let gid=0;
+const ICONS=[
+  {name:"A. Island",note:"A miniature of the real thing: the black pill at the top of a dark blue screen, with a green dot for 'something is on'. Reads well down to 16 pixels.",
+   svg:()=>{const g="g"+(gid++);return '<defs><linearGradient id="'+g+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b5277"/><stop offset="1" stop-color="#141c2b"/></linearGradient></defs><rect x="8" y="8" width="240" height="240" rx="56" fill="url(#'+g+')"/><rect x="44" y="40" width="168" height="56" rx="28" fill="#000"/><circle cx="184" cy="68" r="10" fill="#4ade80"/>'}},
+  {name:"B. Mono pill",note:"Black tile with the white pill from the tray icon, artwork square and equalizer bars inside. Matches the tray icon exactly; very calm.",
+   svg:()=>'<rect x="11" y="11" width="234" height="234" rx="54" fill="#0b0b0c" stroke="#3a3a3c" stroke-width="6"/><rect x="36" y="98" width="184" height="60" rx="30" fill="#fff"/><rect x="54" y="112" width="32" height="32" rx="9" fill="#000"/><rect x="166" y="120" width="8" height="24" rx="3" fill="#000"/><rect x="180" y="112" width="8" height="32" rx="3" fill="#000"/><rect x="194" y="126" width="8" height="18" rx="3" fill="#000"/>'},
+  {name:"C. Open island",note:"Colourful tile with the open island on it: artwork, a title line and a green notification dot. The most expressive, but it turns to a blur at 16 pixels.",
+   svg:()=>{const g="g"+(gid++),h="g"+(gid++);return '<defs><linearGradient id="'+g+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#2563eb"/></linearGradient><linearGradient id="'+h+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a7a"/><stop offset="1" stop-color="#ffb347"/></linearGradient></defs><rect x="8" y="8" width="240" height="240" rx="56" fill="url(#'+g+')"/><rect x="34" y="62" width="188" height="132" rx="40" fill="#000"/><rect x="56" y="88" width="52" height="52" rx="12" fill="url(#'+h+')"/><rect x="122" y="96" width="72" height="12" rx="6" fill="#fff"/><rect x="122" y="118" width="48" height="10" rx="5" fill="#a6abb6"/><rect x="56" y="158" width="144" height="8" rx="4" fill="#3a3a3c"/><rect x="56" y="158" width="80" height="8" rx="4" fill="#fff"/><circle cx="206" cy="78" r="16" fill="#4ade80" stroke="#000" stroke-width="6"/>'}}];
+const icon=(c,px)=>'<svg width="'+px+'" height="'+px+'" viewBox="0 0 256 256" role="img" aria-label="'+c.name+' at '+px+' pixels">'+c.svg()+'</svg>';
+$("icons").innerHTML=ICONS.map(c=>'<div class="ic"><h2>'+c.name+'</h2><div class="sizes">'+[128,48,32,16].map(px=>icon(c,px)).join("")+'</div><div class="bar2">'+icon(c,24)+'WinIsland</div><div class="bar2 light">'+icon(c,24)+'WinIsland</div><p class="note">'+c.note+'</p></div>').join("");
+
 layout();renderList();render();
 </script>
 </body>
