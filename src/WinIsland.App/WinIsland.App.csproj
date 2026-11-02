@@ -2,6 +2,7 @@
   WinIsland.App: the WPF program the user runs.
   Presentation only: windows, views, animations. Logic lives in Core,
   Windows API access lives in Platform.
+  The app icon (PRD FR-34, concept B "Mono pill") is made by Assets/New-AppIcon.ps1.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -11,7 +12,13 @@
     <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\WinIsland.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Also a WPF resource, so the Settings window can show it in its title bar. -->
+    <Resource Include="Assets\WinIsland.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WinIsland.Core\WinIsland.Core.csproj" />
