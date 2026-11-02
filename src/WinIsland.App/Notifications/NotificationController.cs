@@ -48,7 +48,7 @@ internal sealed class NotificationController : IDisposable
 
     /// <summary>
     /// The app's logo for a notification, or null to show the letter circle instead. WhatsApp
-    /// does not use it: AppIconView always draws the WhatsApp logo itself.
+    /// and Discord do not use it: AppIconView always draws their logo itself.
     /// </summary>
     public ImageSource? LogoFor(IslandNotification notification)
     {
