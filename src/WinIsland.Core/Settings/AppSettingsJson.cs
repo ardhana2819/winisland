@@ -1,6 +1,7 @@
 // AppSettingsJson.cs: turns the settings into the text saved on disk (PRD FR-19) and back.
 // The file holds settings only, never message text (FR-18, AC-9). Hotkeys are saved as readable
-// text ("Ctrl+Alt+I") and the banner time in whole seconds, so the file is easy to read and fix by
+// text ("Ctrl+Alt+I"), the island size as its name ("Medium") and the banner time in whole
+// seconds, so the file is easy to read and fix by
 // hand. Anything missing, unreadable or breaking a rule falls back to its default, so a damaged
 // file never stops WinIsland from starting.
 
@@ -8,6 +9,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 
 using WinIsland.Core.Hotkeys;
+using WinIsland.Core.Island;
 using WinIsland.Core.Notifications;
 
 namespace WinIsland.Core.Settings;
@@ -37,6 +39,7 @@ public static class AppSettingsJson
             ShowOtherApps = settings.Notifications.ShowOtherApps,
             HideMessageText = settings.Notifications.HideMessageText,
             LaunchAtStartup = settings.LaunchAtStartup,
+            IslandSize = settings.Size.ToString(),
         };
 
         return JsonSerializer.Serialize(file, Options);
@@ -88,7 +91,14 @@ public static class AppSettingsJson
             file.HideMessageText ?? defaults.Notifications.HideMessageText,
             duration);
 
-        return new AppSettings(hotkeys, notifications, file.LaunchAtStartup ?? defaults.LaunchAtStartup);
+        return new AppSettings(hotkeys, notifications, file.LaunchAtStartup ?? defaults.LaunchAtStartup, ReadSize(file.IslandSize, defaults.Size));
+    }
+
+    // Only the four names count; numbers ("3") and unknown names fall back to the default.
+    private static IslandSize ReadSize(string? text, IslandSize fallback)
+    {
+        bool isName = !string.IsNullOrWhiteSpace(text) && char.IsLetter(text.Trim()[0]);
+        return isName && Enum.TryParse(text, ignoreCase: true, out IslandSize size) && Enum.IsDefined(size) ? size : fallback;
     }
 
     // The shape of the file. Every value is optional, so older or hand-edited files still load.
@@ -111,5 +121,7 @@ public static class AppSettingsJson
         public bool? HideMessageText { get; set; }
 
         public bool? LaunchAtStartup { get; set; }
+
+        public string? IslandSize { get; set; }
     }
 }
