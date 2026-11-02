@@ -30,7 +30,7 @@ internal sealed class IslandResizeAnimator
 
     /// <summary>
     /// Scales the island from one size to the other, then calls finish, which sets the real new
-    /// size. The caller makes the window big enough for both sizes before calling this.
+    /// size. The island window always has room for the largest size.
     /// </summary>
     public void Run(double fromScale, double toScale, Action finish)
     {

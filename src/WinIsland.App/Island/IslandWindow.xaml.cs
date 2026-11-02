@@ -122,8 +122,8 @@ public partial class IslandWindow : Window
 
     /// <summary>
     /// A new island size from Settings (FR-32): shown at once, without a restart, growing or
-    /// shrinking with the shape spring. The window first takes the larger of the two sizes, so the
-    /// island never gets cut off while it changes.
+    /// shrinking with the shape spring. Only the island inside changes; the window keeps its size
+    /// and place, so the island stays centered the whole time (Diva, 2 Nov 2026).
     /// </summary>
     internal void ApplySize(IslandSize size)
     {
@@ -133,11 +133,9 @@ public partial class IslandWindow : Window
         }
 
         _resizeAnimator.FinishNow();
-        IslandLayout from = LayoutFor(_size);
-        IslandLayout to = LayoutFor(size);
+        double fromScale = LayoutFor(_size).Scale;
         _size = size;
-        SetWindowBounds(to.Width > from.Width ? to : from);
-        _resizeAnimator.Run(from.Scale, to.Scale, PlaceOnPrimaryDisplay);
+        _resizeAnimator.Run(fromScale, LayoutFor(size).Scale, ApplyIslandScale);
     }
 
     /// <summary>The conflict found when the hotkeys were first registered, for the Settings window.</summary>
@@ -306,10 +304,15 @@ public partial class IslandWindow : Window
     {
         // A display change in the middle of a resize: end the resize first, at the new place.
         _resizeAnimator.FinishNow();
-        IslandLayout layout = LayoutFor(_size);
-        IslandScaleTransform.ScaleX = layout.Scale;
-        IslandScaleTransform.ScaleY = layout.Scale;
-        SetWindowBounds(layout);
+        ApplyIslandScale();
+
+        // The window always has room for the largest island size, so changing the size never
+        // resizes or moves the window: resizing it showed as a jump to the side (Diva, 2 Nov 2026).
+        IslandLayout window = LayoutFor(IslandSize.ExtraLarge);
+        Width = window.Width;
+        Height = window.Height;
+        Left = window.Left;
+        Top = window.Top;
 
         // Display changes are one moment Windows can rearrange windows; check the island is still on top.
         _topmostGuard?.CheckNow();
@@ -322,12 +325,11 @@ public partial class IslandWindow : Window
         return IslandLayout.ForPrimaryDisplay(displayWidthDips, size);
     }
 
-    private void SetWindowBounds(IslandLayout layout)
+    private void ApplyIslandScale()
     {
-        Width = layout.Width;
-        Height = layout.Height;
-        Left = layout.Left;
-        Top = layout.Top;
+        double scale = LayoutFor(_size).Scale;
+        IslandScaleTransform.ScaleX = scale;
+        IslandScaleTransform.ScaleY = scale;
     }
 
     private double PixelsPerDip()

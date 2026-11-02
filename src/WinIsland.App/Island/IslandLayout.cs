@@ -2,7 +2,8 @@
 // The window has a fixed size, big enough for the largest island shape plus room for the spring
 // overshoot, so it never has to resize while the island animates (resizing a transparent window
 // every frame is slow). Clicks on the clear parts of the window pass through to the game.
-// The size setting (FR-32) scales the window and everything in it together with the display scale.
+// The size setting (FR-32) scales everything in it together with the display scale; IslandWindow
+// sizes the window for the largest setting, so a size change never moves or resizes the window.
 
 using WinIsland.Core.Island;
 
