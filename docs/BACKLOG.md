@@ -81,6 +81,10 @@ Today WinIsland comes as a zip with manual steps (README "Install on another PC"
   3. Does the release keep the zip next to the installer, or only the installer?
 - Testing: remove the zip copy first (README "Uninstall"), then install, use it, uninstall, and check nothing is left.
 
+### F8. Glass music page while a song plays [Idea, 2 Nov 2026]
+
+On Glass, the music page keeps the artwork colour while a song plays (FR-37). Idea from you: make that page glass too, perhaps with a light artwork tint over the blur. To discuss later; it needs its own readability tests with many covers.
+
 ## Removed
 
 - **Shuffle and repeat buttons** (was F3). Removed 1 Nov 2026 by you: the controls stay as they are now, to keep the view clean.

@@ -229,5 +229,7 @@ Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
 - Settings "Look": Solid (default, today's `#000000`) or Glass.
 - Glass background: Windows' host backdrop blur of what is behind the island, no tint, no edge line. The blur has the island's exact rounded shape with smooth edges and follows every shape change in the same frame.
 - White text on Glass gets a soft dark shadow: black, blur radius 8, no offset, 70 percent opacity.
-- Unchanged on Glass: the music page's artwork colour, banner and notification cards (`#1C1C1E`), the stacked cards, the page dots and the unread dot.
+- Cards on Glass (banners, notification cards, opened chat rows): white at 14 percent instead of `#1C1C1E`. Peeking stacked cards: white at 10 and 6 percent, drawn only where they peek out below the card, because the card above is see-through.
+- Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork.
+- Unchanged on Glass: the page dots and the unread dot.
 - The prototype imitates the blur with CSS `backdrop-filter: blur(22px) saturate(1.3)`; the app uses Windows' own blur, which looks lighter and smoother. "Game scene: Bright" in the prototype puts a bright scene behind the island to check readability.
