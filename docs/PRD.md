@@ -14,7 +14,7 @@ Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, 
 
 - Messages from the same chat stack into one card on the notifications page (FR-35).
 - An optional setting that also clears a notification from Windows when you hide it on the island (FR-36).
-- A Glass look next to the solid black one, if spike G1 to G5 shows Windows can do it well (FR-37).
+- A Glass look next to the solid black one (FR-37). Spike G1 to G5 passed on 2 Nov 2026.
 - An incoming call banner for WhatsApp calls, without buttons, if spike C1 to C5 shows WhatsApp tells Windows about calls (FR-38).
 
 ### What v1.2 adds, in short
@@ -260,12 +260,14 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Once cleared from Windows, the notification also leaves the notifications page, because Windows reports it as removed. [Proposed: say so under the switch]
   - [Proposed] Alt+X on the open notifications page only closes the island, as today; it does not clear the page.
   - Clearing from Windows does not mark the message as read in WhatsApp or Discord.
-- FR-37. Glass look. [Confirmed 2 Nov 2026: a Solid or Glass choice; depends on spike G1 to G5]
+- FR-37. Glass look. [Confirmed 2 Nov 2026: a Solid or Glass choice; spike G1 to G5 passed 2 Nov 2026]
   - Settings gets "Look": Solid (today's black, the default) or Glass.
-  - Glass: Windows' own blur behind the island, a dark tint over it, and a thin light edge (backlog F6). Windows draws the blur; WinIsland never captures the screen (section 7).
-  - The music page keeps its solid artwork colour in both looks, so text stays readable (FR-25).
-  - White text must stay readable over bright and dark games; the tint is set from spike G5. [Proposed: 45 to 55 percent black]
-  - Built only if the spike passes G1 to G4. If it does not, this requirement moves back to the backlog with the spike's reasons.
+  - Glass: Windows' own blur of what is behind the island, light, with no dark tint and no light edge, and a soft dark shadow behind white text so it stays readable over bright games. [Confirmed by Diva in spike rounds 5, 9 and 10: tint 0 like her TranslucentTB taskbar, the shadow, no edge line]
+  - How: the blur is Windows.UI.Composition's host backdrop brush (documented), clipped to the island's rounded shape with smooth edges, in a second window right behind the island. The second window never takes focus and clicks pass through it. Windows draws the blur; WinIsland never captures the screen (section 7). [Verified by spike, docs/spike-results.md]
+  - The blur follows every shape change of the island (open, close, banners, size change) in the same frame. [Verified in spike G3 at 30 fps]
+  - If Windows refuses the blur (for example right after sign-in, or a Windows update changes it), the island quietly shows the Solid look instead, logs the error type, and tries Glass again on the next start. It never shows a grey or black box. [Proposed]
+  - The music page keeps its solid artwork colour in both looks, so text stays readable (FR-25). [Proposed: keep as written]
+  - Banners and the notifications page cards keep their own dark card colour on top of the glass. [Proposed]
 - FR-38. Incoming call banner for WhatsApp, without buttons. [Confirmed 2 Nov 2026; depends on spike C1 to C5]
   - When WhatsApp tells Windows about an incoming call, the island shows a call banner: WhatsApp icon, caller name, "Incoming call" (or "Incoming video call"), and a green phone symbol. No answer or decline buttons (section 4).
   - [Proposed] It stays while the call rings, instead of the normal banner time, and goes away when Windows removes the call notification (answered, declined or stopped ringing). Exact behaviour follows spike C2.
@@ -442,7 +444,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-26. Three messages from one chat and one from another give two cards on the notifications page: the first with the newest message and "3 messages", the second with its single message. Reading the first chat in WhatsApp removes its whole card.
 - AC-26b. Five messages from one chat, then clicking its card, shows "5 messages" and the last 3 messages with their times. Clicking again, or Alt+Left, shows the list. The game keeps keyboard focus throughout, and Alt+Left reaches the game again once the chat is closed.
 - AC-27. With "Also clear from Windows notification center" off, swiping a banner leaves the notification in the Windows notification center. With it on, the swiped notification is gone from the notification center and from the notifications page.
-- AC-28. (If FR-37 is built) Choosing Glass shows a blurred, tinted island over the desktop and over a borderless game, the game keeps keyboard focus, and the clock stays readable over a bright and a dark scene. Solid looks the same as v1.3.
+- AC-28. Choosing Glass shows a blurred, pill-shaped island with no box or rim around it, over the desktop and over a borderless game; the game keeps keyboard focus, and the clock stays readable over a bright and a dark scene. Solid looks the same as v1.3.
 - AC-29. (If FR-38 is built) An incoming WhatsApp call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.
 - AC-30. Idle memory stays under 150 MB working set with the v1.4 features (G4).
 
@@ -487,6 +489,7 @@ v1.4 [Proposed]:
 6. [v1.1] Scrolling may not reach the island while a game is active (U9). Mitigation: Alt+Up and Alt+Down and the page dots switch pages without the wheel.
 7. [v1.1] Some artwork gives ugly or hard-to-read colours. Mitigation: contrast rules and fallbacks in FR-25, unit tests with extreme samples, and your review with real covers.
 8. [v1.1] Alt+Up or Alt+Down may be taken by another app or used by a game (U10). Mitigation: taken only while the island is open; if registering fails, the other ways still work.
+9. [v1.4] Glass needs a second window and Windows.UI.Composition, which may raise idle memory and CPU (AC-30), and the blur could lag the island's shape on a slower PC. Mitigation: measure against docs/performance-results.md before release; Solid stays the default; Glass falls back to Solid on any error.
 
 ## 18. Decisions and open items
 
@@ -509,3 +512,4 @@ v1.4 [Proposed]:
 17. v1.3 approved by you on 2 Nov 2026: the PRD with all its proposals, and app icon concept B, "Mono pill".
 18. v1.3 released as v1.3.0-beta.1 on 2 Nov 2026 (your request). Next: the v1.4 batch (decision 15).
 19. v1.4 answers, 2 Nov 2026 [Confirmed]: grouping means stacking messages per chat; clearing from Windows is a Settings switch, off by default; glass is a Solid or Glass choice; spikes for glass and calls run alongside the PRD and the two sure features.
+20. Glass look, 2 Nov 2026 [Confirmed]: built on the documented host backdrop blur in a second window behind the island, after 10 spike rounds (docs/spike-results.md). Light (no tint), soft shadow behind text, no edge line. The undocumented accent blur was rejected because it cannot follow the pill's shape.
