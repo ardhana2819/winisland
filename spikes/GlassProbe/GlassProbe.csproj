@@ -1,0 +1,20 @@
+<!--
+  GlassProbe: throwaway v1.4 spike (G1 to G5 in docs/spike-results.md).
+  A pill with Windows' own blurred backdrop (acrylic) at the top center, to find out whether the
+  glass look of backlog F6 works for a borderless, always-on-top, non-activating, pill-shaped
+  window that changes shape. The blur is drawn by Windows (DWM): nothing captures the screen.
+  Not part of WinIsland.slnx and never referenced by product code.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
+    <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Needed by the code that LibraryImport generates for NativeMethods.cs. Our own code has no unsafe blocks. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,50 @@
+<!--
+  GlassWindow.xaml: the test pill. The window is not layered (AllowsTransparency is False), so
+  Windows can draw its blurred backdrop behind it; its shape is cut to the pill with a window
+  region in code. On top of the blur lies a dark tint with a thin light edge (backlog F6).
+  Click the pill to switch between the compact (120 x 34) and expanded (420 x 190) shape.
+  Right-click to close.
+-->
+<Window x:Class="GlassProbe.GlassWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GlassProbe"
+        Width="420"
+        Height="190"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="False"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False">
+    <Border x:Name="Pill"
+            Width="120"
+            Height="34"
+            CornerRadius="17"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            BorderBrush="#33FFFFFF"
+            BorderThickness="1"
+            MouseLeftButtonUp="OnPillClicked"
+            MouseRightButtonUp="OnPillRightClicked">
+        <Grid>
+            <TextBlock x:Name="ClockText"
+                       Text="16:20"
+                       Foreground="#FFFFFF"
+                       FontFamily="Segoe UI Variable Text, Segoe UI"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            <TextBlock x:Name="StatusText"
+                       Foreground="#A6ABB6"
+                       FontFamily="Segoe UI Variable Text, Segoe UI"
+                       FontSize="12"
+                       Margin="16,0,16,14"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Bottom"
+                       Opacity="0" />
+        </Grid>
+    </Border>
+</Window>

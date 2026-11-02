@@ -1,4 +1,4 @@
-# WinIsland PRD (v1.3)
+# WinIsland PRD (v1.4 draft)
 
 Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10.
 
@@ -10,7 +10,12 @@ Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, 
 - A small white dot on the idle island when there are notifications you have not seen (FR-33).
 - Discord notifications show the white Discord logo on a blurple circle, like WhatsApp (FR-30).
 
-v1.4 (second batch, planned, not yet specified): glass or blur look, grouping notifications by category, removing a notification from Windows when you hide it, and an incoming call banner. See section 18, decision 15.
+### What v1.4 adds, in short (draft, 2 Nov 2026, not approved yet)
+
+- Messages from the same chat stack into one card on the notifications page (FR-35).
+- An optional setting that also clears a notification from Windows when you hide it on the island (FR-36).
+- A Glass look next to the solid black one, if spike G1 to G5 shows Windows can do it well (FR-37).
+- An incoming call banner for WhatsApp calls, without buttons, if spike C1 to C5 shows WhatsApp tells Windows about calls (FR-38).
 
 ### What v1.2 adds, in short
 
@@ -78,6 +83,13 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - Page dots that hide when the island is still.
 - Unread dot on the idle island.
 - Discord logo on a blurple circle.
+
+### In scope for v1.4 [Confirmed 2 Nov 2026, details in draft]
+
+- Stacking messages per chat on the notifications page (the "grouping by category" idea, as you chose it).
+- Optional clearing of hidden notifications from Windows.
+- Glass look, if the spike passes.
+- Incoming call banner, if the spike passes.
 
 ### Out of scope for MVP
 
@@ -224,6 +236,35 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - [Confirmed 2 Nov 2026] The tray icon stays a simple white pill, because a detailed icon is hard to read at 16 pixels on the taskbar; the chosen concept may change it if it reads well that small.
   - [Confirmed 2 Nov 2026] The icon is kept as a small `.ico` file in the repo (`src/WinIsland.App/Assets/WinIsland.ico`), drawn from the design spec by `Assets/New-AppIcon.ps1`, made from the chosen design. Today the tray icon is drawn in code to avoid binary files, but Windows needs a real `.ico` for the exe icon.
 
+**v1.4 [draft, 2 Nov 2026]**
+
+- FR-35. Messages from the same chat stack into one card on the notifications page, like the iPhone. [Confirmed 2 Nov 2026: "tumpuk per chat"]
+  - "Same chat" is the rule WinIsland already uses for WhatsApp's replacements (FR-15): same app and same chat name. A group is one chat.
+  - The card shows the chat, the newest message, the time of the newest message, and how many messages are in the stack. [Proposed: "3 messages" in grey under the time, only when there are 2 or more]
+  - The page still shows at most 3 cards, newest chat first, so it can now stand for more than 3 messages. [Proposed: a stack counts up to 99, shown as "99+" above that]
+  - Read in the app (Windows removes that chat's notification): the whole stack leaves, as today. [Confirmed rule, FR-15]
+  - With only one card on the page, it shows the newest message's full text, up to 3 lines, as today. [Proposed]
+  - Clicking a stack does nothing, like a card today (FR-22). [Proposed]
+  - The banner is unchanged: one banner per new message, with +N for the others waiting.
+  - Message text stays in memory only (FR-18). [Proposed: a stack keeps only its newest message's text and a count, not every older message]
+- FR-36. Optional: hiding a notification on the island also clears it from Windows. [Confirmed 2 Nov 2026: a setting, off by default]
+  - A new Settings switch, "Also clear from Windows notification center", off by default. Off: everything works as today.
+  - On: swiping a banner away clears that notification from Windows, and Alt+X on a banner clears all the waiting banners' notifications from Windows. WinIsland uses the listener's own remove call (`UserNotificationListener.RemoveNotification`). [Verified 2 Nov 2026: the method exists in the Microsoft docs]
+  - Once cleared from Windows, the notification also leaves the notifications page, because Windows reports it as removed. [Proposed: say so under the switch]
+  - [Proposed] Alt+X on the open notifications page only closes the island, as today; it does not clear the page.
+  - Clearing from Windows does not mark the message as read in WhatsApp or Discord.
+- FR-37. Glass look. [Confirmed 2 Nov 2026: a Solid or Glass choice; depends on spike G1 to G5]
+  - Settings gets "Look": Solid (today's black, the default) or Glass.
+  - Glass: Windows' own blur behind the island, a dark tint over it, and a thin light edge (backlog F6). Windows draws the blur; WinIsland never captures the screen (section 7).
+  - The music page keeps its solid artwork colour in both looks, so text stays readable (FR-25).
+  - White text must stay readable over bright and dark games; the tint is set from spike G5. [Proposed: 45 to 55 percent black]
+  - Built only if the spike passes G1 to G4. If it does not, this requirement moves back to the backlog with the spike's reasons.
+- FR-38. Incoming call banner for WhatsApp, without buttons. [Confirmed 2 Nov 2026; depends on spike C1 to C5]
+  - When WhatsApp tells Windows about an incoming call, the island shows a call banner: WhatsApp icon, caller name, "Incoming call" (or "Incoming video call"), and a green phone symbol. No answer or decline buttons (section 4).
+  - [Proposed] It stays while the call rings, instead of the normal banner time, and goes away when Windows removes the call notification (answered, declined or stopped ringing). Exact behaviour follows spike C2.
+  - [Proposed] A missed call shows as a normal notification card ("Missed call"), so it is on the notifications page later. Exact text follows spike C4.
+  - Built only for what the spike shows: if WhatsApp Web sends no call notification, only WhatsApp desktop gets the banner; if neither does, this requirement moves back to the backlog.
+
 **Fixes [v1.1]**
 
 - FR-27. The artwork shows for the first song after WinIsland starts, not only from the second song on. Seen in your v1.0 tests. This is what AC-2 already asks for. [Confirmed]
@@ -340,6 +381,8 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - Notification with no text or image-only: show app and sender only.
 - Multiple notifications arrive together: newest first, +N badge.
 - Fullscreen exclusive game: island will not show. Documented limitation, not a bug.
+- [v1.4 draft] A chat with more messages than the stack can count: it shows "99+". [Proposed]
+- [v1.4 draft] Clearing from Windows fails (for example access was turned off): the island still hides it, and the error goes to the log. [Proposed]
 - [v1.3] Discord with its in-game overlay: in an exclusive fullscreen game, Discord shows its message in its own overlay and sends nothing to Windows, so the island cannot show it. In borderless or windowed games, and without a game, Discord messages reach the island as before (AC-4). Found in your test on 2 Nov 2026; accepted, nothing to build. [Confirmed 2 Nov 2026]
 - Windows Do Not Disturb on: behavior depends on U1.
 
@@ -387,6 +430,14 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-24. WinIsland.App.exe, the Start menu shortcut and the Settings window show the chosen icon.
 - AC-25. Idle memory stays under 150 MB working set with the v1.3 features (G4).
 
+### Acceptance criteria (v1.4, draft)
+
+- AC-26. Three messages from one chat and one from another give two cards on the notifications page: the first with the newest message and "3 messages", the second with its single message. Reading the first chat in WhatsApp removes its whole card.
+- AC-27. With "Also clear from Windows notification center" off, swiping a banner leaves the notification in the Windows notification center. With it on, the swiped notification is gone from the notification center and from the notifications page.
+- AC-28. (If FR-37 is built) Choosing Glass shows a blurred, tinted island over the desktop and over a borderless game, the game keeps keyboard focus, and the clock stays readable over a bright and a dark scene. Solid looks the same as v1.3.
+- AC-29. (If FR-38 is built) An incoming WhatsApp call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.
+- AC-30. Idle memory stays under 150 MB working set with the v1.4 features (G4).
+
 ## 16. Phased plan
 
 - Phase 0: Prototype in Claude chat (visual states and animation), then your design approval.
@@ -410,6 +461,13 @@ v1.3 [Confirmed 2 Nov 2026]:
 - Phase 11: Discord logo (FR-30), page dots (FR-31), unread dot (FR-33).
 - Phase 12: Size setting (FR-32) and app icon (FR-34).
 - Then release `v1.3.0-beta.1`, which also carries the WhatsApp logo fix and the README uninstall steps already on main.
+
+v1.4 [Proposed]:
+
+- Phase 13: spikes G1 to G5 (glass) and C1 to C5 (calls), run by you; at the same time this PRD and a prototype pass for stacks, the new switch, and (after the spikes) the glass look and the call banner.
+- Phase 14: stacks per chat (FR-35) and clearing from Windows (FR-36).
+- Phase 15: glass look (FR-37) and call banner (FR-38), only what the spikes allow.
+- Then release `v1.4.0-beta.1`.
 
 ## 17. Top risks
 
@@ -442,3 +500,4 @@ v1.3 [Confirmed 2 Nov 2026]:
 16. v1.3 answers, 2 Nov 2026 [Confirmed]: sizes 85/100/115/130 percent, in the Settings window only; page dots show on expand and on page change and fade after 1.5 seconds; the unread dot is small, white, right of the clock; Discord blurple #5865F2; 3 icon concepts to pick from.
 17. v1.3 approved by you on 2 Nov 2026: the PRD with all its proposals, and app icon concept B, "Mono pill".
 18. v1.3 released as v1.3.0-beta.1 on 2 Nov 2026 (your request). Next: the v1.4 batch (decision 15).
+19. v1.4 answers, 2 Nov 2026 [Confirmed]: grouping means stacking messages per chat; clearing from Windows is a Settings switch, off by default; glass is a Solid or Glass choice; spikes for glass and calls run alongside the PRD and the two sure features.

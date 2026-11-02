@@ -39,6 +39,26 @@ Branch `feat/whatsapp-web`. NotificationProbe with identity, without `--show-tex
 | W6. Read in WhatsApp Web | **Pass** | The Web notification was removed right after reading (`REMOVED 861 via=event`). | Dismiss on read (FR-16) works for Web. |
 | W7. Read in WhatsApp desktop | **Observed** | Opening and reading in desktop removed the Web notification, then desktop added one notification with a much longer text (611 characters) for the same group. | A desktop notification for a chat that Web recently covered must be ignored, or this re-sent text shows as a new card. |
 
+### v1.4 spikes: glass look and incoming calls (2 Nov 2026)
+
+Branch `spike/v1.4-glass-and-call`. Waiting for Diva's run; steps are under "How to run the tests" below (G1 to G5, C1 to C5). Results go in the two tables when they are in.
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Not run yet | | |
+| G2. The pill's edges look smooth enough (a window region has no edge smoothing) | Not run yet | | |
+| G3. The blur follows the pill when it changes shape, without flicker | Not run yet | | |
+| G4. Over a borderless game: blur visible, game keeps focus, no stutter | Not run yet | | |
+| G5. White text readable over bright and dark game scenes, at tint 0.45 and 0.55 | Not run yet | | |
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| C1. WhatsApp desktop: an incoming voice call sends a Windows notification | Not run yet | | |
+| C2. WhatsApp desktop: when that notification goes away (answered, declined, missed) | Not run yet | | |
+| C3. WhatsApp Web (Chrome app): an incoming call sends a notification | Not run yet | | |
+| C4. A missed call leaves a notification, and what it says | Not run yet | | |
+| C5. Video call instead of voice call | Not run yet | | |
+
 ### Extra findings
 
 - **Media "current session" is not Spotify.** Windows reported 3 sessions (Spotify.exe, Chrome, Brave) and chose Brave as the current one. The product must pick the Spotify session by its app id (`Spotify.exe`), not use Windows' current session (FR-7, FR-10).
@@ -57,6 +77,33 @@ dotnet build MediaProbe\MediaProbe.csproj -c Release
 ```
 
 The programs are then in each project's `bin\Release\net10.0-windows10.0.26100.0\` folder. Below, `<probe folder>` means that folder for the program named.
+
+### G1 to G5. Glass look (about 15 minutes)
+
+GlassProbe shows a glass pill at the top center: Windows' own blur (acrylic) behind it, a dark tint, a thin light edge, and a clock. Windows draws the blur; nothing captures the screen.
+
+1. Build it once: `dotnet build "D:\Claude Project\WinIsland\spikes\GlassProbe\GlassProbe.csproj" -c Release`
+2. Quit WinIsland from the tray first, so the two pills do not sit on top of each other.
+3. Run `& "D:\Claude Project\WinIsland\spikes\GlassProbe\bin\Release\net10.0-windows10.0.26100.0\GlassProbe.exe"`.
+4. On the desktop, with a colourful window or wallpaper behind the pill:
+   - G1: is the pill blurred glass, or plain black or plain grey? Click another window: does the glass stay, or turn flat? (The island is never the active window, so it must stay.)
+   - G2: look closely at the round ends. Smooth, or visibly stair-stepped?
+   - G3: click the pill a few times. It grows to 420 x 190 and back. Does the blur follow the shape smoothly, or flicker, lag or show black corners? The expanded pill shows a status line; tell Claude what it says.
+5. G4: start a game in borderless mode, play a minute with the pill over it. Is the glass still there, does the game keep keyboard focus, any stutter?
+6. G5: over a bright scene and a dark scene, is the white clock easy to read? Then close it (right-click) and try a darker tint: add `--tint 0.55` to the command. Compare.
+7. If G1 shows no glass, also try `--backdrop mica` and `--backdrop tabbed`, and `--gpu`, and say which (if any) shows glass.
+8. Right-click the pill to close it. Start WinIsland again from the Start menu.
+
+### C1 to C5. Incoming calls (about 10 minutes, needs a second phone or a friend)
+
+NotificationProbe prints every Windows notification. With `--show-text` it also prints the text, in its own window only, never to a file.
+
+1. Run `& "D:\Claude Project\WinIsland\spikes\NotificationProbe\bin\Release\net10.0-windows10.0.26100.0\NotificationProbe.exe" --show-text`. WinIsland can keep running.
+2. With **WhatsApp desktop** open, have someone voice call you. Let it ring about 10 seconds, then **decline** it. Then a second call that you **let ring out** (missed). If you can, a third that you **answer** and hang up after a few seconds.
+3. Do the same with only **WhatsApp Web** (the Chrome app) open, WhatsApp desktop fully closed. If Web shows no call at all, say so; that is a result too.
+4. One **video call** to either app.
+5. For each call, record: whether an `ADDED` line appeared and its `app=`; the **fixed words** of the text (for example "Incoming voice call"), never the caller's name; whether and when a `REMOVED` line came (when you declined, when it stopped ringing, when you answered); and what a missed call left behind.
+6. Press Ctrl+C to stop the probe.
 
 ### S1. Package identity (about 10 minutes)
 
