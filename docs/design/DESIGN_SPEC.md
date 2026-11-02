@@ -226,7 +226,7 @@ Opening a stack (PRD FR-35, click to see the last 3 messages). [Proposed, 2 Nov 
 
 Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
 
-- Settings "Look": Solid (default, today's `#000000`) or Glass.
+- Settings "Look": Solid (default, today's `#000000`) or "Glass (beta)", with the note "Glass is in beta: it may not look right in every game." in 12 `#A6ABB6` under the label. The beta label stays after the release (Diva, 2 Nov 2026).
 - Glass background: Windows' host backdrop blur of what is behind the island, no tint, no edge line. The blur has the island's exact rounded shape with smooth edges and follows every shape change in the same frame.
 - Text on Glass gets a small soft shadow: black, blur radius 3, 1 down, 45 percent opacity. A larger glow (radius 8, 70 percent) looked like a dark box around each line in the prototype. [Diva, 2 Nov 2026]
 - Second lines on Glass (message previews, times, "N messages", the back chevron) are white at 85 percent instead of `#A6ABB6`, which disappears over bright games. [Diva, 2 Nov 2026]
