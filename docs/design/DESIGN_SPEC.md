@@ -211,3 +211,11 @@ Stacks per chat on the notifications page (PRD FR-35). [Proposed, 2 Nov 2026]
   - Second card behind: `#2E2E31`, 16 narrower on each side, radius 12, shows 4 below the first.
   - The space below a stack grows by what peeks out (4 or 8), so the 6 gap to the next card stays clear.
 - Worst case, three stacks of 3 or more: 3 x 48 + 3 x 8 + 2 x 6 = 180, inside the 190 island.
+
+Opening a stack (PRD FR-35, click to see the last 3 messages). [Proposed, 2 Nov 2026]
+
+- The chat view fills the notifications page, centered, 6 between rows.
+- Header, 36 high: a back chevron 20 in `#A6ABB6`, the app icon circle 32, the chat name 14 semibold (ellipsis), and "N messages" 11 in `#A6ABB6` on the right.
+- Up to 3 message rows, newest first: `#1C1C1E`, radius 14, 34 high, padding 12 left and 22 right. Text 13 in `#E5E5EA`, one line with ellipsis; time 11 in `#A6ABB6` on the right.
+- Total height 36 + 3 x 34 + 3 x 6 = 156, inside the 190 island.
+- Clicking anywhere on the view goes back to the list.
