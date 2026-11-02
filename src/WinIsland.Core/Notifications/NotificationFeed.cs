@@ -12,6 +12,9 @@
 //   desktop and WhatsApp Web both send it (v1.2): the later one replaces the earlier, and desktop
 //   notifications that WhatsApp Web already covers never arrive (WhatsAppWebPriority.cs), so the
 //   item kept is the Web one.
+//   FR-33 (v1.3) which of the last 3 have not been seen on the notifications page yet, for the
+//   unread dot. Only a genuinely new message counts; a repost keeps the seen state of the item
+//   it replaces.
 // Time is passed in; NextTimeCheckAt says when the next time-based change is due.
 
 namespace WinIsland.Core.Notifications;
@@ -27,6 +30,7 @@ public sealed class NotificationFeed
     private readonly List<IslandNotification> _recent = [];
     private readonly List<IslandNotification> _waiting = [];
     private readonly List<PendingRead> _pendingReads = [];
+    private readonly HashSet<uint> _unseenIds = [];
     private readonly WhatsAppWebPriority _whatsAppWeb = new();
 
     /// <summary>The last 3 notifications, newest first (FR-15).</summary>
@@ -38,6 +42,9 @@ public sealed class NotificationFeed
     public IslandNotification? CurrentBanner => _waiting.Count > 0 ? _waiting[0] : null;
 
     public DateTimeOffset? BannerEndsAt { get; private set; }
+
+    /// <summary>True when one of the last 3 has not been seen on the notifications page yet (FR-33).</summary>
+    public bool HasUnseen => _recent.Any(item => _unseenIds.Contains(item.WindowsId));
 
     public DateTimeOffset? NextTimeCheckAt
     {
@@ -83,6 +90,11 @@ public sealed class NotificationFeed
         {
             uint oldId = _recent[repost].WindowsId;
             _recent[repost] = notification;
+            if (_unseenIds.Remove(oldId))
+            {
+                _unseenIds.Add(notification.WindowsId);
+            }
+
             int waiting = _waiting.FindIndex(item => item.WindowsId == oldId);
             if (waiting >= 0)
             {
@@ -98,6 +110,8 @@ public sealed class NotificationFeed
             _recent.RemoveRange(RecentLimit, _recent.Count - RecentLimit);
         }
 
+        _unseenIds.Add(notification.WindowsId);
+        ForgetUnseenOutsideRecent();
         _waiting.Insert(0, notification);
         BannerEndsAt = now + bannerDuration;
         return true;
@@ -137,6 +151,8 @@ public sealed class NotificationFeed
             changed |= _waiting.RemoveAll(item => item.IsSameConversation(read.Conversation)) > 0;
         }
 
+        ForgetUnseenOutsideRecent();
+
         if (_waiting.Count == 0)
         {
             BannerEndsAt = null;
@@ -168,6 +184,18 @@ public sealed class NotificationFeed
     {
         _waiting.Clear();
         BannerEndsAt = null;
+    }
+
+    /// <summary>The notifications page is open: everything on it has now been seen (FR-33).</summary>
+    public void MarkAllSeen()
+    {
+        _unseenIds.Clear();
+    }
+
+    // Items that left the last 3 can never be seen on the page, so they no longer count.
+    private void ForgetUnseenOutsideRecent()
+    {
+        _unseenIds.RemoveWhere(id => !_recent.Any(item => item.WindowsId == id));
     }
 
     private static bool IsRepost(IslandNotification known, IslandNotification incoming)

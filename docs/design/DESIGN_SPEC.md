@@ -155,3 +155,45 @@ Only the open music page is coloured. The compact pill, banner and notifications
 | Progress track on the music page | white at 18 percent |
 | Secondary text on the music page | white at 68 percent over the background |
 | Page dots | white, and white at 35 percent |
+
+## 10. v1.3 additions
+
+Approved by Diva on 2 Nov 2026 after reviewing the prototype, together with every [Proposed] item in PRD FR-30 to FR-34. Where this section and earlier sections differ, this section wins for v1.3.
+
+### Page dots (FR-31)
+
+- Hidden (opacity 0) while the island is still. They fade in over 0.2 seconds when the island expands and on every page change (scroll, Alt+Up or Alt+Down, a dot click), and fade out over 0.2 seconds 1.5 seconds after the last change.
+- The pointer does not show them (Diva, 2 Nov 2026, after testing): only expanding and a page change do. Hidden dots can still be clicked.
+- With Windows animation effects off they appear and disappear at once.
+
+### Unread dot (FR-33)
+
+- A 6 x 6 white circle.
+- Clock: 12 from the pill's right edge, centered vertically; the clock stays centered in the pill.
+- Compact music pill: the last item in the row, 10 after the equalizer (the row's normal gap), so the title gets 16 less room.
+- It pops in over 0.35 seconds (scale 0.4 to 1 with the shape spring, opacity over 0.25 seconds) and fades out over 0.25 seconds.
+
+### Discord icon (FR-30)
+
+- Always the `#5865F2` circle with the white Discord logo (Simple Icons, CC0) at 58 percent of the circle, centered, drawn by WinIsland, like WhatsApp. It replaces the `#4752C4` letter circle.
+
+### Island size (FR-32)
+
+| Setting | Scale | Expanded | Clock pill |
+| --- | --- | --- | --- |
+| Small | 0.85 | 357 x 162 | 102 x 29 |
+| Medium (default) | 1.00 | 420 x 190 | 120 x 34 |
+| Large | 1.15 | 483 x 219 | 138 x 39 |
+| Extra large | 1.30 | 546 x 247 | 156 x 44 |
+
+Sizes are before the monitor's automatic scale (FR-1), which multiplies them. Everything inside scales by the same factor, so every value in this spec stays true in proportion.
+
+### App icon (FR-34), concept B "Mono pill"
+
+On a 256 x 256 grid:
+
+- Tile: rounded square at (11, 11), 234 x 234, radius 54, fill `#0B0B0C`, outline `#3A3A3C` 6 wide.
+- Pill: (36, 98), 184 x 60, radius 30, white.
+- Artwork square inside the pill: (54, 112), 32 x 32, radius 9, `#000000`.
+- Equalizer bars inside the pill, each 8 wide with radius 3, `#000000`: x 166 from y 120 to 144, x 180 from y 112 to 144, x 194 from y 126 to 144.
+- The tray icon stays the plain white pill (drawn in code, see `TrayIconImage.cs`), which matches this icon.

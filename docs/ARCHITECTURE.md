@@ -45,7 +45,7 @@ In words:
 
 | Folder | File | What it decides |
 |---|---|---|
-| `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Clicking or hotkey 1 always opens it, also from the clock (paused song or empty view); paused music shows for 5 seconds (longer while expanded). The expanded island has two pages, music and notifications. It also says when the next time-based change is due. |
+| `Island/` | `IslandStateMachine.cs` | What the island is doing: clock, music, expanded, hidden, paused for an hour. Clicking or hotkey 1 always opens it, also from the clock (paused song or empty view); paused music shows for 5 seconds (longer while expanded). The expanded island has two pages, music and notifications. It knows whether a notification has not been seen on the notifications page yet (the unread dot). It also says when the next time-based change is due. |
 | `Island/` | `IslandView.cs` | The shapes the island can show: clock, music pill, expanded, banner, permission prompt, hotkey conflict. |
 | `Island/` | `ExpandedPage.cs` | The two pages of the expanded island: music and notifications. |
 | `Island/` | `PageScroll.cs` | Turns mouse wheel and touchpad scrolling into page changes, one gesture per page. |
@@ -68,7 +68,7 @@ In words:
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
 | `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
 | `Notifications/` | `WhatsAppWebPriority.cs` | WhatsApp Web comes first: drops desktop's "You may have new messages" and desktop notifications for chats Web covered in the last 10 minutes. |
-| `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, and the read or replaced rule for removals. |
+| `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, the read or replaced rule for removals, and which of the last 3 are still unseen. |
 | `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
@@ -96,8 +96,10 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
-| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page). |
+| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page), and the unread dot at the end. |
 | App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
+| App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, and fades them out 1.5 s later. |
+| App | `Notifications/UnreadDot.cs` | The small white dot on the clock and the compact music pill when a notification has not been seen yet. |
 | App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the grey placeholder with a music note) and the title shown when a song has none. |
 | App | `Music/ArtworkColors.cs` | Reads the album art at 64 x 64 and asks Core for its colors, once per song. |
@@ -109,6 +111,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Music/MarqueeText.xaml` | A line of text that scrolls sideways when the song title does not fit. |
 | App | `Notifications/NotificationController.cs` | Asks for notification access, moves new and removed notifications to the UI thread, hands them to Core, keeps app logos. |
 | App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner on a grey card: app logo or letter circle (centered by its shape), sender, preview, +N badge; tap opens the notifications page, a sideways drag swipes it away. |
+| App | `Notifications/AppLogoGlyph.cs` | The WhatsApp and Discord logo shapes, drawn white on their green or blurple circle. |
 | App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 on grey cards with the time, the full text of a single one (up to 3 lines), or "No notifications". |
 | App | `Notifications/PermissionPromptView.xaml`, `Notifications/PermissionPromptBehavior.cs` | "Allow notification access": opens the Windows settings page, hides itself after 10 seconds. |
 | App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and the notifications page up to date, with "Hide message text" applied. |

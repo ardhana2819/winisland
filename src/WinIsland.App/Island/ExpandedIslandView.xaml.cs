@@ -1,7 +1,8 @@
 // ExpandedIslandView.xaml.cs: slides between the music and notifications pages and draws the
 // page dots (PRD FR-21, DESIGN_SPEC section 9).
 //   Page switch: the track moves 190 over 0.5 s with the softer page spring.
-//   Dots: the current one grows from 6 to 14 high over 0.3 s.
+//   Dots: the current one grows from 6 to 14 high over 0.3 s. v1.3: they show on opening and
+//   on a page change and fade out 1.5 s later (FR-31, PageDotsFader).
 // With Windows animation effects off, both happen at once. A dot click is reported; like the
 // music buttons, a dot is a Button, which keeps the click from also closing the island.
 
@@ -30,11 +31,13 @@ public partial class ExpandedIslandView : UserControl
     private static readonly Brush CurrentDotBrush = Frozen(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF));
     private static readonly Brush OtherDotBrush = Frozen(Color.FromArgb(0x59, 0xFF, 0xFF, 0xFF));
 
+    private readonly PageDotsFader _dotsFader;
     private ExpandedPage _shownPage = ExpandedPage.Music;
 
     public ExpandedIslandView()
     {
         InitializeComponent();
+        _dotsFader = new PageDotsFader(Dots);
     }
 
     /// <summary>A page dot was clicked.</summary>
@@ -43,6 +46,12 @@ public partial class ExpandedIslandView : UserControl
     public MusicControlsView Music => MusicPage;
 
     public NotificationsPageView Notifications => NotificationsPage;
+
+    /// <summary>The island just opened: show the dots so the second page is easy to find (FR-31).</summary>
+    public void OnOpened() => _dotsFader.Flash();
+
+    /// <summary>The island closed: the dots hide at once, ready to fade in on the next opening.</summary>
+    public void OnClosed() => _dotsFader.HideNow();
 
     /// <summary>
     /// Shows a page. It slides only when the island is already open on screen (slide is true);
@@ -62,6 +71,10 @@ public partial class ExpandedIslandView : UserControl
         Move(NotificationsDot, HeightProperty, onNotifications ? CurrentDotDips : SmallDotDips, DotSeconds, EaseCurve, slide);
         MusicDot.Background = onNotifications ? OtherDotBrush : CurrentDotBrush;
         NotificationsDot.Background = onNotifications ? CurrentDotBrush : OtherDotBrush;
+        if (slide)
+        {
+            _dotsFader.Flash();
+        }
     }
 
     private void OnMusicDotClick(object sender, RoutedEventArgs e) => PageRequested?.Invoke(this, ExpandedPage.Music);

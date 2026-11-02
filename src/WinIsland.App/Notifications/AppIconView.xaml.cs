@@ -1,9 +1,10 @@
 // AppIconView.xaml.cs: shows the app icon on banners and cards.
 //   WhatsApp (desktop and Web): always the green circle with the white WhatsApp logo, drawn by
 //   WinIsland (Diva, 1 Nov 2026), so it looks the same whatever Windows sends.
-//   Other apps: the app logo from the notification, or the colored letter circle when there is none.
-// The design names colors for WhatsApp and Discord only; other apps use the design's dark grey
-// (#3A3A3C, the progress track color) so they stay quiet next to the two main apps.
+//   Discord: always the blurple circle with the white Discord logo, the same way (PRD FR-30).
+//   Other apps: the app logo from the notification, or the grey letter circle when there is none.
+// Other apps use the design's dark grey (#3A3A3C, the progress track color) so they stay quiet
+// next to the two main apps.
 // The letter is turned into a shape and moved so its ink starts at (0,0); the Path is then
 // centered in the circle by that ink, which puts the letter exactly in the middle.
 
@@ -19,7 +20,7 @@ namespace WinIsland.App.Notifications;
 public partial class AppIconView : UserControl
 {
     private static readonly Brush WhatsAppGreen = Frozen(Color.FromRgb(0x17, 0x7A, 0x40));
-    private static readonly Brush DiscordBlue = Frozen(Color.FromRgb(0x47, 0x52, 0xC4));
+    private static readonly Brush DiscordBlurple = Frozen(Color.FromRgb(0x58, 0x65, 0xF2));
     private static readonly Brush OtherGrey = Frozen(Color.FromRgb(0x3A, 0x3A, 0x3C));
     private static readonly Typeface LetterFont = new(new FontFamily("Segoe UI Variable Text, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
 
@@ -35,10 +36,11 @@ public partial class AppIconView : UserControl
     {
         ArgumentNullException.ThrowIfNull(notification);
 
-        if (notification.Source == NotificationSource.WhatsApp)
+        Geometry? drawnLogo = AppLogoGlyph.ForCircle(notification.Source, double.IsNaN(Width) ? ActualWidth : Width);
+        if (drawnLogo is not null)
         {
-            Circle.Fill = WhatsAppGreen;
-            Letter.Data = WhatsAppGlyph.ForCircle(double.IsNaN(Width) ? ActualWidth : Width);
+            Circle.Fill = notification.Source == NotificationSource.Discord ? DiscordBlurple : WhatsAppGreen;
+            Letter.Data = drawnLogo;
             Letter.Visibility = Visibility.Visible;
             return;
         }
@@ -53,12 +55,7 @@ public partial class AppIconView : UserControl
             return;
         }
 
-        Circle.Fill = notification.Source switch
-        {
-            NotificationSource.WhatsApp => WhatsAppGreen,
-            NotificationSource.Discord => DiscordBlue,
-            _ => OtherGrey,
-        };
+        Circle.Fill = OtherGrey;
         string letter = notification.AppName.Length > 0 ? notification.AppName[..1].ToUpperInvariant() : "?";
         Letter.Data = CenteredLetter(letter, LetterSize);
         Letter.Visibility = Visibility.Visible;

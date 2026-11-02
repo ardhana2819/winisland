@@ -16,6 +16,7 @@
 //   FR-21 the expanded island has two pages, music and notifications; it opens on music.
 //   FR-22 on the notifications page a new notification goes straight onto the page, no banner;
 //         hotkey 3 closes the island there.
+//   FR-33 (v1.3) the unread dot: notifications not yet seen on the notifications page.
 //   12    paused wins over everything.
 //   13    paused music shows for 5 seconds, then the clock; while the island is expanded the
 //         music stays, and the 5 seconds start when it closes.
@@ -66,6 +67,9 @@ public sealed class IslandStateMachine
 
     /// <summary>The last 3 notifications, newest first (FR-15).</summary>
     public IReadOnlyList<IslandNotification> RecentNotifications => _notifications.Recent;
+
+    /// <summary>True when the idle island should show the unread dot (FR-33).</summary>
+    public bool HasUnseenNotifications => _notifications.HasUnseen;
 
     /// <summary>Banners still waiting, newest first; the first one is on screen, the rest make the +N badge.</summary>
     public IReadOnlyList<IslandNotification> WaitingBanners => _notifications.Waiting;
@@ -146,6 +150,7 @@ public sealed class IslandStateMachine
         }
 
         Page = page;
+        MarkSeenIfOnNotificationsPage();
         RaiseChanged();
     }
 
@@ -270,6 +275,7 @@ public sealed class IslandStateMachine
         {
             // Already looking at the notifications: it goes to the top of the page, no banner (FR-2, FR-22).
             _notifications.HideAllBanners();
+            MarkSeenIfOnNotificationsPage();
             RaiseChanged();
             return;
         }
@@ -407,6 +413,16 @@ public sealed class IslandStateMachine
         // A paused song counts as present again, so closing shows it for 5 seconds before the clock.
         IsMusicPresent = Music is not null;
         _pausedMusicEndsAt = null;
+        MarkSeenIfOnNotificationsPage();
+    }
+
+    // FR-33: what is on the open notifications page counts as seen, so the unread dot goes away.
+    private void MarkSeenIfOnNotificationsPage()
+    {
+        if (_overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications)
+        {
+            _notifications.MarkAllSeen();
+        }
     }
 
     private void CloseOverlay(DateTimeOffset now)

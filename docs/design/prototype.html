@@ -62,10 +62,9 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .ib svg{width:22px;height:22px;fill:var(--acc);transition:fill .45s}
 .pg-music.empty .xp,.pg-music.empty .xeq{display:none}
 .pg-music.empty .ctl{opacity:.35;pointer-events:none}
-/* v1.3: the dots fade in on expand, on a page change and under the pointer, and out 1.5 s later. */
+/* v1.3: the dots fade in on expand and on a page change, and out 1.5 s later. */
 .dots{position:absolute;right:11px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;opacity:0;transition:opacity .2s}
 .dots.show{opacity:1}
-.dots::before{content:"";position:absolute;inset:-14px -11px -14px -14px}
 .dot{position:relative;width:6px;height:6px;border:0;padding:0;border-radius:3px;background:rgba(255,255,255,.35);cursor:pointer;transition:height .3s,background-color .3s}
 .dot::before{content:"";position:absolute;inset:-5px}
 .dot[aria-current=true]{height:14px;background:#fff}
@@ -124,7 +123,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 <body>
 <main>
 <h1>WinIsland prototype</h1>
-<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds (hover them to bring them back), a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
+<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds, a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
 
 <div class="stage" id="stage">
   <div class="scene" aria-hidden="true">Game running in a borderless window</div>
@@ -215,7 +214,7 @@ const T=[{t:"Song Title One",a:"Artist Name",d:221,k:"red"},{t:"Song Title Two",
 T.forEach(x=>Object.assign(x,cover(x.k)));
 
 /* ---------- State ---------- */
-const S={size:1,dotHover:false,ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
+const S={size:1,ov:null,page:0,hidden:false,paused:false,music:false,playing:false,pausedAt:0,pos:0,ti:0,noArt:false,q:[],hist:[],tm:null,dip:2560,zoom:true,seekOK:true,lastWheel:0};
 const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
 layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
@@ -280,8 +279,8 @@ function layout(){
 
 /* ---------- Opening, closing and pages ---------- */
 function markSeen(){if(S.ov==="exp"&&S.page===1)S.hist.forEach(x=>x.seen=true)}
-// Dots show on expand and on a page change, stay while the pointer is over them, and fade 1.5 s after.
-function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);if(!S.dotHover)S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
+// Dots show on expand and on a page change, and fade 1.5 s after.
+function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
 function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;markSeen();render();flashDots()}
 function collapse(msg){if(S.ov!=="exp")return;S.ov=null;clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
 function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
@@ -331,8 +330,6 @@ $("a-seek").onclick=()=>{S.seekOK=!S.seekOK;$("seek").classList.toggle("nos",!S.
 $("bpp").onclick=()=>{S.playing=!S.playing;render()};
 $("bprev").onclick=()=>nextT(-1);$("bnext").onclick=()=>nextT(1);
 $("dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;e.stopPropagation();setPage(+b.dataset.p)});
-$("dots").addEventListener("mouseenter",()=>{S.dotHover=true;flashDots()});
-$("dots").addEventListener("mouseleave",()=>{S.dotHover=false;flashDots()});
 $("sizes").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.size=+b.dataset.k;[...$("sizes").children].forEach(x=>x.setAttribute("aria-pressed",x===b));layout();log(b.textContent+" island. Saved in Settings and shown at once.")};
 $("pn").addEventListener("click",e=>{if(e.target.closest(".card"))e.stopPropagation()});
 $("nl").onclick=e=>{e.stopPropagation();if(S.sw){S.sw=false;return}openIsland(1);log("Notifications page: the last "+S.hist.length+" notifications, newest first.")};

@@ -3,7 +3,8 @@
 // registers the hotkeys (FR-5), shows the conflict banner for 10 seconds when a hotkey is taken,
 // shows the clock (AC-1), shows music and opens or closes on click (FR-2, FR-7), shows
 // notification banners (FR-15), switches the expanded island's pages by scroll, Alt+Up and
-// Alt+Down or the page dots (FR-21), and animates whenever the island's state changes (FR-4).
+// Alt+Down or the page dots (FR-21), shows the unread dot on the compact island (FR-33), and
+// animates whenever the island's state changes (FR-4).
 
 using System.Windows;
 using System.Windows.Input;
@@ -217,6 +218,8 @@ public partial class IslandWindow : Window
         ConflictLabel.Text = _island.HotkeyConflictText ?? string.Empty;
         _musicPresenter.Refresh();
         _notificationPresenter.Refresh();
+        ClockUnreadDot.SetShown(_island.HasUnseenNotifications);
+        MusicLayer.SetUnread(_island.HasUnseenNotifications);
 
         IslandView view = _island.View;
         PillShape shape = PillShape.For(view);
@@ -226,6 +229,15 @@ public partial class IslandWindow : Window
 
         if (view != _shownView)
         {
+            if (view == IslandView.Expanded)
+            {
+                ExpandedLayer.OnOpened();
+            }
+            else if (_shownView == IslandView.Expanded)
+            {
+                ExpandedLayer.OnClosed();
+            }
+
             _animator.SwapContent(LayerFor(_shownView), LayerFor(view));
             _shownView = view;
         }
