@@ -10,6 +10,7 @@ internal static partial class NativeMethods
     public const int GwlExStyle = -20;
     public const long WsExToolWindow = 0x00000080;
     public const long WsExNoActivate = 0x08000000;
+    public const long WsExTransparent = 0x00000020;
     public const int WmMouseActivate = 0x0021;
     public const int MaNoActivate = 3;
     public const int WmNcActivate = 0x0086;

@@ -1,4 +1,4 @@
-// GlassWindow.xaml.cs: sets up the glass test pill (spike G1 to G5).
+﻿// GlassWindow.xaml.cs: sets up the glass test pill (spike G1 to G5).
 //   1. The window never takes keyboard focus, like the island (FR-3).
 //   2. Windows draws the blurred backdrop: the frame is extended over the whole window and the
 //      system backdrop type is set (acrylic by default). The window background stays clear so
@@ -14,8 +14,10 @@
 //                                         backdrop does not turn flat grey when another window has focus.
 //                                         Keyboard focus is not taken; only the frame's look changes.
 //   --shadow                              a soft dark glow behind the clock text (readability on light glass)
-//   --host                                the documented way (round 6): Windows.UI.Composition's host
-//                                         backdrop brush, clipped to the pill with smoothed edges
+//   --host                                the documented way: Windows.UI.Composition's host backdrop
+//                                         brush, clipped to the pill with smoothed edges. Since round 8
+//                                         it lives in a second window behind this one (BlurWindow.cs),
+//                                         because it hides WPF content in its own window.
 //   --accent acrylic|blur                 use the older SetWindowCompositionAttribute blur instead of the
 //                                         system backdrop. It does not depend on the window being active.
 
@@ -42,7 +44,7 @@ public partial class GlassWindow : Window
     private readonly string? _accent;
     private readonly bool _shadow;
     private readonly bool _host;
-    private HostBackdrop? _hostBackdrop;
+    private readonly BlurWindow? _blurWindow;
     private IntPtr _handle;
     private bool _expanded;
     private Size _regionSize;
@@ -71,6 +73,17 @@ public partial class GlassWindow : Window
             ClockText.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 8, ShadowDepth = 0, Opacity = 0.7 };
         }
 
+        if (_host)
+        {
+            // This window becomes a plain transparent WPF window; the blur window sits under it.
+            // Being owned by the blur window keeps this one always on top of it.
+            AllowsTransparency = true;
+            _blurWindow = new BlurWindow(Width, Height);
+            _blurWindow.Show();
+            Owner = _blurWindow;
+            Closed += (_, _) => _blurWindow.Close();
+        }
+
         Pill.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(_tint * 255), 0, 0, 0));
         SourceInitialized += OnSourceInitialized;
     }
@@ -95,9 +108,11 @@ public partial class GlassWindow : Window
         Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
         Top = TopMarginDips;
 
-        if (_host)
+        if (_blurWindow is not null)
         {
-            ApplyHostBackdrop();
+            _blurWindow.Left = Left;
+            _blurWindow.Top = Top;
+            _dwmResult = _blurWindow.Status;
         }
         else if (_accent is null)
         {
@@ -141,24 +156,6 @@ public partial class GlassWindow : Window
         };
         int backdrop = NativeMethods.DwmSetWindowAttribute(_handle, NativeMethods.DwmwaSystemBackdropType, ref type, sizeof(int));
         _dwmResult = $"extend 0x{extend:X8}, backdrop 0x{backdrop:X8}";
-    }
-
-    private void ApplyHostBackdrop()
-    {
-        NativeMethods.Margins wholeWindow = new() { Left = -1, Right = -1, Top = -1, Bottom = -1 };
-        NativeMethods.DwmExtendFrameIntoClientArea(_handle, ref wholeWindow);
-        int noRounding = NativeMethods.DwmwcpDoNotRound;
-        NativeMethods.DwmSetWindowAttribute(_handle, NativeMethods.DwmwaWindowCornerPreference, ref noRounding, sizeof(int));
-        try
-        {
-            _hostBackdrop = new HostBackdrop(_handle);
-            _dwmResult = "host backdrop ready";
-        }
-        catch (Exception exception)
-        {
-            // A spike: show the failure on the pill so Diva can read it out.
-            _dwmResult = $"host backdrop failed: {exception.GetType().Name} {exception.Message}";
-        }
     }
 
     private void ApplyAccent()
@@ -212,9 +209,13 @@ public partial class GlassWindow : Window
         int corner = (int)Math.Round(radius * 2 * dpi.DpiScaleX);
         // With the host backdrop the blur has its own smooth clip, so the hard window region is made
         // 2 pixels larger all round and never cuts the smooth edge.
-        int pad = _hostBackdrop is null ? 0 : 2;
-        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left - pad, 0, right + 1 + pad, bottom + 1 + pad, corner + (2 * pad), corner + (2 * pad)), true);
-        _hostBackdrop?.Update(left, right - left, bottom, (float)(radius * dpi.DpiScaleX));
+        int setResult = NativeMethods.SetWindowRgn(_handle, NativeMethods.CreateRoundRectRgn(left, 0, right + 1, bottom + 1, corner, corner), true);
+        if (_blurWindow is not null)
+        {
+            const int pad = 2;
+            NativeMethods.SetWindowRgn(_blurWindow.Handle, NativeMethods.CreateRoundRectRgn(left - pad, 0, right + 1 + pad, bottom + 1 + pad, corner + (2 * pad), corner + (2 * pad)), true);
+            _blurWindow.Backdrop?.Update(left, right - left, bottom, (float)(radius * dpi.DpiScaleX));
+        }
 
         int boxType = NativeMethods.GetWindowRgnBox(_handle, out NativeMethods.Rect box);
         _regionInfo = $"region set {setResult}, box type {boxType} {box.Right - box.Left}x{box.Bottom - box.Top}";
