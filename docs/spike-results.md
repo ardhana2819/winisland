@@ -61,11 +61,11 @@ Settings that worked for Diva: tint 0 (as light as her TranslucentTB taskbar), a
 
 | Test | Result | Evidence | What it means for the PRD |
 |---|---|---|---|
-| C1. WhatsApp desktop: an incoming voice call sends a Windows notification | Not run yet | | |
-| C2. WhatsApp desktop: when that notification goes away (answered, declined, missed) | Not run yet | | |
-| C3. WhatsApp Web (Chrome app): an incoming call sends a notification | Not run yet | | |
-| C4. A missed call leaves a notification, and what it says | Not run yet | | |
-| C5. Video call instead of voice call | Not run yet | | |
+| C1. WhatsApp desktop: an incoming voice call sends a Windows notification | Skipped, 2 Nov 2026 | Diva uses WhatsApp Web only; WhatsApp desktop stays closed | Build for WhatsApp Web; desktop is not in scope for FR-38 |
+| C2. When the call notification goes away (Web) | Partly answered, 2 Nov 2026 | Three Web calls: each notification was REMOVED by Windows when the call stopped, after 10.0 s, 4.6 s and 7.1 s of ringing. Which call was declined, answered or let ring is still to confirm | The banner can stay exactly while the notification exists and leave on REMOVED |
+| C3. WhatsApp Web (Chrome app): an incoming call sends a notification | Pass, 2 Nov 2026 | ADDED within 0.4 s, app "WhatsApp Web" (Chrome app). Two texts: the caller's name, then an emoji plus "Incoming voice call" | A call is recognised by the second text ending in "Incoming voice call" or "Incoming video call" (English WhatsApp). The caller is the first text |
+| C4. A missed call leaves a notification, and what it says | No notification seen, to confirm | After the three calls no new ADDED line followed any REMOVED line | If one of the calls was missed, WhatsApp Web leaves nothing behind, so FR-38's missed-call card cannot be built |
+| C5. Video call instead of voice call | Pass (Web), 2 Nov 2026 | Same shape; second text: emoji plus "Incoming video call"; REMOVED after 7.1 s | The banner can say "Incoming video call" |
 
 ### Extra findings
 
