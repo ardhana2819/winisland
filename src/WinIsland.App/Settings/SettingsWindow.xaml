@@ -226,6 +226,20 @@
                     <TextBlock Text="Hide message text" Style="{StaticResource RowLabel}" />
                 </DockPanel>
             </Border>
+            <!-- v1.4 (FR-36): off by default; the note says what hiding then does. -->
+            <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">
+                <DockPanel>
+                    <CheckBox x:Name="ClearFromWindowsSwitch" DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource Switch}" AutomationProperties.Name="Also clear from Windows notification center" Click="OnSwitchClick" />
+                    <StackPanel Margin="0,0,16,0">
+                        <TextBlock Text="Also clear from Windows notification center" Style="{StaticResource RowLabel}" TextWrapping="Wrap" />
+                        <TextBlock Text="Swiping a banner, or the hide hotkey on banners, also removes that chat from Windows and from the notifications page. It does not mark it read in the app."
+                                   Foreground="#A6ABB6"
+                                   FontSize="12"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
             <Border Padding="0,12,0,4">
                 <DockPanel>
                     <CheckBox x:Name="StartupSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" AutomationProperties.Name="Launch with Windows" Click="OnSwitchClick" />

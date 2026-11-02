@@ -3,6 +3,10 @@
 // prompt and keeps working as clock and music. Otherwise every new or removed notification is
 // moved to the UI thread and handed to the island's rules (Core). App logos are decoded small
 // and kept per app. Message text stays in memory only (FR-18).
+// FR-36 (v1.4): when "Also clear from Windows notification center" is on, banners hidden with a
+// swipe or hotkey 3 are also removed from Windows, with every other notification of the same
+// chat (Discord keeps one per message). Windows then reports them removed, so the chats leave the
+// notifications page through the normal read rule.
 // Each notification event is logged with its app, its Windows id and the time to the millisecond,
 // and so is every change in how many items the notifications page holds. Never the sender or the
 // text (section 14: event types only). This is how Diva's "messages vanished" bug of 1 Nov 2026
@@ -44,6 +48,7 @@ internal sealed class NotificationController : IDisposable
         _accessCheck = new DispatcherTimer(DispatcherPriority.Background, dispatcher) { Interval = AccessCheckInterval };
         _accessCheck.Tick += async (_, _) => await CheckAccessAsync();
         _island.Changed += (_, _) => LogRecentCount();
+        _island.BannersDismissed += async (_, hidden) => await ClearFromWindowsAsync(hidden);
     }
 
     /// <summary>
@@ -155,6 +160,29 @@ internal sealed class NotificationController : IDisposable
             Trace.TraceInformation("Notification removed: id {0}, at {1:HH:mm:ss.fff}", windowsId, now);
             _island.RemoveNotification(windowsId, now);
         });
+    }
+
+    private async Task ClearFromWindowsAsync(IReadOnlyList<IslandNotification> hidden)
+    {
+        if (!_island.NotificationSettings.ClearFromWindows || _listener is null || !_isListening)
+        {
+            return;
+        }
+
+        try
+        {
+            int removed = await _listener.RemoveMatchingAsync(raw =>
+            {
+                IslandNotification inWindows = NotificationParser.Parse(raw);
+                return hidden.Any(chat => chat.IsSameConversation(inWindows));
+            });
+            Trace.TraceInformation("Cleared {0} notification(s) of {1} hidden chat(s) from Windows", removed, hidden.Count);
+        }
+        catch (Exception error)
+        {
+            // The island has already hidden them; only Windows keeps them (PRD section 13).
+            Trace.TraceWarning("Clearing notifications from Windows failed: {0} (HRESULT 0x{1:X8})", error.GetType().Name, error.HResult);
+        }
     }
 
     private void LogRecentCount()

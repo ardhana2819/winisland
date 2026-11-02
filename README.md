@@ -107,5 +107,6 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 - Music information comes only from the Windows media session. WinIsland never signs in to Spotify.
 - Notifications are read only through the Windows notification listener, and only after you allow it.
 - Message text stays **in memory only**. It is never written to disk or to logs. Logs hold event types and errors only.
-- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, start with Windows. Next to it, `winisland.log` (at most 256 KB) records event types and errors only, never message text. Nothing else is written to disk.
+- Settings are saved in `%USERPROFILE%\.winisland\settings.json`: hotkeys, which apps show, banner time, hide message text, also clear from Windows, island size, start with Windows. Next to it, `winisland.log` (at most 256 KB) records event types and errors only, never message text. Nothing else is written to disk.
 - No screen capture, no reading other programs' memory, no injection or hooks into games.
+- WinIsland never deletes anything from Windows unless you turn on **Also clear from Windows notification center** in Settings (off by default). Then hiding a banner with a swipe or the hide hotkey also removes that chat's notifications from the Windows notification center.

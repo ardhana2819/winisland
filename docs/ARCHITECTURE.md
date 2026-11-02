@@ -68,7 +68,8 @@ In words:
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
 | `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
 | `Notifications/` | `WhatsAppWebPriority.cs` | WhatsApp Web comes first: drops desktop's "You may have new messages" and desktop notifications for chats Web covered in the last 10 minutes. |
-| `Notifications/` | `NotificationFeed.cs` | The last 3 list, the waiting banners with their shared timer, the read or replaced rule for removals, and which of the last 3 are still unseen. |
+| `Notifications/` | `NotificationFeed.cs` | The last 3 chats with their last 3 messages and a count, the waiting banners with their shared timer, the read or replaced rule for removals, and which messages are still unseen. |
+| `Notifications/` | `NotificationStack.cs` | One chat on the notifications page: its last 3 messages, how many it sent, and the "3 messages" or "99+ messages" text (v1.4). |
 | `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
@@ -114,7 +115,10 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Notifications/NotificationController.cs` | Asks for notification access, moves new and removed notifications to the UI thread, hands them to Core, keeps app logos. |
 | App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner on a grey card: app logo or letter circle (centered by its shape), sender, preview, +N badge; tap opens the notifications page, a sideways drag swipes it away. |
 | App | `Notifications/AppLogoGlyph.cs` | The WhatsApp and Discord logo shapes, drawn white on their green or blurple circle. |
-| App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 on grey cards with the time, the full text of a single one (up to 3 lines), or "No notifications". |
+| App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 chats on grey cards with the time and message count, the full text of a single one (up to 3 lines), or "No notifications". |
+| App | `Notifications/StackCard.cs` | Puts the cards of older messages behind a chat's card, peeking out underneath like the iPhone (v1.4). |
+| App | `Notifications/ChatView.cs` | An opened chat: its name, count and last 3 messages with their times (v1.4). |
+| App | `Notifications/ChatSlide.cs` | The sideways move between the list and an opened chat, with the page-switch spring (v1.4). |
 | App | `Notifications/PermissionPromptView.xaml`, `Notifications/PermissionPromptBehavior.cs` | "Allow notification access": opens the Windows settings page, hides itself after 10 seconds. |
 | App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and the notifications page up to date, with "Hide message text" applied. |
 | App | `Island/IslandHotkeys.cs` | The three island hotkeys: applied at start and from Settings, freed while Settings records a new combination. |

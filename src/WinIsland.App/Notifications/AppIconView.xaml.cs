@@ -19,7 +19,8 @@ namespace WinIsland.App.Notifications;
 
 public partial class AppIconView : UserControl
 {
-    private static readonly Brush WhatsAppGreen = Frozen(Color.FromRgb(0x17, 0x7A, 0x40));
+    // v1.4 (Diva, 2 Nov 2026): brighter, the same green as the call symbol; was #177A40.
+    private static readonly Brush WhatsAppGreen = Frozen(Color.FromRgb(0x30, 0xD1, 0x58));
     private static readonly Brush DiscordBlurple = Frozen(Color.FromRgb(0x58, 0x65, 0xF2));
     private static readonly Brush OtherGrey = Frozen(Color.FromRgb(0x3A, 0x3A, 0x3C));
     private static readonly Typeface LetterFont = new(new FontFamily("Segoe UI Variable Text, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);

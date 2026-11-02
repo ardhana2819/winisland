@@ -192,6 +192,9 @@ public partial class IslandWindow : Window
             case HotkeyAction.ShowMusicPage:
                 _island.ShowPage(ExpandedPage.Music);
                 break;
+            case HotkeyAction.CloseChat:
+                _island.CloseChat();
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown hotkey action.");
         }

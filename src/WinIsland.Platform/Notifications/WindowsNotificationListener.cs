@@ -7,6 +7,7 @@
 // is not available, so this asks Windows once per second instead (polling, up to 1 s delay,
 // still inside the 2 s goal G2). Either way the app sees the same Added and Removed reports.
 // Notifications already in Windows when it starts are taken as known, not as new.
+// FR-36 (v1.4): it can also remove notifications from Windows, only when Diva turned that on.
 
 using Windows.Storage.Streams;
 using Windows.UI.Notifications;
@@ -95,6 +96,37 @@ public sealed class WindowsNotificationListener : IDisposable
             _usesEvent = false;
             _ = PollAsync(_stop.Token);
         }
+    }
+
+    /// <summary>
+    /// FR-36 (v1.4): removes every notification in the Windows notification center that matches,
+    /// with the listener's own remove call. Windows then reports each one as removed. Returns how
+    /// many were removed; a failure is logged and the rest are still tried.
+    /// </summary>
+    public async Task<int> RemoveMatchingAsync(Func<Core.Notifications.RawNotification, bool> matches)
+    {
+        ArgumentNullException.ThrowIfNull(matches);
+
+        int removed = 0;
+        foreach (UserNotification notification in await ReadAllAsync())
+        {
+            if (!matches(ToastReader.Read(notification)))
+            {
+                continue;
+            }
+
+            try
+            {
+                _listener.RemoveNotification(notification.Id);
+                removed++;
+            }
+            catch (Exception error)
+            {
+                PlatformLog.Problem("Clearing a notification from Windows failed", error);
+            }
+        }
+
+        return removed;
     }
 
     public void Dispose()

@@ -1,6 +1,6 @@
 <!--
   AppIconView.xaml: the round app icon on banners and notification cards.
-  WhatsApp and Discord always show their own logo drawn white on their color (#177A40, #5865F2;
+  WhatsApp and Discord always show their own logo drawn white on their color (#30D158, #5865F2;
   DESIGN_SPEC sections 9 and 10). Other apps use the app logo from the notification when Windows
   provides it; fallback is a grey circle with the app's first letter.
   Section 9: the logo or letter sits exactly in the middle of the circle (Diva, 1 Nov 2026). The

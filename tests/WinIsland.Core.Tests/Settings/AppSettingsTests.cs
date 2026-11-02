@@ -56,7 +56,7 @@ public class AppSettingsTests
                 new Hotkey(HotkeyModifiers.Ctrl | HotkeyModifiers.Shift, 'E'),
                 new Hotkey(HotkeyModifiers.Ctrl | HotkeyModifiers.Alt, 'H'),
                 new Hotkey(HotkeyModifiers.Alt, 'Z')),
-            new NotificationSettings(ShowWhatsApp: true, ShowDiscord: false, ShowOtherApps: true, HideMessageText: true, TimeSpan.FromSeconds(10)),
+            new NotificationSettings(ShowWhatsApp: true, ShowDiscord: false, ShowOtherApps: true, HideMessageText: true, TimeSpan.FromSeconds(10), ClearFromWindows: true),
             LaunchAtStartup: false,
             IslandSize.ExtraLarge);
 
@@ -107,6 +107,14 @@ public class AppSettingsTests
         Assert.False(read.Notifications.ShowDiscord);
         Assert.True(read.Notifications.ShowWhatsApp);
         Assert.True(read.LaunchAtStartup);
+        Assert.False(read.Notifications.ClearFromWindows);
+    }
+
+    [Fact]
+    public void Clearing_from_Windows_is_off_by_default()
+    {
+        Assert.False(AppSettings.Defaults.Notifications.ClearFromWindows);
+        Assert.Contains("\"ClearFromWindows\": false", AppSettingsJson.Write(AppSettings.Defaults), StringComparison.Ordinal);
     }
 
     [Theory]

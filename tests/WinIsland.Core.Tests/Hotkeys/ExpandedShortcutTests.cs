@@ -20,6 +20,14 @@ public class ExpandedShortcutTests
     }
 
     [Fact]
+    public void Back_from_a_chat_is_Alt_Left_and_not_one_of_the_always_on_keys()
+    {
+        Assert.Equal("Alt+Left", ExpandedShortcut.BackToList.ToString());
+        Assert.Equal(HotkeyAction.CloseChat, ExpandedShortcut.BackToList.Action);
+        Assert.DoesNotContain(ExpandedShortcut.BackToList, ExpandedShortcut.All);
+    }
+
+    [Fact]
     public void Each_shortcut_has_its_own_action_and_none_clashes_with_the_island_hotkeys()
     {
         Assert.Equal(ExpandedShortcut.All.Count, ExpandedShortcut.All.Select(shortcut => shortcut.Action).Distinct().Count());
