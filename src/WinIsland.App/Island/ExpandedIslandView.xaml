@@ -5,6 +5,9 @@
   Page dots at the right edge, 11 from the right, centered, 5 apart: each 6 wide, the current one
   14 high and white, the other 6 high and white at 35 percent. The click area reaches 5 beyond
   each dot. Clicking a dot opens its page.
+  v1.3 (FR-31, DESIGN_SPEC section 10): the dots are hidden while the island is still; see
+  PageDotsFader. The transparent dot area around them (14 above, below and left, to the edge on
+  the right) brings them back under the pointer.
 -->
 <UserControl x:Class="WinIsland.App.Island.ExpandedIslandView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -45,8 +48,10 @@
             </StackPanel>
         </Canvas>
 
-        <!-- 11 from the right edge: 6 to the button's edge plus its 5 transparent padding. -->
-        <StackPanel Margin="0,0,6,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <!-- 11 from the right edge: 6 to the button's edge plus its 5 transparent padding.
+             The area's padding plus the buttons' 5 make the dot area reach 14 around the dots. -->
+        <Border x:Name="DotArea" Background="Transparent" Padding="9,9,6,9" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <StackPanel x:Name="Dots">
             <Button x:Name="MusicDotButton" Style="{StaticResource PageDot}" Margin="0,0,0,-5" AutomationProperties.Name="Music page" Click="OnMusicDotClick">
                 <Border x:Name="MusicDot" Width="6" Height="14" CornerRadius="3" Background="#FFFFFF" />
             </Button>
@@ -54,5 +59,6 @@
                 <Border x:Name="NotificationsDot" Width="6" Height="6" CornerRadius="3" Background="#59FFFFFF" />
             </Button>
         </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

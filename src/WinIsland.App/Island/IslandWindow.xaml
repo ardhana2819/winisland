@@ -92,6 +92,11 @@
                                FontSize="15"
                                FontWeight="SemiBold"
                                Typography.NumeralAlignment="Tabular" />
+                    <!-- Unread dot (FR-33): 12 from the right edge, the clock stays centered. -->
+                    <notifications:UnreadDot x:Name="ClockUnreadDot"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,12,0" />
                 </Grid>
 
                 <!-- Hotkey conflict banner. Starts hidden. Change opens Settings (DESIGN_SPEC section 2). -->
