@@ -4,7 +4,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Beta (v1.3.0-beta.1).** WinIsland is ready to use, but still in development: more features are planned. All PRD v1.0 to v1.3 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, colored from the song's artwork, also when paused or with an empty view when Spotify is closed, WhatsApp and Discord notifications with their logos (banner, +N, the last 3 on cards, Alt+X to hide, a small white dot on the island for ones you have not seen yet), an expanded island with a music page and a notifications page (scroll, Alt+Up and Alt+Down, or the page dots, which show while the page changes), and a Settings window (tray > Settings) that sets the island size (Small to Extra large) and turns on start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Beta (v1.4.0-beta.1).** WinIsland is ready to use, but still in development: more features are planned. All PRD v1.0 to v1.4 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current Spotify song with play, pause, next, previous and seek, colored from the song's artwork, also when paused or with an empty view when Spotify is closed, WhatsApp and Discord notifications with their logos (banner, +N, the last 3 chats as stacked cards that open to their last 3 messages, Alt+X to hide, a small white dot on the island for ones you have not seen yet, and a banner while a WhatsApp Web call rings), an expanded island with a music page and a notifications page (scroll, Alt+Up and Alt+Down, or the page dots, which show while the page changes), and a Settings window (tray > Settings) that sets the island size (Small to Extra large), the look (Solid, or Glass in beta), whether hiding a banner also clears it from Windows, and start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
 
@@ -20,7 +20,7 @@ Personal project, private repository.
 
 1. Sign in to GitHub in your browser (the repository is private).
 2. Open the repository's **Releases** page and download `WinIsland-<version>-win-x64.zip` (about 83 MB) from the newest release. Beta releases are marked **Pre-release**.
-   Or, with GitHub CLI, naming the version: `gh release download v1.3.0-beta.1 --repo ardhana2819/WinIsland --pattern "*.zip"`
+   Or, with GitHub CLI, naming the version: `gh release download v1.4.0-beta.1 --repo ardhana2819/WinIsland --pattern "*.zip"`
    (without a version, GitHub CLI only looks at releases that are not pre-releases).
 3. Right-click the zip > **Properties** > tick **Unblock** > OK. Windows marks downloaded files, and without this the setup scripts in step 5 are refused.
 4. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
