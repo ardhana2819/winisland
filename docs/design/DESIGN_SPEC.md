@@ -44,7 +44,7 @@ The corner radius is half the height for the compact and banner states (a true p
 | Progress fill | `#FFFFFF` |
 | Equalizer bars | `#4ADE80` |
 | Notification badge background | `#2C2C2E` |
-| WhatsApp icon circle | `#177A40` |
+| WhatsApp icon circle | `#30D158` (v1.4, was `#177A40`) |
 | Discord icon circle | `#4752C4` |
 | Album art placeholder | gradient 135 degrees, `#7C3AED` to `#06B6D4` (replace with real artwork) |
 
@@ -136,7 +136,7 @@ Only the open music page is coloured. The compact pill, banner and notifications
 - None: "No notifications", 13, `#A6ABB6`, centered.
 - Banner: the 420 x 72 black pill holds one card inset by 8: 56 high, radius 28 (the pill's 36 minus 8), padding 0 14 0 10, icon circle 36, sender and preview, and the +N badge on the right (`#3A3A3C` so it stands out on the card, radius 12, padding 3 by 9, text 12 semibold). The banner shows no time: it is always "now". The card fills the pill's width and never grows past it.
 - App icons: the WhatsApp and Discord logos are centered in their circle, horizontally and vertically. The prototype's letters are stand-ins.
-- WhatsApp icon (desktop and Web, Diva 1 Nov 2026): always the `#177A40` circle with the white WhatsApp logo at 58 percent of the circle, drawn by WinIsland, whatever logo Windows sends.
+- WhatsApp icon (desktop and Web, Diva 1 Nov 2026): always the `#30D158` circle (v1.4, Diva 2 Nov 2026: brighter, the same green as the call symbol; was `#177A40`) with the white WhatsApp logo at 58 percent of the circle, drawn by WinIsland, whatever logo Windows sends.
 - Clicking a card does nothing.
 
 ### Motion
@@ -199,3 +199,47 @@ On a 256 x 256 grid:
 - Artwork square inside the pill: (54, 112), 32 x 32, radius 9, `#000000`.
 - Equalizer bars inside the pill, each 8 wide with radius 3, `#000000`: x 166 from y 120 to 144, x 180 from y 112 to 144, x 194 from y 126 to 144.
 - The tray icon stays the plain white pill (drawn in code, see `TrayIconImage.cs`), which matches this icon.
+
+## 11. v1.4 additions (draft, not approved yet)
+
+Stacks per chat on the notifications page (PRD FR-35). [Proposed, 2 Nov 2026]
+
+- Page cards are 48 high instead of 52, so three stacks still fit in the 190 high island. The island size does not change.
+- A stack shows "N messages" (11, `#A6ABB6`) before the time on the top line, "99+" above 99.
+- The cards behind a stack peek out under it, like the iPhone: one card for 2 messages, two for 3 or more.
+  - First card behind: `#3A3A3C`, 8 narrower on each side, radius 14, shows 4 below the card.
+  - Second card behind: `#2E2E31`, 16 narrower on each side, radius 12, shows 4 below the first.
+  - The space below a stack grows by what peeks out (4 or 8), so the 6 gap to the next card stays clear.
+- Worst case, three stacks of 3 or more: 3 x 48 + 3 x 8 + 2 x 6 = 180, inside the 190 island.
+
+Opening a stack (PRD FR-35, click to see the last 3 messages). [Proposed, 2 Nov 2026]
+
+- The chat view fills the notifications page, centered, 6 between rows.
+- Header, 36 high: a back chevron 20 in `#A6ABB6`, the app icon circle 32, the chat name 14 semibold (ellipsis), and "N messages" 11 in `#A6ABB6` on the right.
+- Up to 3 message rows, newest first: `#1C1C1E`, radius 14, 34 high, padding 12 left and 22 right. Text 13 in `#E5E5EA`, one line with ellipsis; time 11 in `#A6ABB6` on the right.
+- Total height 36 + 3 x 34 + 3 x 6 = 156, inside the 190 island.
+- Clicking anywhere on the view, or Alt+Left, goes back to the list.
+- Opening: the list slides 24 to the left while fading out over 0.15 seconds (ease-in). Then the chat view slides in from 40 on the right over 0.5 seconds with the page-switch spring cubic-bezier(0.3, 1.12, 0.5, 1), fully visible halfway. Its header and rows follow, each from 16 to the right over 0.35 seconds with the same spring, 0.04 seconds apart.
+- Going back is the mirror image: the chat slides right and out, the list comes in from the left.
+- A card and the cards peeking out behind it move and fade as one piece, and the peeking cards always stay behind the card, also mid-animation. [Fixes a grey box Diva saw flash on going back, 2 Nov 2026]
+- With Windows animation effects off, the change is instant.
+
+Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
+
+- Settings "Look": Solid (default, today's `#000000`) or Glass.
+- Glass background: Windows' host backdrop blur of what is behind the island, no tint, no edge line. The blur has the island's exact rounded shape with smooth edges and follows every shape change in the same frame.
+- Text on Glass gets a small soft shadow: black, blur radius 3, 1 down, 45 percent opacity. A larger glow (radius 8, 70 percent) looked like a dark box around each line in the prototype. [Diva, 2 Nov 2026]
+- Second lines on Glass (message previews, times, "N messages", the back chevron) are white at 85 percent instead of `#A6ABB6`, which disappears over bright games. [Diva, 2 Nov 2026]
+- Cards on Glass (banners, notification cards, opened chat rows): white at 14 percent instead of `#1C1C1E`. Peeking stacked cards: white at 10 and 6 percent, drawn only where they peek out below the card, because the card above is see-through.
+- Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork.
+- Unchanged on Glass: the page dots and the unread dot.
+- The prototype imitates the blur with CSS `backdrop-filter: blur(22px) saturate(1.3)`; the app uses Windows' own blur, which looks lighter and smoother. "Game scene: Bright" in the prototype puts a bright scene behind the island to check readability.
+
+Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
+
+- Same size and card as a message banner: 420 x 72, radius 36, card radius 28.
+- Left: the WhatsApp icon circle 36. Middle: caller name 14 semibold, under it "Incoming voice call" or "Incoming video call" 13 in `#A6ABB6` (near-white on Glass). No time, no +N badge.
+- Right: a green `#30D158` circle 36 with a white phone symbol 20 for a voice call, or a white video camera symbol 20 for a video call. It pulses gently: a green ring grows from 0 to 7 and fades out, every 1.6 seconds. No pulse with Windows animation effects off.
+- It shows over message banners and stays until the call notification is removed. The banner that was showing before comes back afterwards.
+- The banner card sits 8 inside the island, like a message banner.
+- Notifications page while ringing: the call is the top card (48 high, same layout, call circle 30 with a 16 symbol at the right), followed by the 2 newest notifications.

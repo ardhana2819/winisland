@@ -1,0 +1,9 @@
+<!--
+  App.xaml: GlassProbe application entry point. Opens the glass pill window on startup.
+-->
+<Application x:Class="GlassProbe.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="GlassWindow.xaml">
+    <Application.Resources />
+</Application>

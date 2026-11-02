@@ -39,6 +39,34 @@ Branch `feat/whatsapp-web`. NotificationProbe with identity, without `--show-tex
 | W6. Read in WhatsApp Web | **Pass** | The Web notification was removed right after reading (`REMOVED 861 via=event`). | Dismiss on read (FR-16) works for Web. |
 | W7. Read in WhatsApp desktop | **Observed** | Opening and reading in desktop removed the Web notification, then desktop added one notification with a much longer text (611 characters) for the same group. | A desktop notification for a chat that Web recently covered must be ignored, or this re-sent text shows as a new card. |
 
+### v1.4 spikes: glass look and incoming calls (2 Nov 2026)
+
+Branch `spike/v1.4-glass-and-call`. Steps are under "How to run the tests" below (G1 to G5, C1 to C5).
+
+**Glass verdict (2 Nov 2026, after 10 rounds): pass.** The way that works is Windows.UI.Composition's host backdrop brush (documented), clipped to a rounded rectangle, in a second window right behind the island (`--host`, BlurWindow.cs). Ruled out on the way:
+- The system backdrop (acrylic, mica) turns flat grey, because the island is never the active window, and `--keep-active` does not change that.
+- The older accent blur (undocumented) blurs, but ignores the window's shape, so a box of blur shows around the pill.
+- The host backdrop in the island's own window hides all WPF content (no clock).
+
+Settings that worked for Diva: tint 0 (as light as her TranslucentTB taskbar), a soft dark shadow behind white text, no light edge. Calls (C1 to C5) are still to run.
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| G1. Windows draws a blurred backdrop behind a non-activating, always-on-top pill | Fail with the system backdrop (acrylic), 2 Nov 2026. Second round, same day: `--accent blur` shows a real blur of the wallpaper; `--accent acrylic` also blurs; `--keep-active` stays flat grey | Diva's screenshots: flat grey over the wallpaper and over Spotify, no blur. Status line: "DWM: extend 0x00000000, backdrop 0x00000000", so Windows accepted both calls | Windows draws the system backdrop only while the window is active and shows a flat fallback colour otherwise. The island is never active (FR-3), so the documented way does not work as is |
+| G1b. Round 6, the documented way: Windows.UI.Composition host backdrop brush with a smooth rounded clip (`--host`) | Blur yes and pill-shaped, but WPF content missing, 2 Nov 2026 | Diva's screenshots and video over GTA: real blur while the pill is not active, no box ("sudah"), smooth round corners. But the clock and status text never show. While growing, the spring's overshoot went past the 420 wide probe window and was cut square for a moment | Round 7 (tint 0.3, with and without `--gpu`): the pill is no darker and the clock still missing, so the host backdrop hides all WPF content of its window. The square moment is gone with the larger window ("udah aman"). Diva likes the look ("kayak 3d"). Round 8 moves the blur into a second click-through window behind the pill window (BlurWindow.cs): the clock shows again, but a black rim showed around the pill and it could not be clicked (fully transparent pixels pass clicks through). Round 9: clicks work ("sudah bisa"); Diva prefers the soft text shadow. The dark rim stayed: a close-up shows a 1 px dark line where the blur's smooth edge fades into the blur window's black, inside its 2 px larger region. Frame by frame at 30 fps the blur keeps up with the pill while growing and shrinking; the clock jumping to the middle while shrinking is the probe's own layout, not lag. Round 10: blur 1 px larger than the pill, region exactly the pill | Decides FR-37: if it blurs while the island is not active and stays pill-shaped, Glass is built on it; if not, FR-37 goes back to the backlog  Round 10: blur 1 px larger than the pill, region exactly the pill. Diva: "wow berhasil"; no dark rim, smooth edge (1 and 2 "mantep"). **Pass.** |
+| G2. The pill's edges look smooth enough (a window region has no edge smoothing) | Fail in round 2; round 3 no stair steps but a thin grey line | Round 2: "masih terlihat bergerigi putih". Round 3: "udah enggak bergerigi tapi keliatan garis abu abu tipis" | The thin line is the light edge itself; Diva wants no line at all, so round 4 drops it |
+| G3. The blur follows the pill when it changes shape, without flicker | Pass with a note, 2 Nov 2026 | Diva: "lumayan mulus" (fairly smooth). Rounds 2 and 3: the whole 420 x 190 window is blurred around the pill, also expanded (square corners) | Round 4: adding `DwmEnableBlurBehindWindow` on top of the accent turned the pill solid white, but the status line showed the window region was set (complex, 525 x 238 = 420 x 190 at 125 percent) and the white was cut to the rounded shape. Round 5 (accent blur, tint 0): the region is set (complex, 525 x 238) but the blur still fills the whole 420 x 190 window with square corners. Confirmed: the accent blur ignores the window region. Blocker for the island, whose window is always sized for Extra large |
+| G4. Over a borderless game: blur visible, game keeps focus, no stutter | Pass, 2 Nov 2026 | GTA Vice City Definitive Edition, borderless: blur visible, Diva: "aman" | The accent blur works over a borderless game |
+| G5. White text readable over bright and dark game scenes, at tint 0.45 and 0.55 | Pass at 0.45 and 0.15 | Diva: "kebaca kok". 0.15 is still darker than her TranslucentTB taskbar. She prefers `--accent blur` (cleaner) over acrylic | Round 5: tint 0 over a bright GTA street, Diva: "masih bisa terbaca semua". Light enough for her |
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| C1. WhatsApp desktop: an incoming voice call sends a Windows notification | Skipped, 2 Nov 2026 | Diva uses WhatsApp Web only; WhatsApp desktop stays closed | Build for WhatsApp Web; desktop is not in scope for FR-38 |
+| C2. When the call notification goes away (Web) | Pass, 2 Nov 2026 | Answered after 10.0 s, declined after 4.6 s, video declined after 7.1 s, let ring out after 60.0 s: each time Windows REMOVED the call notification at that moment | The banner can stay exactly while the notification exists and leave on REMOVED |
+| C3. WhatsApp Web (Chrome app): an incoming call sends a notification | Pass, 2 Nov 2026 | ADDED within 0.4 s, app "WhatsApp Web" (Chrome app). Two texts: the caller's name, then an emoji plus "Incoming voice call" | A call is recognised by the second text ending in "Incoming voice call" or "Incoming video call" (English WhatsApp). The caller is the first text |
+| C4. A missed call leaves a notification, and what it says | Pass, 2 Nov 2026 | Answered and declined calls leave nothing. A call left to ring out: the incoming notification is REMOVED after 60 s and 0.05 s later a new one is ADDED: caller's name, then an emoji plus "Missed voice call" | A missed call arrives as an ordinary WhatsApp Web notification, so it already becomes a normal banner and card |
+| C5. Video call instead of voice call | Pass (Web), 2 Nov 2026 | Same shape; second text: emoji plus "Incoming video call"; REMOVED after 7.1 s | The banner can say "Incoming video call" |
+
 ### Extra findings
 
 - **Media "current session" is not Spotify.** Windows reported 3 sessions (Spotify.exe, Chrome, Brave) and chose Brave as the current one. The product must pick the Spotify session by its app id (`Spotify.exe`), not use Windows' current session (FR-7, FR-10).
@@ -57,6 +85,33 @@ dotnet build MediaProbe\MediaProbe.csproj -c Release
 ```
 
 The programs are then in each project's `bin\Release\net10.0-windows10.0.26100.0\` folder. Below, `<probe folder>` means that folder for the program named.
+
+### G1 to G5. Glass look (about 15 minutes)
+
+GlassProbe shows a glass pill at the top center: Windows' own blur (acrylic) behind it, a dark tint, a thin light edge, and a clock. Windows draws the blur; nothing captures the screen.
+
+1. Build it once: `dotnet build "D:\Claude Project\WinIsland\spikes\GlassProbe\GlassProbe.csproj" -c Release`
+2. Quit WinIsland from the tray first, so the two pills do not sit on top of each other.
+3. Run `& "D:\Claude Project\WinIsland\spikes\GlassProbe\bin\Release\net10.0-windows10.0.26100.0\GlassProbe.exe"`.
+4. On the desktop, with a colourful window or wallpaper behind the pill:
+   - G1: is the pill blurred glass, or plain black or plain grey? Click another window: does the glass stay, or turn flat? (The island is never the active window, so it must stay.)
+   - G2: look closely at the round ends. Smooth, or visibly stair-stepped?
+   - G3: click the pill a few times. It grows to 420 x 190 and back. Does the blur follow the shape smoothly, or flicker, lag or show black corners? The expanded pill shows a status line; tell Claude what it says.
+5. G4: start a game in borderless mode, play a minute with the pill over it. Is the glass still there, does the game keep keyboard focus, any stutter?
+6. G5: over a bright scene and a dark scene, is the white clock easy to read? Then close it (right-click) and try a darker tint: add `--tint 0.55` to the command. Compare.
+7. If G1 shows no glass, also try `--keep-active` (keeps the frame looking active, no keyboard focus), `--accent acrylic` and `--accent blur` (the older, undocumented blur that does not depend on activation), and say which (if any) shows glass. `--backdrop mica`, `--backdrop tabbed` and `--gpu` are extra options.
+8. Right-click the pill to close it. Start WinIsland again from the Start menu.
+
+### C1 to C5. Incoming calls (about 10 minutes, needs a second phone or a friend)
+
+NotificationProbe prints every Windows notification. With `--show-text` it also prints the text, in its own window only, never to a file.
+
+1. Run `& "D:\Claude Project\WinIsland\spikes\NotificationProbe\bin\Release\net10.0-windows10.0.26100.0\NotificationProbe.exe" --show-text`. WinIsland can keep running.
+2. With **WhatsApp desktop** open, have someone voice call you. Let it ring about 10 seconds, then **decline** it. Then a second call that you **let ring out** (missed). If you can, a third that you **answer** and hang up after a few seconds.
+3. Do the same with only **WhatsApp Web** (the Chrome app) open, WhatsApp desktop fully closed. If Web shows no call at all, say so; that is a result too.
+4. One **video call** to either app.
+5. For each call, record: whether an `ADDED` line appeared and its `app=`; the **fixed words** of the text (for example "Incoming voice call"), never the caller's name; whether and when a `REMOVED` line came (when you declined, when it stopped ringing, when you answered); and what a missed call left behind.
+6. Press Ctrl+C to stop the probe.
 
 ### S1. Package identity (about 10 minutes)
 
