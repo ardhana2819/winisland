@@ -1,6 +1,8 @@
 // NotificationFeed.cs: the notifications the island knows about, and their timing rules.
-//   FR-15  the last 3 notifications from all apps, newest first, memory only; items leave when
-//          Windows removes them (read in the app, spike U3).
+//   FR-35  (v1.4) the last 3 chats from all apps, newest first, as stacks: each keeps its last 3
+//          messages and a count of all its messages (NotificationStack.cs). Memory only; a chat
+//          leaves when Windows removes it (read in the app, spike U3). Before v1.4 this was the
+//          last 3 notifications (FR-15).
 //   FR-15  waiting banners, newest first; swipe hides the current one, hotkey 3 hides all.
 //   FR-16  one timer for all waiting banners: each new one restarts it, when it ends they all hide.
 //   Replacement rule (Diva, 31 Oct 2026): WhatsApp keeps one Windows notification per chat and
@@ -21,20 +23,42 @@ namespace WinIsland.Core.Notifications;
 
 public sealed class NotificationFeed
 {
-    public const int RecentLimit = 3;
+    /// <summary>The notifications page shows at most this many chats (FR-35).</summary>
+    public const int ChatLimit = 3;
+
+    /// <summary>Each chat keeps the text of at most this many messages (FR-35, FR-18).</summary>
+    public const int MessagesPerChat = 3;
     public static readonly TimeSpan ReplacementWindow = TimeSpan.FromSeconds(1);
 
     /// <summary>The same text from the same chat within this time is one message posted twice.</summary>
     public static readonly TimeSpan RepostWindow = TimeSpan.FromMinutes(1);
 
     private readonly List<IslandNotification> _recent = [];
+    private readonly Dictionary<(NotificationSource Source, string Sender), int> _messageCounts = [];
     private readonly List<IslandNotification> _waiting = [];
     private readonly List<PendingRead> _pendingReads = [];
     private readonly HashSet<uint> _unseenIds = [];
     private readonly WhatsAppWebPriority _whatsAppWeb = new();
 
-    /// <summary>The last 3 notifications, newest first (FR-15).</summary>
+    /// <summary>Every message kept for the page, newest first: up to 3 chats, up to 3 messages each.</summary>
     public IReadOnlyList<IslandNotification> Recent => _recent;
+
+    /// <summary>The page's chats, newest chat first, each with its last messages and count (FR-35).</summary>
+    public IReadOnlyList<NotificationStack> Stacks
+    {
+        get
+        {
+            List<NotificationStack> stacks = [];
+            foreach (IGrouping<(NotificationSource, string), IslandNotification> chat in _recent.GroupBy(ChatOf))
+            {
+                List<IslandNotification> messages = [.. chat];
+                int count = Math.Max(messages.Count, _messageCounts.GetValueOrDefault(chat.Key));
+                stacks.Add(new NotificationStack(messages, count));
+            }
+
+            return stacks;
+        }
+    }
 
     /// <summary>Notifications waiting to be seen as banners, newest first.</summary>
     public IReadOnlyList<IslandNotification> Waiting => _waiting;
@@ -105,10 +129,8 @@ public sealed class NotificationFeed
         }
 
         _recent.Insert(0, notification);
-        if (_recent.Count > RecentLimit)
-        {
-            _recent.RemoveRange(RecentLimit, _recent.Count - RecentLimit);
-        }
+        _messageCounts[ChatOf(notification)] = _messageCounts.GetValueOrDefault(ChatOf(notification)) + 1;
+        KeepLastChats();
 
         _unseenIds.Add(notification.WindowsId);
         ForgetUnseenOutsideRecent();
@@ -151,6 +173,8 @@ public sealed class NotificationFeed
             changed |= _waiting.RemoveAll(item => item.IsSameConversation(read.Conversation)) > 0;
         }
 
+        ForgetCountsOfGoneChats();
+
         ForgetUnseenOutsideRecent();
 
         if (_waiting.Count == 0)
@@ -192,7 +216,44 @@ public sealed class NotificationFeed
         _unseenIds.Clear();
     }
 
-    // Items that left the last 3 can never be seen on the page, so they no longer count.
+    // FR-35: the newest 3 chats stay, each with its newest 3 messages; older text is dropped (FR-18).
+    private void KeepLastChats()
+    {
+        List<(NotificationSource, string)> chats = [];
+        Dictionary<(NotificationSource, string), int> kept = [];
+        _recent.RemoveAll(item =>
+        {
+            (NotificationSource, string) chat = ChatOf(item);
+            if (!chats.Contains(chat))
+            {
+                chats.Add(chat);
+            }
+
+            int keptSoFar = kept.GetValueOrDefault(chat);
+            if (chats.IndexOf(chat) >= ChatLimit || keptSoFar >= MessagesPerChat)
+            {
+                return true;
+            }
+
+            kept[chat] = keptSoFar + 1;
+            return false;
+        });
+
+        ForgetCountsOfGoneChats();
+    }
+
+    private void ForgetCountsOfGoneChats()
+    {
+        foreach ((NotificationSource, string) chat in _messageCounts.Keys.Where(chat => !_recent.Any(item => ChatOf(item) == chat)).ToList())
+        {
+            _messageCounts.Remove(chat);
+        }
+    }
+
+    // The same chat rule as IslandNotification.IsSameConversation, as a key.
+    private static (NotificationSource Source, string Sender) ChatOf(IslandNotification notification) => (notification.Source, notification.Sender);
+
+    // Items that left the page can never be seen on it, so they no longer count.
     private void ForgetUnseenOutsideRecent()
     {
         _unseenIds.RemoveWhere(id => !_recent.Any(item => item.WindowsId == id));

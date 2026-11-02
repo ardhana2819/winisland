@@ -27,4 +27,7 @@ public enum HotkeyAction
 
     /// <summary>Alt+Up while expanded: the music page (FR-21).</summary>
     ShowMusicPage,
+
+    /// <summary>Alt+Left while a chat is open on the notifications page: back to the list (FR-35).</summary>
+    CloseChat,
 }

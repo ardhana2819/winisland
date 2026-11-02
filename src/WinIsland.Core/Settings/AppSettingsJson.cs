@@ -38,6 +38,7 @@ public static class AppSettingsJson
             ShowDiscord = settings.Notifications.ShowDiscord,
             ShowOtherApps = settings.Notifications.ShowOtherApps,
             HideMessageText = settings.Notifications.HideMessageText,
+            ClearFromWindows = settings.Notifications.ClearFromWindows,
             LaunchAtStartup = settings.LaunchAtStartup,
             IslandSize = settings.Size.ToString(),
         };
@@ -89,7 +90,8 @@ public static class AppSettingsJson
             file.ShowDiscord ?? defaults.Notifications.ShowDiscord,
             file.ShowOtherApps ?? defaults.Notifications.ShowOtherApps,
             file.HideMessageText ?? defaults.Notifications.HideMessageText,
-            duration);
+            duration,
+            file.ClearFromWindows ?? defaults.Notifications.ClearFromWindows);
 
         return new AppSettings(hotkeys, notifications, file.LaunchAtStartup ?? defaults.LaunchAtStartup, ReadSize(file.IslandSize, defaults.Size));
     }
@@ -119,6 +121,8 @@ public static class AppSettingsJson
         public bool? ShowOtherApps { get; set; }
 
         public bool? HideMessageText { get; set; }
+
+        public bool? ClearFromWindows { get; set; }
 
         public bool? LaunchAtStartup { get; set; }
 

@@ -17,6 +17,11 @@
 //   FR-22 on the notifications page a new notification goes straight onto the page, no banner;
 //         hotkey 3 closes the island there.
 //   FR-33 (v1.3) the unread dot: notifications not yet seen on the notifications page.
+//   FR-35 (v1.4) the page shows chats as stacks; a stack of 2 or more opens to its last messages,
+//         and closes again on a click, Alt+Left, a page change, closing the island, or when the
+//         chat leaves.
+//   FR-36 (v1.4) a swipe or hotkey 3 on banners reports the hidden notifications, so the app can
+//         also clear them from Windows when that setting is on.
 //   12    paused wins over everything.
 //   13    paused music shows for 5 seconds, then the clock; while the island is expanded the
 //         music stays, and the 5 seconds start when it closes.
@@ -36,9 +41,13 @@ public sealed class IslandStateMachine
     private readonly NotificationFeed _notifications = new();
     private IslandOverlay _overlay = IslandOverlay.None;
     private DateTimeOffset? _pausedMusicEndsAt;
+    private IslandNotification? _openChat;
 
     /// <summary>Raised after any change that affects what the island shows.</summary>
     public event EventHandler? Changed;
+
+    /// <summary>A swipe or hotkey 3 hid these banners (FR-36). Not raised when the banner timer ends.</summary>
+    public event EventHandler<IReadOnlyList<IslandNotification>>? BannersDismissed;
 
     public bool IsHiddenByUser { get; private set; }
 
@@ -65,8 +74,14 @@ public sealed class IslandStateMachine
 
     public NotificationSettings NotificationSettings { get; private set; } = NotificationSettings.Defaults;
 
-    /// <summary>The last 3 notifications, newest first (FR-15).</summary>
+    /// <summary>Every message kept for the notifications page, newest first (FR-15, FR-35).</summary>
     public IReadOnlyList<IslandNotification> RecentNotifications => _notifications.Recent;
+
+    /// <summary>The notifications page's chats, newest first (FR-35).</summary>
+    public IReadOnlyList<NotificationStack> NotificationStacks => _notifications.Stacks;
+
+    /// <summary>The chat opened on the notifications page, or null when the page shows the list (FR-35).</summary>
+    public NotificationStack? OpenChat => _openChat is null ? null : FindStack(_openChat);
 
     /// <summary>True when the idle island should show the unread dot (FR-33).</summary>
     public bool HasUnseenNotifications => _notifications.HasUnseen;
@@ -150,6 +165,7 @@ public sealed class IslandStateMachine
         }
 
         Page = page;
+        _openChat = null;
         MarkSeenIfOnNotificationsPage();
         RaiseChanged();
     }
@@ -221,6 +237,7 @@ public sealed class IslandStateMachine
         if (_notifications.UpdateTime(now))
         {
             CloseNotificationOverlayIfEmpty(now);
+            CloseChatIfGone();
             RaiseChanged();
         }
     }
@@ -271,6 +288,9 @@ public sealed class IslandStateMachine
             return;
         }
 
+        // A fourth chat pushes the oldest off the page, which may be the open one.
+        CloseChatIfGone();
+
         if (IsVisible && _overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications)
         {
             // Already looking at the notifications: it goes to the top of the page, no banner (FR-2, FR-22).
@@ -318,9 +338,14 @@ public sealed class IslandStateMachine
             return;
         }
 
+        IslandNotification? hidden = _notifications.CurrentBanner;
         _notifications.HideCurrentBanner(now, NotificationSettings.BannerDuration);
         CloseNotificationOverlayIfEmpty(now);
         RaiseChanged();
+        if (hidden is not null)
+        {
+            BannersDismissed?.Invoke(this, [hidden]);
+        }
     }
 
     /// <summary>
@@ -329,6 +354,8 @@ public sealed class IslandStateMachine
     /// </summary>
     public void HideNotifications(DateTimeOffset now)
     {
+        // Only banners count as hidden for FR-36; on the notifications page hotkey 3 only closes.
+        List<IslandNotification> hidden = _overlay == IslandOverlay.Banner ? [.. _notifications.Waiting] : [];
         _notifications.HideAllBanners();
         bool onNotificationsPage = _overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications;
         if (_overlay == IslandOverlay.Banner || onNotificationsPage)
@@ -336,6 +363,36 @@ public sealed class IslandStateMachine
             CloseOverlay(now);
         }
 
+        RaiseChanged();
+        if (hidden.Count > 0)
+        {
+            BannersDismissed?.Invoke(this, hidden);
+        }
+    }
+
+    /// <summary>A click on a stack of 2 or more on the notifications page opens that chat (FR-35).</summary>
+    public void OpenChatOf(IslandNotification message)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        bool onNotificationsPage = _overlay == IslandOverlay.Expanded && Page == ExpandedPage.Notifications;
+        if (!onNotificationsPage || FindStack(message) is not { CanOpen: true })
+        {
+            return;
+        }
+
+        _openChat = message;
+        RaiseChanged();
+    }
+
+    /// <summary>A click on the open chat, or Alt+Left: back to the list (FR-35).</summary>
+    public void CloseChat()
+    {
+        if (_openChat is null)
+        {
+            return;
+        }
+
+        _openChat = null;
         RaiseChanged();
     }
 
@@ -434,6 +491,21 @@ public sealed class IslandStateMachine
         }
 
         _overlay = IslandOverlay.None;
+        _openChat = null;
+    }
+
+    private NotificationStack? FindStack(IslandNotification message)
+    {
+        return _notifications.Stacks.FirstOrDefault(stack => stack.Newest.IsSameConversation(message));
+    }
+
+    // FR-35: an open chat that was read in the app, or pushed off the page, goes back to the list.
+    private void CloseChatIfGone()
+    {
+        if (_openChat is not null && FindStack(_openChat) is null)
+        {
+            _openChat = null;
+        }
     }
 
     private void RaiseChanged()

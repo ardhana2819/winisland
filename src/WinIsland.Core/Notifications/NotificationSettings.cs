@@ -1,6 +1,8 @@
 // NotificationSettings.cs: the notification choices from PRD section 4 and FR-14 to FR-17, with
 // their defaults: WhatsApp and Discord on, other Windows apps off (design board), message text
 // shown, banners hide after 6 seconds. The Settings window (Phase 5) will let Diva change them.
+// v1.4 (FR-36): "Also clear from Windows notification center", off by default. When on, hiding a
+// banner with a swipe or hotkey 3 also removes that chat's notifications from Windows.
 
 namespace WinIsland.Core.Notifications;
 
@@ -9,7 +11,8 @@ public sealed record NotificationSettings(
     bool ShowDiscord,
     bool ShowOtherApps,
     bool HideMessageText,
-    TimeSpan BannerDuration)
+    TimeSpan BannerDuration,
+    bool ClearFromWindows = false)
 {
     public static NotificationSettings Defaults { get; } = new(
         ShowWhatsApp: true,
