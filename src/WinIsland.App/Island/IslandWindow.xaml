@@ -15,7 +15,9 @@
   Notifications folder.
   Each view is a layer of its own size, centered in the pill, like the prototype. Only the active
   layer is visible; PillAnimator swaps them.
-  Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1).
+  Everything inside IslandRoot is drawn at the base size and scaled as a whole (FR-1, FR-32).
+  IslandGrowScale is only used while the island size changes (IslandResizeAnimator); it grows
+  from the top center, where the island hangs.
   No drop shadow: DESIGN_SPEC section 4 makes it optional, and leaving it out keeps the window light.
 -->
 <Window x:Class="WinIsland.App.Island.IslandWindow"
@@ -36,11 +38,15 @@
     <Grid x:Name="IslandRoot"
           Width="480"
           Height="230"
-          HorizontalAlignment="Left"
-          VerticalAlignment="Top">
+          HorizontalAlignment="Center"
+          VerticalAlignment="Top"
+          RenderTransformOrigin="0.5,0">
         <Grid.LayoutTransform>
             <ScaleTransform x:Name="IslandScaleTransform" ScaleX="1" ScaleY="1" />
         </Grid.LayoutTransform>
+        <Grid.RenderTransform>
+            <ScaleTransform x:Name="IslandGrowScale" ScaleX="1" ScaleY="1" />
+        </Grid.RenderTransform>
 
         <Border x:Name="Pill"
                 Width="120"

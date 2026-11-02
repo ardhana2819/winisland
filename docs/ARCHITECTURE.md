@@ -93,6 +93,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display, at the chosen island size. |
+| App | `Island/IslandResizeAnimator.cs` | Grows or shrinks the island with the shape spring when the size changes in Settings. |
 | App | `Assets/WinIsland.ico`, `Assets/New-AppIcon.ps1` | The app icon (black tile with the white pill) for the exe, the Start menu and the Settings window, and the script that draws it from the design spec. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |

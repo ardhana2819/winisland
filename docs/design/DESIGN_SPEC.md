@@ -188,6 +188,8 @@ Approved by Diva on 2 Nov 2026 after reviewing the prototype, together with ever
 
 Sizes are before the monitor's automatic scale (FR-1), which multiplies them. Everything inside scales by the same factor, so every value in this spec stays true in proportion.
 
+A size change grows or shrinks the whole island from its top center over 0.6 seconds with the shape spring, cubic-bezier(0.34, 1.4, 0.56, 1) (Diva, 2 Nov 2026). With Windows animation effects off it changes at once.
+
 ### App icon (FR-34), concept B "Mono pill"
 
 On a 256 x 256 grid:
