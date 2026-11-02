@@ -209,6 +209,8 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The sizes are 85, 100, 115 and 130 percent of today's island. Medium is today's size and the default. [Confirmed 2 Nov 2026]
   - Everything scales together: the pill, text, icons, artwork, cards and spacing, in every state (compact, expanded, banner). The setting multiplies the automatic scale of FR-1, so the island still suits the monitor. Example at automatic scale 1: Extra large expanded is 546 x 247.
   - A change shows at once, without a restart, and is saved with the other settings.
+  - A first install starts at Medium. After that the last size chosen is kept: WinIsland starts with it after a restart, a Quit, or switching the PC off and on, until it is changed again (`settings.json`, `IslandSize`). [Confirmed 2 Nov 2026]
+  - Changing the size grows or shrinks the island from the top center of the screen with the shape spring (0.6 s); the island stays centered the whole time. [Confirmed 2 Nov 2026, after your test]
   - [Confirmed 2 Nov 2026] Settings shows it as one choice with four options, not a slider.
 - FR-33. Unread dot on the idle island. [Confirmed 2 Nov 2026]
   - A small white dot at the right of the clock shows when at least one notification on the notifications page has not been seen there yet.
