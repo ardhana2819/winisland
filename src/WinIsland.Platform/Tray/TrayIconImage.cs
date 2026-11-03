@@ -1,9 +1,11 @@
-// TrayIconImage.cs: draws WinIsland's tray icon at run time: a small white pill on a clear
-// background, so it is visible on the dark Windows 11 taskbar. While paused, the pill is drawn
-// dimmed, so the paused state is visible at a glance (PRD FR-6).
-// Drawing it in code avoids keeping binary .ico files in the repo.
+// TrayIconImage.cs: WinIsland's tray icon. Since v1.5 (PRD FR-43) it is the app icon itself,
+// WinIsland.ico (concept B, "Mono pill", FR-34), at the tray's small size; before, a white pill was
+// drawn in code. While paused the same icon is drawn at about 40 percent opacity, so the paused
+// state is visible at a glance (PRD FR-6).
 
-using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Windows.Forms;
 
 using WinIsland.Platform.Windows;
 
@@ -11,26 +13,39 @@ namespace WinIsland.Platform.Tray;
 
 internal static class TrayIconImage
 {
-    private const int SizePixels = 32;
-    private const int PillHeightPixels = 14;
-    private const int SidePaddingPixels = 2;
-
     // About 40 percent opacity: clearly different from the normal icon, still visible.
-    private const int DimmedAlpha = 100;
+    private const float DimmedOpacity = 0.4f;
 
-    public static Icon Create(bool dimmed)
+    /// <summary>The icon file at the tray's size, as is or dimmed.</summary>
+    public static Icon Create(Stream iconFile, bool dimmed)
     {
-        using Bitmap bitmap = new(SizePixels, SizePixels);
-        using (Graphics graphics = Graphics.FromImage(bitmap))
+        ArgumentNullException.ThrowIfNull(iconFile);
+        iconFile.Position = 0;
+        Icon icon = new(iconFile, SystemInformation.SmallIconSize);
+        if (!dimmed)
         {
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.Clear(Color.Transparent);
-            using GraphicsPath pill = CreatePillPath();
-            using SolidBrush brush = new(dimmed ? Color.FromArgb(DimmedAlpha, Color.White) : Color.White);
-            graphics.FillPath(brush, pill);
+            return icon;
         }
 
-        IntPtr iconHandle = bitmap.GetHicon();
+        using (icon)
+        {
+            return Dimmed(icon);
+        }
+    }
+
+    private static Icon Dimmed(Icon icon)
+    {
+        using Bitmap source = icon.ToBitmap();
+        using Bitmap faded = new(source.Width, source.Height);
+        using (Graphics graphics = Graphics.FromImage(faded))
+        using (ImageAttributes opacity = new())
+        {
+            ColorMatrix matrix = new() { Matrix33 = DimmedOpacity };
+            opacity.SetColorMatrix(matrix);
+            graphics.DrawImage(source, new Rectangle(0, 0, source.Width, source.Height), 0, 0, source.Width, source.Height, GraphicsUnit.Pixel, opacity);
+        }
+
+        IntPtr iconHandle = faded.GetHicon();
         try
         {
             // Icon.FromHandle does not own the handle, so take a copy that does, then free the original.
@@ -41,18 +56,5 @@ internal static class TrayIconImage
         {
             NativeMethods.DestroyIcon(iconHandle);
         }
-    }
-
-    private static GraphicsPath CreatePillPath()
-    {
-        int width = SizePixels - (2 * SidePaddingPixels);
-        int top = (SizePixels - PillHeightPixels) / 2;
-        int diameter = PillHeightPixels;
-
-        GraphicsPath path = new();
-        path.AddArc(SidePaddingPixels, top, diameter, diameter, 90, 180);
-        path.AddArc(SidePaddingPixels + width - diameter, top, diameter, diameter, 270, 180);
-        path.CloseFigure();
-        return path;
     }
 }

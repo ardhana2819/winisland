@@ -4,6 +4,7 @@
 // step with the island's state. Closing the island window closes the whole app (AC-9).
 
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Interop;
@@ -89,7 +90,11 @@ public partial class App : Application
             _settings.AttachHotkeys(hotkeys, _islandWindow.StartHotkeyConflict);
         }
 
-        _trayIcon = new TrayIcon();
+        // v1.5 (FR-43): the tray shows the app icon, from the icon file built into the app.
+        using (Stream iconFile = GetResourceStream(new Uri("pack://application:,,,/Assets/WinIsland.ico")).Stream)
+        {
+            _trayIcon = new TrayIcon(iconFile);
+        }
         _trayIcon.PauseOrResumeRequested += (_, _) => PauseOrResume(island);
         _trayIcon.HideOrShowRequested += (_, _) => island.ToggleHidden(DateTimeOffset.Now);
         _trayIcon.SettingsRequested += (_, _) => _settings.OpenWindow();

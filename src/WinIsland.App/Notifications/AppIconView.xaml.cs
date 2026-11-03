@@ -2,9 +2,9 @@
 //   WhatsApp (desktop and Web): always the green circle with the white WhatsApp logo, drawn by
 //   WinIsland (Diva, 1 Nov 2026), so it looks the same whatever Windows sends.
 //   Discord: always the blurple circle with the white Discord logo, the same way (PRD FR-30).
-//   Other apps: the app logo from the notification, or the grey letter circle when there is none.
-// Other apps use the design's dark grey (#3A3A3C, the progress track color) so they stay quiet
-// next to the two main apps.
+//   Other apps (v1.5, FR-42, Diva 3 Nov 2026): like WhatsApp and Discord, the logo in white on the
+//   app's own colour (AppLogoStyles), for example Claude's white mark on orange; a logo that is a
+//   full tile fills the circle as it is; no logo gives the grey letter circle (#3A3A3C).
 // The letter is turned into a shape and moved so its ink starts at (0,0); the Path is then
 // centered in the circle by that ink, which puts the letter exactly in the middle.
 
@@ -23,6 +23,8 @@ public partial class AppIconView : UserControl
     private static readonly Brush WhatsAppGreen = Frozen(Color.FromRgb(0x30, 0xD1, 0x58));
     private static readonly Brush DiscordBlurple = Frozen(Color.FromRgb(0x58, 0x65, 0xF2));
     private static readonly Brush OtherGrey = Frozen(Color.FromRgb(0x3A, 0x3A, 0x3C));
+    // The logo takes 58 percent of the circle, like the WhatsApp and Discord logos.
+    private const double LogoShare = 0.58;
     private static readonly Typeface LetterFont = new(new FontFamily("Segoe UI Variable Text, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
 
     public AppIconView()
@@ -37,7 +39,9 @@ public partial class AppIconView : UserControl
     {
         ArgumentNullException.ThrowIfNull(notification);
 
-        Geometry? drawnLogo = AppLogoGlyph.ForCircle(notification.Source, double.IsNaN(Width) ? ActualWidth : Width);
+        double size = double.IsNaN(Width) ? ActualWidth : Width;
+        LogoMark.Visibility = Visibility.Collapsed;
+        Geometry? drawnLogo = AppLogoGlyph.ForCircle(notification.Source, size);
         if (drawnLogo is not null)
         {
             Circle.Fill = notification.Source == NotificationSource.Discord ? DiscordBlurple : WhatsAppGreen;
@@ -46,9 +50,22 @@ public partial class AppIconView : UserControl
             return;
         }
 
+        if (logo is not null && AppLogoStyles.For(logo) is { IsShape: true } style)
+        {
+            ImageBrush shape = new(logo) { Stretch = Stretch.Uniform };
+            shape.Freeze();
+            Circle.Fill = Frozen(Color.FromRgb(style.Circle.R, style.Circle.G, style.Circle.B));
+            LogoMark.Width = size * LogoShare;
+            LogoMark.Height = size * LogoShare;
+            LogoMark.OpacityMask = shape;
+            LogoMark.Visibility = Visibility.Visible;
+            Letter.Visibility = Visibility.Collapsed;
+            return;
+        }
+
         if (logo is not null)
         {
-            // UniformToFill keeps the logo centered and fills the circle.
+            // A full tile: UniformToFill keeps it centered and fills the circle.
             ImageBrush picture = new(logo) { Stretch = Stretch.UniformToFill };
             picture.Freeze();
             Circle.Fill = picture;

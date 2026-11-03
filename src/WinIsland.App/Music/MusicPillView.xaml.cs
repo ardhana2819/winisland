@@ -26,6 +26,9 @@ public partial class MusicPillView : UserControl
     /// <summary>Shows or hides the unread dot at the end of the pill (FR-33).</summary>
     public void SetUnread(bool hasUnread) => UnreadDot.SetShown(hasUnread);
 
+    /// <summary>The camera or microphone dot (FR-40); null hides it.</summary>
+    public void SetPrivacy(Brush? color) => PrivacyDot.Show(color);
+
     /// <summary>The title only scrolls while this pill is the view on screen.</summary>
     public void SetActive(bool isActive) => TitleText.SetActive(isActive);
 }

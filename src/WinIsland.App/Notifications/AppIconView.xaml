@@ -7,6 +7,8 @@
   letter is drawn as a shape and centered by its ink, not by its text line, because a text line
   adds room above and below the letter and pushes it off center.
   The size (36 on the banner, 32 on cards) and the letter size are set by the parent.
+  v1.5 (FR-42): another app's logo with see-through parts is drawn white (LogoMark, cut from the
+  logo's own shape) on the app's main colour; a full tile fills the circle as before.
 -->
 <UserControl x:Class="WinIsland.App.Notifications.AppIconView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -14,6 +16,11 @@
              Focusable="False">
     <Grid>
         <Ellipse x:Name="Circle" />
+        <Rectangle x:Name="LogoMark"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Fill="#FFFFFF"
+                   Visibility="Collapsed" />
         <Path x:Name="Letter"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"
