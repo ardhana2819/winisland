@@ -31,7 +31,7 @@ public partial class MusicControlsView : UserControl
     private const string PauseIconPath = "M7 5h4v14H7zM13 5h4v14h-4z";
     private const string PlayIconPath = "M7 5v14l12-7z";
 
-    private static readonly Geometry SpeakerMuted = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.6 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z");
+    private static readonly Geometry SpeakerMuted = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm16.9 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z");
     private static readonly Geometry SpeakerLow = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z");
     private static readonly Geometry SpeakerHigh = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z");
     private static readonly Geometry PauseIcon = Geometry.Parse(PauseIconPath);

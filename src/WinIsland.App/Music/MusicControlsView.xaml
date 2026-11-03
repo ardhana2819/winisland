@@ -146,7 +146,8 @@
         <Button x:Name="SpeakerButton" Style="{StaticResource IslandButton}" HorizontalAlignment="Right" AutomationProperties.Name="Volume" Click="OnSpeakerClick">
             <Viewbox Width="20" Height="20">
                 <Canvas Width="24" Height="24">
-                    <Path x:Name="SpeakerIcon" Data="M3 9v6h4l5 5V4L7 9z" />
+                    <!-- Full volume until the music app's real level is known (Diva, 3 Nov 2026). -->
+                    <Path x:Name="SpeakerIcon" Data="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z" />
                 </Canvas>
             </Viewbox>
         </Button>
