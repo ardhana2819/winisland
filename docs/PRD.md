@@ -318,6 +318,10 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - FR-41. Music from every app. [Confirmed 3 Nov 2026: "semua aplikasi"; the CLAUDE.md rule changes]
   - Any app that tells Windows what it plays works: Spotify, YouTube or YouTube Music in a browser, Apple Music, Windows Media Player, and others. Still through the Windows media session API only, never a music service's web API, no network.
   - [Confirmed 3 Nov 2026] Which app shows: the one that is playing (changing songs counts as playing); if several play, the one already on the island stays, otherwise the one Windows marks as current; if none plays, the one Windows marks as current (paused). Play, pause, next and previous go only to the app on the island. [Confirmed 3 Nov 2026: Diva saw a skip reach both Spotify and YouTube Music]
+  - [Confirmed 3 Nov 2026, Diva] Music players come first, and a pause waits 3 seconds. Pausing Spotify while a YouTube video played made the island jump to YouTube at once.
+    - A music player that plays comes before a video: Spotify, Apple Music, YouTube Music installed as an app, or any app that names an album. YouTube Music in a browser names one and a YouTube video does not, because both show as the same browser to Windows. [Verified 3 Nov 2026: Spotify names its album, a YouTube video in Brave does not] [Unverified: YouTube Music in Brave]
+    - The app on the island keeps it for 3 seconds after a pause; playing again within them changes nothing. After 3 seconds the island moves to what still plays.
+    - A music player that starts playing takes the island back from a video at once, without waiting.
   - Artwork that is not square, like a YouTube thumbnail, shows whole inside the artwork square on black, not cut. No artwork shows the same placeholder as today. [Confirmed 3 Nov 2026]
   - [Confirmed 3 Nov 2026] The colours come from the artwork as before (FR-25), from the picture itself, not the black around it.
   - [Confirmed 3 Nov 2026] When an app does not allow seeking, the progress bar still shows but cannot be dragged; with no progress at all, the row is hidden.

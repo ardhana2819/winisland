@@ -65,7 +65,8 @@ In words:
 | `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
 | `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
 | `Music/` | `ArtworkPalette.cs`, `ColorMath.cs`, `RgbColor.cs` | Works out the music page's colors from the artwork's pixels: a dark background, an accent for the controls, and grey text, all checked for readable contrast. |
-| `Music/` | `MusicSource.cs` | Picks which app's music shows: the one playing, else the one Windows marks as current (v1.5: every app, not only Spotify). |
+| `Music/` | `MusicSource.cs` | Picks which app's music shows: the one playing, music players before videos, else the one Windows marks as current (v1.5: every app, not only Spotify). |
+| `Music/` | `PauseHold.cs` | Keeps a paused app on the island for 3 seconds before another app may take its place (v1.5). |
 | `Music/` | `AudioAppMatch.cs` | Tells whether a sound in the Windows Volume Mixer belongs to the music app, so the volume slider changes only that app (v1.5). |
 | `Notifications/` | `RawNotification.cs`, `IslandNotification.cs`, `NotificationSource.cs` | A Windows notification as read, and as the island shows it: app, sender or chat, preview. Memory only. |
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
