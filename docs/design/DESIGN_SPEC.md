@@ -244,7 +244,7 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 - The banner card sits 8 inside the island, like a message banner.
 - Notifications page while ringing: the call is the top card (48 high, same layout, call circle 30 with a 16 symbol at the right), followed by the 2 newest notifications.
 
-## 12. v1.5 additions (draft, not approved yet)
+## 12. v1.5 additions (approved 3 Nov 2026)
 
 Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked; horizontal]
 
@@ -255,7 +255,7 @@ Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked
 - It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
 - No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
 
-Camera and microphone dots (PRD FR-40). [Proposed, 3 Nov 2026]
+Camera and microphone dots (PRD FR-40). [Confirmed 3 Nov 2026]
 
 - 6 across, the unread dot's size and pop. Microphone `#FF9F0A`, camera `#30D158`; with both in use, the camera colour.
 - On the compact clock 12 from the right edge, the unread dot then sits 22 from the right edge (4 between them). On the compact music pill it is the last item, after the unread dot.
@@ -265,7 +265,7 @@ Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
 
 - Artwork that is not square shows whole inside the artwork square (64 on the music page, 24 on the pill), centered on black, with the square's usual radius. Its colours come from the picture only.
 
-Other apps' logos (PRD FR-42). [Proposed, 3 Nov 2026]
+Other apps' logos (PRD FR-42). [Confirmed 3 Nov 2026]
 
 - Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). The colour is the logo's main colour; a logo that is a full square fills the circle as it is, clipped round. No logo: the letter circle as before.
 
