@@ -32,7 +32,7 @@ internal static class AppLogoStyles
         int stride = pixels.PixelWidth * 4;
         byte[] buffer = new byte[stride * pixels.PixelHeight];
         pixels.CopyPixels(buffer, stride, 0);
-        AppLogoStyle style = AppLogoStyle.FromBgra32(buffer);
+        AppLogoStyle style = AppLogoStyle.FromBgra32(buffer, pixels.PixelWidth);
         Known.AddOrUpdate(logo, style);
         return style;
     }

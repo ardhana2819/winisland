@@ -50,9 +50,11 @@ public partial class AppIconView : UserControl
             return;
         }
 
-        if (logo is not null && AppLogoStyles.For(logo) is { IsShape: true } style)
+        AppLogoStyle? style = logo is null ? null : AppLogoStyles.For(logo);
+        if (logo is not null && style is { IsShape: true })
         {
-            ImageBrush shape = new(logo) { Stretch = Stretch.Uniform };
+            // Only the logo's visible part, so empty margins never shrink it (FR-42).
+            ImageBrush shape = new(logo) { Stretch = Stretch.Uniform, Viewbox = VisiblePart(style), ViewboxUnits = BrushMappingMode.RelativeToBoundingBox };
             shape.Freeze();
             Circle.Fill = Frozen(Color.FromRgb(style.Circle.R, style.Circle.G, style.Circle.B));
             LogoMark.Width = size * LogoShare;
@@ -65,8 +67,14 @@ public partial class AppIconView : UserControl
 
         if (logo is not null)
         {
-            // A full tile: UniformToFill keeps it centered and fills the circle.
+            // A plate: its visible part fills the circle, centered (UniformToFill).
             ImageBrush picture = new(logo) { Stretch = Stretch.UniformToFill };
+            if (style is not null)
+            {
+                picture.Viewbox = VisiblePart(style);
+                picture.ViewboxUnits = BrushMappingMode.RelativeToBoundingBox;
+            }
+
             picture.Freeze();
             Circle.Fill = picture;
             Letter.Visibility = Visibility.Collapsed;
@@ -78,6 +86,8 @@ public partial class AppIconView : UserControl
         Letter.Data = CenteredLetter(letter, LetterSize);
         Letter.Visibility = Visibility.Visible;
     }
+
+    private static Rect VisiblePart(AppLogoStyle style) => new(style.Visible.Left, style.Visible.Top, style.Visible.Width, style.Visible.Height);
 
     private static Geometry CenteredLetter(string letter, double size)
     {

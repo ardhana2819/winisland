@@ -1,12 +1,14 @@
 // CameraMicrophoneWatcher.cs: tells whether any app uses the camera or the microphone right now
-// (PRD FR-40), for the green and orange dots on the island.
-// It reads Windows' own record of which apps use them, the same record behind the microphone
-// symbol on the Windows 11 taskbar: under the current user's CapabilityAccessManager consent store,
-// each app (and each desktop program under "NonPackaged") has a start and a stop time; an app uses
-// the device while it has started and not stopped (PrivacyIndicators.IsInUse in Core).
-// It never touches the camera or microphone, and it learns only "in use" or not. Instead of
-// checking on a timer it lets Windows wake it when the record changes, so it costs nothing idle.
-// Microsoft does not document this record [Unverified]; if it is missing, the dots never show.
+// (PRD FR-40), for the green and orange dots on the island. It learns only "in use" or not and
+// never touches the camera or microphone.
+//   Microphone: whether any other app records, through the Windows audio session API
+//   (MicrophoneUse.cs), checked once a second. Windows' consent record (below) lists no desktop
+//   apps on Diva's Windows 11, so Discord voice never showed there (3 Nov 2026).
+//   Camera: Windows' own consent record, under the current user's CapabilityAccessManager store:
+//   each app (and each desktop program under "NonPackaged") has a start and a stop time, and uses
+//   the camera while it has started and not stopped (PrivacyIndicators.IsInUse in Core). Windows
+//   wakes the watcher when it changes. Microsoft does not document this record, and it may miss
+//   desktop apps as it does for the microphone; the camera dot is untested (no webcam).
 
 using System.Runtime.InteropServices;
 
@@ -15,6 +17,7 @@ using Microsoft.Win32.SafeHandles;
 
 using WinIsland.Core.Privacy;
 using WinIsland.Platform.Diagnostics;
+using WinIsland.Platform.Media;
 
 namespace WinIsland.Platform.Privacy;
 
@@ -22,7 +25,7 @@ public sealed partial class CameraMicrophoneWatcher : IDisposable
 {
     private const string ConsentStore = @"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore";
     private const string Camera = "webcam";
-    private const string Microphone = "microphone";
+    private static readonly TimeSpan MicrophoneCheckInterval = TimeSpan.FromSeconds(1);
     private const string DesktopPrograms = "NonPackaged";
     private const int NotifyChangeName = 0x1;
     private const int NotifyChangeLastSet = 0x4;
@@ -64,19 +67,32 @@ public sealed partial class CameraMicrophoneWatcher : IDisposable
             }
 
             using AutoResetEvent recordChanged = new(false);
+            bool isArmed = false;
             while (true)
             {
-                // Ask first, then read, so a change between the two is not missed.
-                int result = RegNotifyChangeKeyValue(store.Handle, true, NotifyChangeName | NotifyChangeLastSet, recordChanged.SafeWaitHandle, true);
-                if (result != 0)
+                // Ask first, then read, so a change between the two is not missed. Asked again only
+                // after it fired, so the requests do not pile up.
+                if (!isArmed)
                 {
-                    throw new System.ComponentModel.Win32Exception(result);
+                    int result = RegNotifyChangeKeyValue(store.Handle, true, NotifyChangeName | NotifyChangeLastSet, recordChanged.SafeWaitHandle, true);
+                    if (result != 0)
+                    {
+                        throw new System.ComponentModel.Win32Exception(result);
+                    }
+
+                    isArmed = true;
                 }
 
-                Report(PrivacyIndicators.For(IsInUse(store, Camera), IsInUse(store, Microphone)));
-                if (WaitHandle.WaitAny([recordChanged, _stop]) == 1)
+                Report(PrivacyIndicators.For(IsInUse(store, Camera), MicrophoneUse.IsAnyAppRecording()));
+                int woken = WaitHandle.WaitAny([recordChanged, _stop], MicrophoneCheckInterval);
+                if (woken == 1)
                 {
                     return;
+                }
+
+                if (woken == 0)
+                {
+                    isArmed = false;
                 }
             }
         }

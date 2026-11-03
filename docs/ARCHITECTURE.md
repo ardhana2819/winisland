@@ -92,7 +92,8 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Hotkeys/GlobalHotkeys.cs`, `Hotkeys/HotkeyRegistration.cs` | Registers the global hotkeys with Windows, reports which ones another app already owns, and says when one is pressed. |
 | Platform | `Media/MusicMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to the music app (any app, v1.5) through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
 | Platform | `Media/AppVolume.cs` | Reads and sets one app's volume through the Windows audio session API, like the Volume Mixer (v1.5). |
-| Platform | `Privacy/CameraMicrophoneWatcher.cs` | Watches Windows' own record of which apps use the camera or microphone, woken by Windows when it changes, never touching the devices (v1.5). |
+| Platform | `Privacy/CameraMicrophoneWatcher.cs` | Tells whether an app uses the camera (Windows' own record) or the microphone (MicrophoneUse), never touching the devices (v1.5). |
+| Platform | `Media/CoreAudio.cs`, `Media/MicrophoneUse.cs` | The Windows audio session API parts WinIsland uses, shared by the volume slider and the microphone dot (v1.5). |
 | Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |

@@ -114,7 +114,17 @@
                        Typography.NumeralAlignment="Tabular"
                        AutomationProperties.AutomationId="TotalTime" />
         </Grid>
-        <music:VolumeRowView x:Name="VolumeRow" Opacity="0" IsHitTestVisible="False" />
+        <!-- The wheel changes the volume over the row and 8 below it, like Spotify (Diva, 3 Nov 2026);
+             the extra 8 hangs over the gap, so the layout does not move. -->
+        <Border x:Name="VolumeArea"
+                Background="Transparent"
+                Padding="0,0,0,8"
+                Margin="0,0,0,-8"
+                Opacity="0"
+                IsHitTestVisible="False"
+                MouseWheel="OnVolumeWheel">
+            <music:VolumeRowView x:Name="VolumeRow" />
+        </Border>
         </Grid>
 
         <!-- Bottom row: previous, play or pause, next. At 35 percent and not clickable in the empty view. -->
@@ -143,7 +153,7 @@
             </Button>
         </StackPanel>
         <!-- v1.5 (FR-39): the speaker, right of next, in the same row. -->
-        <Button x:Name="SpeakerButton" Style="{StaticResource IslandButton}" HorizontalAlignment="Right" AutomationProperties.Name="Volume" Click="OnSpeakerClick">
+        <Button x:Name="SpeakerButton" Style="{StaticResource IslandButton}" HorizontalAlignment="Right" AutomationProperties.Name="Volume" Click="OnSpeakerClick" MouseWheel="OnVolumeWheel">
             <Viewbox Width="20" Height="20">
                 <Canvas Width="24" Height="24">
                     <!-- Full volume until the music app's real level is known (Diva, 3 Nov 2026). -->
