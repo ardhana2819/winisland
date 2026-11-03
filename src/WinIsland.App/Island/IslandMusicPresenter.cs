@@ -20,6 +20,7 @@ internal sealed class IslandMusicPresenter : IDisposable
     private static readonly TimeSpan ProgressInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan VolumeShownFor = TimeSpan.FromSeconds(3);
     private const float VolumeStep = 0.1f;
+    private const float WheelStep = 0.05f;
 
     private readonly IslandStateMachine _island;
     private readonly MusicController _music;
@@ -58,6 +59,7 @@ internal sealed class IslandMusicPresenter : IDisposable
                 ShowVolume(_music.GetVolume());
             }
         };
+        _controls.VolumeWheeled += (_, notches) => ChangeVolume(notches * WheelStep);
         _controls.VolumeChosen += (_, level) =>
         {
             _music.SetVolume(level);
@@ -66,14 +68,17 @@ internal sealed class IslandMusicPresenter : IDisposable
     }
 
     /// <summary>Ctrl+Up or Ctrl+Down while the island is open: one step louder or quieter (FR-39).</summary>
-    public void StepVolume(bool louder)
+    public void StepVolume(bool louder) => ChangeVolume(louder ? VolumeStep : -VolumeStep);
+
+    // Ctrl+Up or Ctrl+Down (10 percent) and the wheel over the volume (5 percent a notch, FR-39).
+    private void ChangeVolume(float change)
     {
         if (_island.Music is null || _music.GetVolume() is not float level)
         {
             return;
         }
 
-        float next = Math.Clamp(level + (louder ? VolumeStep : -VolumeStep), 0f, 1f);
+        float next = Math.Clamp(level + change, 0f, 1f);
         _music.SetVolume(next);
         ShowVolume(next);
     }

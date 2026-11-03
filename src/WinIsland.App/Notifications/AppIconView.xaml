@@ -1,12 +1,14 @@
 <!--
   AppIconView.xaml: the round app icon on banners and notification cards.
-  WhatsApp and Discord always show their own logo drawn white on their color (#30D158, #5865F2;
-  DESIGN_SPEC sections 9 and 10). Other apps use the app logo from the notification when Windows
+  WhatsApp, Discord and Snipping Tool always show their logo drawn white on their color (#30D158,
+  #5865F2, #6A5ACD; DESIGN_SPEC sections 9, 10 and 12). Other apps use the app logo from the notification when Windows
   provides it; fallback is a grey circle with the app's first letter.
   Section 9: the logo or letter sits exactly in the middle of the circle (Diva, 1 Nov 2026). The
   letter is drawn as a shape and centered by its ink, not by its text line, because a text line
   adds room above and below the letter and pushes it off center.
   The size (36 on the banner, 32 on cards) and the letter size are set by the parent.
+  v1.5 (FR-42): another app's logo with see-through parts is drawn white (LogoMark, cut from the
+  logo's own shape) on the app's main colour; a full tile fills the circle as before.
 -->
 <UserControl x:Class="WinIsland.App.Notifications.AppIconView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -14,6 +16,11 @@
              Focusable="False">
     <Grid>
         <Ellipse x:Name="Circle" />
+        <Rectangle x:Name="LogoMark"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Fill="#FFFFFF"
+                   Visibility="Collapsed" />
         <Path x:Name="Letter"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"

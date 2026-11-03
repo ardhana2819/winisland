@@ -52,6 +52,7 @@ In words:
 | `Island/` | `IslandOverlay.cs` | What is open on top of the clock or music: the expanded island or a notification banner. The latest request wins. |
 | `Island/` | `IslandScale.cs`, `IslandSize.cs` | How big to draw the island for the current display (width / 2560, limited to 0.85 to 1.25), times the size chosen in Settings (Small 0.85, Medium 1, Large 1.15, Extra large 1.3). |
 | `Island/` | `IslandLook.cs` | The look chosen in Settings: Solid (black, default) or Glass (v1.4). |
+| `Privacy/` | `PrivacyIndicator.cs` | Which dot shows while an app uses the camera or the microphone (camera wins), and when Windows' record means "in use" (v1.5). |
 | `Island/` | `ClockText.cs` | The clock text: 24-hour, hours and minutes only. |
 | `Hotkeys/` | `Hotkey.cs`, `HotkeyModifiers.cs` | One key combination and how it is shown, for example "Ctrl+Alt+I". |
 | `Hotkeys/` | `HotkeySet.cs` | The three default hotkeys and the rules: each needs a modifier, and no two may be the same. |
@@ -73,6 +74,7 @@ In words:
 | `Notifications/` | `NotificationFeed.cs` | The last 3 chats with their last 3 messages and a count, the waiting banners with their shared timer, the read or replaced rule for removals, and which messages are still unseen. |
 | `Notifications/` | `NotificationStack.cs` | One chat on the notifications page: its last 3 messages, how many it sent, and the "3 messages" or "99+ messages" text (v1.4). |
 | `Notifications/` | `IncomingCall.cs` | Recognises a ringing WhatsApp Web call from its "Incoming voice call" or "Incoming video call" text (v1.4). |
+| `Notifications/` | `AppLogoStyle.cs` | How another app's logo is drawn: white on the app's own colour, worked out from the logo's pixels, or the full tile (v1.5). |
 | `Settings/` | `AppSettings.cs`, `AppSettingsJson.cs` | Everything Settings can change, with defaults and rules (hotkeys, 3 to 15 s banners), and the readable file format; a damaged file falls back to defaults. |
 
 Core never reads the clock itself: the app passes in the current time. That keeps the rules testable without waiting an hour for a pause to end.
@@ -85,11 +87,13 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Windows/GlassBackdrop.cs` | Puts Windows' own blur (the host backdrop brush) into a window, cut to the island's rounded shape with smooth edges (v1.4 Glass). |
 | Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |
 | Platform | `Windows/NativeMethods.cs` | The Win32 functions above, in one place. They only touch WinIsland's own windows. |
-| Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (a white pill drawn in code, dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |
+| Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (the app icon, WinIsland.ico, since v1.5; dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |
 | Platform | `Tray/DarkMenuColors.cs`, `Tray/DarkMenuRenderer.cs` | Draw the tray menu in the dark colors of the design board. |
 | Platform | `Hotkeys/GlobalHotkeys.cs`, `Hotkeys/HotkeyRegistration.cs` | Registers the global hotkeys with Windows, reports which ones another app already owns, and says when one is pressed. |
 | Platform | `Media/MusicMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to the music app (any app, v1.5) through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
 | Platform | `Media/AppVolume.cs` | Reads and sets one app's volume through the Windows audio session API, like the Volume Mixer (v1.5). |
+| Platform | `Privacy/CameraMicrophoneWatcher.cs` | Tells whether an app uses the camera (Windows' own record) or the microphone (MicrophoneUse), never touching the devices (v1.5). |
+| Platform | `Media/CoreAudio.cs`, `Media/MicrophoneUse.cs` | The Windows audio session API parts WinIsland uses, shared by the volume slider and the microphone dot (v1.5). |
 | Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |
@@ -109,7 +113,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page), and the unread dot at the end. |
 | App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
 | App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, and fades them out 1.5 s later. |
-| App | `Notifications/UnreadDot.cs` | The small white dot on the clock and the compact music pill when a notification has not been seen yet. |
+| App | `Notifications/IslandDot.cs` | The small dots on the clock and the compact music pill: white for a notification not seen yet, green or orange while an app uses the camera or microphone (v1.5). |
 | App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
 | App | `Music/VolumeRowView.xaml`, `Music/RowSwap.cs` | The music app's volume, in the progress row's exact place, and the soft swap between the two rows (v1.5). |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the grey placeholder with a music note) and the title shown when a song has none. |
@@ -124,6 +128,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Notifications/NotificationBannerView.xaml`, `Notifications/AppIconView.xaml` | The banner on a grey card: app logo or letter circle (centered by its shape), sender, preview, +N badge; tap opens the notifications page, a sideways drag swipes it away. |
 | App | `Notifications/AppLogoGlyph.cs` | The WhatsApp and Discord logo shapes, drawn white on their green or blurple circle. |
 | App | `Notifications/CallSymbol.cs` | The green call circle with a phone or a video camera, pulsing on the call banner while a call rings (v1.4). |
+| App | `Notifications/AppLogoStyles.cs` | Reads each app logo's pixels once and keeps how to draw it (v1.5). |
 | App | `Notifications/NotificationsPageView.xaml`, `Notifications/NotificationCard.cs` | The notifications page: the last 3 chats on grey cards with the time and message count, the full text of a single one (up to 3 lines), or "No notifications". |
 | App | `Notifications/StackCard.cs` | Puts the cards of older messages behind a chat's card, peeking out underneath like the iPhone (v1.4). |
 | App | `Notifications/ChatView.cs` | An opened chat: its name, count and last 3 messages with their times (v1.4). |

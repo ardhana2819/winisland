@@ -253,6 +253,7 @@ Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked
 - The two rows share one place and cross over the same way in both directions, like the island's content swap: the leaving row fades out, blurs by 4 and shrinks to 0.96, the arriving row does the reverse, over 0.3 s on the ease curve (Diva, 3 Nov 2026: the same both ways). Instant with Windows animation effects off.
 - The volume bar is the progress bar exactly: same length and place (Diva, 3 Nov 2026). The two time labels sit in fixed 30 wide slots (the left one aligned left, the right one aligned right), and the speaker symbols take the same slots, aligned the same way, measured by their drawn shape. So switching only changes the slot contents and the fill colour.
 - It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
+- The wheel over the speaker button, or over the open volume row and 8 below it, changes the volume 5 percent a notch (touchpad steps add up); elsewhere it switches pages.
 - No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
 
 Camera and microphone dots (PRD FR-40). [Confirmed 3 Nov 2026]
@@ -267,7 +268,7 @@ Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
 
 Other apps' logos (PRD FR-42). [Confirmed 3 Nov 2026]
 
-- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). The colour is the logo's main colour; a logo that is a full square fills the circle as it is, clipped round. No logo: the letter circle as before.
+- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). Only the logo's visible part counts (empty margins cut off). A thin mark (under 70 percent of that part filled) is drawn white on the logo's main colour; a plate (70 percent or more) fills the circle as it is, clipped round. Snipping Tool always gets the prototype's white scissors on `#6A5ACD`, drawn by WinIsland, because its own plate looked broken (Diva, 3 Nov 2026). No logo: the letter circle as before.
 
 Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
 

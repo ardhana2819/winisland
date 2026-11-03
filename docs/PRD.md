@@ -305,12 +305,15 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - It sets the volume of the app the music comes from, as the Windows Volume Mixer does, so a game's sound and Windows' own volume stay as they are.
   - A browser counts as one app: lowering YouTube in Chrome also lowers every other Chrome sound, including WhatsApp Web's ringtone. This is how Windows groups sound. [Unverified: to check in your test]
   - [Confirmed 3 Nov 2026] While the island is open, Ctrl+Up and Ctrl+Down change it by 10 percent (Spotify's own volume keys) and show the volume row, registered only while the island is open, like the other music keys (FR-8).
+  - The mouse wheel over the speaker button, or over the open volume row and a little below it, changes it by 5 percent a notch, like Spotify; elsewhere on the island the wheel still switches pages (FR-21). [Confirmed 3 Nov 2026, Diva]
   - [Confirmed 3 Nov 2026] No speaker button in the empty view. If the app has no sound open with Windows yet, the slider shows dimmed.
   - [Confirmed 3 Nov 2026] Built on the Windows audio session API (the Volume Mixer's API), with no new library.
 - FR-40. Camera and microphone dots, like the iPhone. [Confirmed 3 Nov 2026; the rules are left to me]
   - While any app uses the camera, a green `#30D158` dot shows on the idle island; while any app uses the microphone, an orange `#FF9F0A` dot. Same size and pop as the unread dot (FR-33). With both in use, the green camera dot shows. [Confirmed 3 Nov 2026]
   - [Confirmed 3 Nov 2026] It shows on the compact clock and on the compact music pill, at the right end; the white unread dot moves to its left. Banners and the open island do not show it.
-  - [Confirmed 3 Nov 2026] WinIsland reads Windows' own record of which apps currently use the camera or microphone, the same record behind the microphone symbol on the Windows 11 taskbar, and follows its changes. It only learns "in use" or "not in use"; it never touches the camera or microphone and records nothing. [Unverified: Microsoft does not document this record; other apps use it widely]
+  - WinIsland only learns "in use" or "not in use"; it never touches the camera or microphone and records nothing.
+    - Microphone: whether any other app records, through the Windows audio session API (documented), checked once a second. [Verified 3 Nov 2026: Discord voice shows as a running recording session] Windows' consent record, planned first, lists no desktop apps on your Windows 11, so Discord voice never showed with it.
+    - Camera: Windows' consent record of which apps use the camera (not documented by Microsoft). It may miss desktop apps as it did for the microphone. [Unverified]
   - The camera dot is untested, because you have no webcam; it ships marked so in the README and here. [Confirmed 3 Nov 2026]
 - FR-41. Music from every app. [Confirmed 3 Nov 2026: "semua aplikasi"; the CLAUDE.md rule changes]
   - Any app that tells Windows what it plays works: Spotify, YouTube or YouTube Music in a browser, Apple Music, Windows Media Player, and others. Still through the Windows media session API only, never a music service's web API, no network.
@@ -321,7 +324,8 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Testing stays light: Spotify, YouTube in Chrome, and Apple Music once you have installed it. [Confirmed 3 Nov 2026]
 - FR-42. Notifications from other apps show their app's logo. [Confirmed 3 Nov 2026: "icon notif mengikuti app nya"]
   - Like WhatsApp and Discord: the app's own colour as the circle, its logo in white on it. Claude: orange with the white Claude mark. [Confirmed 3 Nov 2026]
-  - [Confirmed 3 Nov 2026] The app's logo comes from Windows. The circle's colour is the logo's main colour (worked out like the artwork colours, FR-25); the logo is drawn white from its shape. A logo that is a full square (no see-through parts) fills the circle as it is. No logo from Windows: the letter circle, as today.
+  - [Confirmed 3 Nov 2026] The app's logo comes from Windows, cut to its visible part (empty margins would make it tiny, as Diva saw with Snipping Tool). A thin mark, like Claude's, is drawn white on the logo's main colour (worked out like the artwork colours, FR-25). A plate, a logo that is already a coloured badge, fills the circle as it is. No logo from Windows: the letter circle, as today.
+  - [Confirmed 3 Nov 2026, Diva] Snipping Tool: its own logo still looked broken as a plate, so WinIsland draws the prototype's white scissors on purple (#6A5ACD) for it, like WhatsApp and Discord.
   - WhatsApp and Discord keep their drawn logos (FR-30).
   - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
 - FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
@@ -505,7 +509,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-31. Moving the volume slider while Spotify plays changes Spotify's level in the Windows Volume Mixer, and neither the game's level nor Windows' volume.
 - AC-32. Joining a Discord voice channel shows the orange dot on the idle island within 2 seconds, and leaving removes it within 2 seconds. (The camera dot is not tested.)
 - AC-33. A YouTube video playing in Chrome shows on the island with its title and its whole thumbnail on black, and play, pause, next and previous work. A song in Apple Music shows the same way.
-- AC-34. A notification from Claude or Snipping Tool, with "Show other Windows apps" on, shows that app's own logo.
+- AC-34. A notification from Claude, with "Show other Windows apps" on, shows that app's own logo; one from Snipping Tool shows the white scissors on purple.
 - AC-35. The tray shows the WinIsland app icon.
 - AC-36. Idle memory stays under 150 MB working set with the v1.5 features (G4).
 

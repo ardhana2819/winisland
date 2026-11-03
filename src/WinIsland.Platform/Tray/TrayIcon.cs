@@ -18,10 +18,12 @@ public sealed class TrayIcon : IDisposable
     private readonly Icon _normalIcon;
     private readonly Icon _dimmedIcon;
 
-    public TrayIcon()
+    /// <summary>iconFile is WinIsland.ico (v1.5, FR-43); it is read here and not kept.</summary>
+    public TrayIcon(Stream iconFile)
     {
-        _normalIcon = TrayIconImage.Create(dimmed: false);
-        _dimmedIcon = TrayIconImage.Create(dimmed: true);
+        ArgumentNullException.ThrowIfNull(iconFile);
+        _normalIcon = TrayIconImage.Create(iconFile, dimmed: false);
+        _dimmedIcon = TrayIconImage.Create(iconFile, dimmed: true);
 
         _pauseItem = CreateItem((_, _) => PauseOrResumeRequested?.Invoke(this, EventArgs.Empty));
         _hideItem = CreateItem((_, _) => HideOrShowRequested?.Invoke(this, EventArgs.Empty));

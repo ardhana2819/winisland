@@ -48,6 +48,7 @@ public partial class MusicControlsView : UserControl
     private bool _isActive;
     private ArtworkPalette _shownPalette = ArtworkPalette.Black;
     private bool _isVolumeShown;
+    private int _wheelDelta;
 
     public MusicControlsView()
     {
@@ -60,7 +61,7 @@ public partial class MusicControlsView : UserControl
         NextIcon.Fill = _accent;
         SpeakerIcon.Fill = _accent;
         RowSwap.Set(ProgressRow, true);
-        RowSwap.Set(VolumeRow, false);
+        RowSwap.Set(VolumeArea, false);
         VolumeRow.LevelChosen += (_, level) => VolumeChosen?.Invoke(this, level);
         ElapsedText.SizeChanged += (_, _) => VolumeRow.MatchSlots(ElapsedText.ActualWidth, TotalText.ActualWidth);
         TotalText.SizeChanged += (_, _) => VolumeRow.MatchSlots(ElapsedText.ActualWidth, TotalText.ActualWidth);
@@ -121,6 +122,9 @@ public partial class MusicControlsView : UserControl
     /// <summary>A volume level, 0 to 1, picked on the volume row (FR-39).</summary>
     public event EventHandler<float>? VolumeChosen;
 
+    /// <summary>The wheel turned over the speaker or the volume row: notches up (louder) or down.</summary>
+    public event EventHandler<int>? VolumeWheeled;
+
     /// <summary>Swaps between the progress row and the volume row; level null means no sound open with Windows.</summary>
     public void ShowVolume(bool isShown, float? level)
     {
@@ -143,11 +147,11 @@ public partial class MusicControlsView : UserControl
         _isVolumeShown = isShown;
         if (isShown)
         {
-            RowSwap.Swap(ProgressRow, VolumeRow);
+            RowSwap.Swap(ProgressRow, VolumeArea);
         }
         else
         {
-            RowSwap.Swap(VolumeRow, ProgressRow);
+            RowSwap.Swap(VolumeArea, ProgressRow);
         }
     }
 
@@ -330,4 +334,18 @@ public partial class MusicControlsView : UserControl
     private void OnNextClick(object sender, RoutedEventArgs e) => NextClicked?.Invoke(this, EventArgs.Empty);
 
     private void OnSpeakerClick(object sender, RoutedEventArgs e) => SpeakerClicked?.Invoke(this, EventArgs.Empty);
+
+    // Over the speaker or the volume row the wheel is the volume, not the page switch (FR-21).
+    private void OnVolumeWheel(object sender, MouseWheelEventArgs e)
+    {
+        e.Handled = true;
+        // A touchpad sends small steps; they add up to whole notches.
+        _wheelDelta += e.Delta;
+        int notches = _wheelDelta / Mouse.MouseWheelDeltaForOneLine;
+        if (notches != 0)
+        {
+            _wheelDelta -= notches * Mouse.MouseWheelDeltaForOneLine;
+            VolumeWheeled?.Invoke(this, notches);
+        }
+    }
 }

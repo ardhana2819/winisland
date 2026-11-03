@@ -7,6 +7,7 @@
 // Alt+Down or the page dots (FR-21), shows the unread dot on the compact island (FR-33), and
 // animates whenever the island's state changes (FR-4).
 // v1.4: the Solid or Glass look (FR-37, GlassLook.cs) and the call banner (FR-38).
+// v1.5: the camera and microphone dots on the clock and the music pill (FR-40).
 
 using System.Windows;
 using System.Windows.Input;
@@ -22,7 +23,9 @@ using WinIsland.App.Notifications;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Core.Music;
+using WinIsland.Core.Privacy;
 using WinIsland.Platform.Hotkeys;
+using WinIsland.Platform.Privacy;
 using WinIsland.Platform.Windows;
 
 namespace WinIsland.App.Island;
@@ -54,6 +57,13 @@ public partial class IslandWindow : Window
     private readonly GlassLook _glass;
     private IslandLook _wantedLook;
     private IslandLook _shownLook = IslandLook.Solid;
+    private readonly CameraMicrophoneWatcher _privacy = new();
+
+    // FR-40, DESIGN_SPEC section 12: camera green, microphone orange.
+    private static readonly Brush CameraDot = FrozenBrush(0x30, 0xD1, 0x58);
+    private static readonly Brush MicrophoneDot = FrozenBrush(0xFF, 0x9F, 0x0A);
+    private const double DotEdgeDips = 12;
+    private const double UnreadNextToPrivacyDips = 22;
 
     internal IslandWindow(IslandStateMachine island, MusicController music, NotificationController notifications, HotkeySet startHotkeys, IslandSize size, IslandLook look)
     {
@@ -121,6 +131,9 @@ public partial class IslandWindow : Window
 
         _island.Changed += (_, _) => ShowCurrentState();
         RegisterHotkeys(handle);
+
+        _privacy.Changed += (_, indicator) => Dispatcher.BeginInvoke(() => ShowPrivacy(indicator));
+        _privacy.Start();
     }
 
     /// <summary>Raised when the conflict banner's Change button is clicked (open Settings).</summary>
@@ -339,6 +352,27 @@ public partial class IslandWindow : Window
         UpdatePillColors();
     }
 
+    // FR-40: the dot at the right end; the white unread dot moves left of it.
+    private void ShowPrivacy(PrivacyIndicator indicator)
+    {
+        Brush? color = indicator switch
+        {
+            PrivacyIndicator.Camera => CameraDot,
+            PrivacyIndicator.Microphone => MicrophoneDot,
+            _ => null,
+        };
+        ClockPrivacyDot.Show(color);
+        MusicLayer.SetPrivacy(color);
+        ClockUnreadDot.Margin = new Thickness(0, 0, color is null ? DotEdgeDips : UnreadNextToPrivacyDips, 0);
+    }
+
+    private static Brush FrozenBrush(byte red, byte green, byte blue)
+    {
+        SolidColorBrush brush = new(Color.FromRgb(red, green, blue));
+        brush.Freeze();
+        return brush;
+    }
+
     /// <summary>The artwork color behind the open music page; black everywhere else (FR-25).</summary>
     private void UpdatePillColors()
     {
@@ -434,6 +468,7 @@ public partial class IslandWindow : Window
         _minuteTimer.Dispose();
         _topmostGuard?.Dispose();
         _glass.Dispose();
+        _privacy.Dispose();
         Hotkeys?.Dispose();
     }
 }

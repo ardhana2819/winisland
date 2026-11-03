@@ -1,6 +1,6 @@
 // AppVolume.cs: reads and sets the volume of one app's sound, as the Windows Volume Mixer does
 // (PRD FR-39). Windows' own volume and every other app (the game) stay as they are.
-// It goes through the Windows audio session API (Core Audio) on the default playback device:
+// It goes through the Windows audio session API (CoreAudio.cs) on the default playback device:
 // each sound an app plays is an audio session with its own volume. AudioAppMatch (Core) decides
 // which sessions belong to the music app, from the process name and, for Store apps, the package.
 // Only the volume is read or changed; nothing here listens to or records any sound.
@@ -50,21 +50,11 @@ public static partial class AppVolume
 
         try
         {
-            IMMDeviceEnumerator devices = (IMMDeviceEnumerator)new MMDeviceEnumerator();
-            Marshal.ThrowExceptionForHR(devices.GetDefaultAudioEndpoint(DataFlowRender, RoleMultimedia, out IMMDevice speaker));
-            Guid managerId = typeof(IAudioSessionManager2).GUID;
-            Marshal.ThrowExceptionForHR(speaker.Activate(ref managerId, ClsctxAll, IntPtr.Zero, out object managerObject));
-            IAudioSessionManager2 manager = (IAudioSessionManager2)managerObject;
-            Marshal.ThrowExceptionForHR(manager.GetSessionEnumerator(out IAudioSessionEnumerator sessions));
-            Marshal.ThrowExceptionForHR(sessions.GetCount(out int count));
-
-            for (int index = 0; index < count; index++)
+            foreach (IAudioSessionControl2 session in CoreAudio.PlaybackSessions())
             {
-                Marshal.ThrowExceptionForHR(sessions.GetSession(index, out IAudioSessionControl control));
-                if (control is IAudioSessionControl2 details
-                    && details.GetProcessId(out uint processId) == 0
+                if (session.GetProcessId(out uint processId) == 0
                     && BelongsTo(mediaAppId, processId)
-                    && control is ISimpleAudioVolume volume)
+                    && session is ISimpleAudioVolume volume)
                 {
                     act(volume);
                 }
@@ -121,9 +111,6 @@ public static partial class AppVolume
         }
     }
 
-    private const int DataFlowRender = 0;
-    private const int RoleMultimedia = 1;
-    private const int ClsctxAll = 0x17;
     private const uint ProcessQueryLimitedInformation = 0x1000;
     private const int ErrorInsufficientBuffer = 122;
 
@@ -136,98 +123,4 @@ public static partial class AppVolume
 
     [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int GetPackageFamilyName(IntPtr process, ref uint length, [Out] char[]? name);
-
-    // Core Audio interfaces (mmdeviceapi.h, audiopolicy.h), only the methods used here, in order.
-    [ComImport]
-    [Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
-    private class MMDeviceEnumerator
-    {
-    }
-
-    [ComImport]
-    [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IMMDeviceEnumerator
-    {
-        int EnumAudioEndpoints(int dataFlow, int stateMask, out IntPtr devices);
-
-        int GetDefaultAudioEndpoint(int dataFlow, int role, out IMMDevice endpoint);
-    }
-
-    [ComImport]
-    [Guid("D666063F-1587-4E43-81F1-B948E807363F")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IMMDevice
-    {
-        int Activate(ref Guid interfaceId, int classContext, IntPtr activationParams, [MarshalAs(UnmanagedType.IUnknown)] out object instance);
-    }
-
-    [ComImport]
-    [Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IAudioSessionManager2
-    {
-        int GetAudioSessionControl(IntPtr sessionId, int flags, out IntPtr control);
-
-        int GetSimpleAudioVolume(IntPtr sessionId, int flags, out IntPtr volume);
-
-        int GetSessionEnumerator(out IAudioSessionEnumerator sessions);
-    }
-
-    [ComImport]
-    [Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IAudioSessionEnumerator
-    {
-        int GetCount(out int count);
-
-        int GetSession(int index, out IAudioSessionControl session);
-    }
-
-    [ComImport]
-    [Guid("F4B1A599-7266-4319-A8CA-E70ACB11E8CD")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IAudioSessionControl
-    {
-    }
-
-    [ComImport]
-    [Guid("bfb7ff88-7239-4fc9-8fa2-07c950be9c6d")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IAudioSessionControl2
-    {
-        int GetState(out int state);
-
-        int GetDisplayName(out IntPtr name);
-
-        int SetDisplayName(IntPtr name, IntPtr context);
-
-        int GetIconPath(out IntPtr path);
-
-        int SetIconPath(IntPtr path, IntPtr context);
-
-        int GetGroupingParam(out Guid group);
-
-        int SetGroupingParam(IntPtr group, IntPtr context);
-
-        int RegisterAudioSessionNotification(IntPtr client);
-
-        int UnregisterAudioSessionNotification(IntPtr client);
-
-        int GetSessionIdentifier(out IntPtr id);
-
-        int GetSessionInstanceIdentifier(out IntPtr id);
-
-        int GetProcessId(out uint processId);
-    }
-
-    [ComImport]
-    [Guid("87CE5498-68D6-44E5-9215-6DA47EF883D8")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface ISimpleAudioVolume
-    {
-        int SetMasterVolume(float level, ref Guid eventContext);
-
-        int GetMasterVolume(out float level);
-    }
 }

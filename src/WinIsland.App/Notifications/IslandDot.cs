@@ -1,7 +1,8 @@
-// UnreadDot.cs: the small white dot on the idle island that says "a notification you have not
-// seen yet" (PRD FR-33, DESIGN_SPEC section 10). It is 6 x 6; it pops in over 0.35 s (scale 0.4
-// to 1 with the shape spring, opacity over 0.25 s) and fades out over 0.25 s. With Windows
-// animation effects off it appears and disappears at once.
+// IslandDot.cs: a small dot on the idle island. White, it says "a notification you have not seen
+// yet" (PRD FR-33, DESIGN_SPEC section 10); green or orange, "an app uses the camera or the
+// microphone" (v1.5, FR-40, section 12). It is 6 x 6; it pops in over 0.35 s (scale 0.4 to 1 with
+// the shape spring, opacity over 0.25 s) and fades out over 0.25 s. With Windows animation effects
+// off it appears and disappears at once. Called UnreadDot before v1.5.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +13,7 @@ using WinIsland.App.Animation;
 
 namespace WinIsland.App.Notifications;
 
-internal sealed class UnreadDot : Border
+internal sealed class IslandDot : Border
 {
     private const double SizeDips = 6;
     private const double HiddenScale = 0.4;
@@ -25,7 +26,7 @@ internal sealed class UnreadDot : Border
     private readonly ScaleTransform _scale = new(HiddenScale, HiddenScale);
     private bool _isShown;
 
-    public UnreadDot()
+    public IslandDot()
     {
         Width = SizeDips;
         Height = SizeDips;
@@ -36,6 +37,17 @@ internal sealed class UnreadDot : Border
         Focusable = false;
         RenderTransformOrigin = new Point(0.5, 0.5);
         RenderTransform = _scale;
+    }
+
+    /// <summary>Shows the dot in a color, or hides it with null (the camera and microphone dot).</summary>
+    public void Show(Brush? color)
+    {
+        if (color is not null)
+        {
+            Background = color;
+        }
+
+        SetShown(color is not null);
     }
 
     public void SetShown(bool shown)
