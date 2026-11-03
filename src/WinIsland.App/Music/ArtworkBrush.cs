@@ -2,6 +2,8 @@
 // DESIGN_SPEC section 9 (v1.1): the placeholder is a #2C2C2E square with a #8E8E93 music note at
 // 45 percent of its size, used for the empty view and for songs without artwork. It replaces the
 // v1.0 gradient.
+// v1.5 (FR-41, Diva 3 Nov 2026): artwork that is not square, like a YouTube thumbnail, shows whole
+// inside the square, centered on black, instead of being cut.
 
 using System.Windows;
 using System.Windows.Media;
@@ -15,6 +17,9 @@ internal static class ArtworkBrush
     private const double BoxSize = 24;
     private const double NoteScale = 0.45;
 
+    // Covers within 2 percent of square are drawn as before, filling the square.
+    private const double SquareTolerance = 0.02;
+
     private static readonly Brush Placeholder = CreatePlaceholder();
 
     public static Brush For(ImageSource? artwork)
@@ -24,7 +29,27 @@ internal static class ArtworkBrush
             return Placeholder;
         }
 
-        ImageBrush brush = new(artwork) { Stretch = Stretch.UniformToFill };
+        double width = artwork.Width;
+        double height = artwork.Height;
+        if (width <= 0 || height <= 0 || Math.Abs((width / height) - 1) <= SquareTolerance)
+        {
+            ImageBrush square = new(artwork) { Stretch = Stretch.UniformToFill };
+            square.Freeze();
+            return square;
+        }
+
+        return Letterboxed(artwork, width, height);
+    }
+
+    // The whole picture, centered in a black square as wide as its longer side.
+    private static Brush Letterboxed(ImageSource artwork, double width, double height)
+    {
+        double side = Math.Max(width, height);
+        DrawingGroup drawing = new();
+        drawing.Children.Add(new GeometryDrawing(Brushes.Black, null, new RectangleGeometry(new Rect(0, 0, side, side))));
+        drawing.Children.Add(new ImageDrawing(artwork, new Rect((side - width) / 2, (side - height) / 2, width, height)));
+
+        DrawingBrush brush = new(drawing) { Stretch = Stretch.Fill };
         brush.Freeze();
         return brush;
     }

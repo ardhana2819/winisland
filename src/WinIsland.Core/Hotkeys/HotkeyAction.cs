@@ -30,4 +30,10 @@ public enum HotkeyAction
 
     /// <summary>Alt+Left while a chat is open on the notifications page: back to the list (FR-35).</summary>
     CloseChat,
+
+    /// <summary>Ctrl+Up while expanded: the music app 10 percent louder (FR-39).</summary>
+    VolumeUp,
+
+    /// <summary>Ctrl+Down while expanded: the music app 10 percent quieter (FR-39).</summary>
+    VolumeDown,
 }

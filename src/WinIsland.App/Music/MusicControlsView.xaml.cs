@@ -2,11 +2,13 @@
 // Shows the song, the times and the progress bar (FR-7, FR-9), raises events for previous,
 // play/pause and next (FR-8), and handles seeking with the mouse (FR-11): hover shows the larger
 // bar and thumb, click or drag moves it, and the new position is sent once when the button is
-// released, so Spotify is not flooded with requests while dragging. Without seek support the bar
+// released, so the music app is not flooded with requests while dragging. Without seek support the bar
 // is display only. Without a music session it shows the empty view instead (FR-24).
 // Colors come from the artwork (FR-25, DESIGN_SPEC section 9): the icons, play circle, progress
 // fill, thumb and equalizer use the accent, the artist and times the grey text color, and every
 // change fades over 0.45 s.
+// v1.5 (FR-39): the speaker button asks for the volume row; the row swaps in for the progress row
+// (RowSwap) and reports levels the user picks. The presenter decides when it opens and closes.
 
 using System.Windows;
 using System.Windows.Automation;
@@ -29,6 +31,9 @@ public partial class MusicControlsView : UserControl
     private const string PauseIconPath = "M7 5h4v14H7zM13 5h4v14h-4z";
     private const string PlayIconPath = "M7 5v14l12-7z";
 
+    private static readonly Geometry SpeakerMuted = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.6 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z");
+    private static readonly Geometry SpeakerLow = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z");
+    private static readonly Geometry SpeakerHigh = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z");
     private static readonly Geometry PauseIcon = Geometry.Parse(PauseIconPath);
     private static readonly Geometry PlayIcon = Geometry.Parse(PlayIconPath);
 
@@ -42,6 +47,7 @@ public partial class MusicControlsView : UserControl
     private double? _dragFraction;
     private bool _isActive;
     private ArtworkPalette _shownPalette = ArtworkPalette.Black;
+    private bool _isVolumeShown;
 
     public MusicControlsView()
     {
@@ -52,6 +58,12 @@ public partial class MusicControlsView : UserControl
         PreviousIcon.Fill = _accent;
         PlayPauseIcon.Fill = _accent;
         NextIcon.Fill = _accent;
+        SpeakerIcon.Fill = _accent;
+        RowSwap.Set(ProgressRow, true);
+        RowSwap.Set(VolumeRow, false);
+        VolumeRow.LevelChosen += (_, level) => VolumeChosen?.Invoke(this, level);
+        ElapsedText.SizeChanged += (_, _) => VolumeRow.MatchSlots(ElapsedText.ActualWidth, TotalText.ActualWidth);
+        TotalText.SizeChanged += (_, _) => VolumeRow.MatchSlots(ElapsedText.ActualWidth, TotalText.ActualWidth);
         Fill.Background = _accent;
         Thumb.Fill = _accent;
         PlayPauseButton.Background = _accentSoft;
@@ -103,6 +115,42 @@ public partial class MusicControlsView : UserControl
 
     public event EventHandler<TimeSpan>? SeekRequested;
 
+    /// <summary>The speaker button was clicked (FR-39).</summary>
+    public event EventHandler? SpeakerClicked;
+
+    /// <summary>A volume level, 0 to 1, picked on the volume row (FR-39).</summary>
+    public event EventHandler<float>? VolumeChosen;
+
+    /// <summary>Swaps between the progress row and the volume row; level null means no sound open with Windows.</summary>
+    public void ShowVolume(bool isShown, float? level)
+    {
+        if (isShown)
+        {
+            VolumeRow.Show(level);
+        }
+
+        if (level is float known)
+        {
+            SpeakerIcon.Data = known <= 0 ? SpeakerMuted : known < 0.5f ? SpeakerLow : SpeakerHigh;
+        }
+
+        SpeakerButton.Background = isShown ? _accentSoft : Brushes.Transparent;
+        if (isShown == _isVolumeShown)
+        {
+            return;
+        }
+
+        _isVolumeShown = isShown;
+        if (isShown)
+        {
+            RowSwap.Swap(ProgressRow, VolumeRow);
+        }
+        else
+        {
+            RowSwap.Swap(VolumeRow, ProgressRow);
+        }
+    }
+
     public void Show(NowPlaying music, ImageSource? artwork, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(music);
@@ -126,12 +174,12 @@ public partial class MusicControlsView : UserControl
         UpdateProgress(now);
     }
 
-    /// <summary>The empty view when there is no music session, for example Spotify closed (FR-24).</summary>
+    /// <summary>The empty view when there is no music session, for example the music app closed (FR-24).</summary>
     public void ShowEmpty()
     {
         _music = null;
         _dragFraction = null;
-        // Spotify can close in the middle of a drag; let go of the mouse so the island stays clickable.
+        // The music app can close in the middle of a drag; let go of the mouse so the island stays clickable.
         if (SeekArea.IsMouseCaptured)
         {
             SeekArea.ReleaseMouseCapture();
@@ -148,6 +196,13 @@ public partial class MusicControlsView : UserControl
     private void SetEmptyLook(bool isEmpty)
     {
         ProgressRow.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        // No speaker and no volume in the empty view (FR-39).
+        SpeakerButton.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        if (isEmpty)
+        {
+            ShowVolume(false, null);
+        }
+
         // An empty artist line still takes a line of height and pushes "Not playing" above the
         // artwork's middle, so the empty view leaves it out.
         ArtistText.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
@@ -273,4 +328,6 @@ public partial class MusicControlsView : UserControl
     private void OnPlayPauseClick(object sender, RoutedEventArgs e) => PlayPauseClicked?.Invoke(this, EventArgs.Empty);
 
     private void OnNextClick(object sender, RoutedEventArgs e) => NextClicked?.Invoke(this, EventArgs.Empty);
+
+    private void OnSpeakerClick(object sender, RoutedEventArgs e) => SpeakerClicked?.Invoke(this, EventArgs.Empty);
 }

@@ -1,16 +1,30 @@
-// MusicSource.cs: decides which Windows media session is the music WinIsland shows.
-// PRD: music comes only from the Spotify desktop app. Windows also lists browsers and other
-// players, and its own "current session" can be a browser (spike: it picked Brave), so the
-// island picks Spotify by its app id instead. Both the installer version ("Spotify.exe") and the
-// Microsoft Store version ("SpotifyAB.SpotifyMusic_...!Spotify") contain "Spotify".
+// MusicSource.cs: decides which Windows media session is the music WinIsland shows (PRD FR-41).
+// v1.5: music comes from every app that tells Windows what it plays (Spotify, a browser, Apple
+// Music, ...), still only through the Windows media session API. Before v1.5 only Spotify counted.
+// The rule (Diva approved, 3 Nov 2026):
+//   - the app that is playing;
+//   - if several play, the one Windows marks as current, or else the first that plays;
+//   - if none plays, the one Windows marks as current (paused), or else the first one.
 
 namespace WinIsland.Core.Music;
 
+/// <summary>One media session Windows lists: its app id and whether it is playing now.</summary>
+public sealed record MediaSessionCandidate(string AppId, bool IsPlaying);
+
 public static class MusicSource
 {
-    public static bool IsSpotify(string? appId)
+    /// <summary>The app id of the session to show, or null when Windows lists none.</summary>
+    public static string? Choose(IReadOnlyList<MediaSessionCandidate> sessions, string? windowsCurrentAppId)
     {
-        return !string.IsNullOrWhiteSpace(appId)
-            && appId.Contains("Spotify", StringComparison.OrdinalIgnoreCase);
+        ArgumentNullException.ThrowIfNull(sessions);
+        if (sessions.Count == 0)
+        {
+            return null;
+        }
+
+        List<MediaSessionCandidate> playing = [.. sessions.Where(session => session.IsPlaying)];
+        IReadOnlyList<MediaSessionCandidate> pool = playing.Count > 0 ? playing : sessions;
+        MediaSessionCandidate? current = pool.FirstOrDefault(session => string.Equals(session.AppId, windowsCurrentAppId, StringComparison.Ordinal));
+        return (current ?? pool[0]).AppId;
     }
 }

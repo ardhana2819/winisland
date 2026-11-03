@@ -1,4 +1,5 @@
-// MusicSourceTests.cs: checks that only Spotify's media session is picked (PRD: Spotify desktop only).
+// MusicSourceTests.cs: checks which app's music the island shows (PRD FR-41, v1.5). Before v1.5
+// these tests checked "Spotify only"; FR-41 replaced that rule with music from every app.
 
 using WinIsland.Core.Music;
 
@@ -6,23 +7,50 @@ namespace WinIsland.Core.Tests.Music;
 
 public class MusicSourceTests
 {
-    [Theory]
-    [InlineData("Spotify.exe")] // installer version, seen in spike U6
-    [InlineData("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify")] // Microsoft Store version
-    [InlineData("spotify.exe")]
-    public void Spotify_sessions_are_picked(string appId)
+    [Fact]
+    public void The_app_that_plays_is_shown_even_when_Windows_marks_another()
     {
-        Assert.True(MusicSource.IsSpotify(appId));
+        MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: false), new("Chrome", IsPlaying: true)];
+
+        Assert.Equal("Chrome", MusicSource.Choose(sessions, windowsCurrentAppId: "Spotify.exe"));
+    }
+
+    [Fact]
+    public void With_several_playing_the_one_Windows_marks_wins()
+    {
+        MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: true), new("Chrome", IsPlaying: true)];
+
+        Assert.Equal("Chrome", MusicSource.Choose(sessions, windowsCurrentAppId: "Chrome"));
+        Assert.Equal("Spotify.exe", MusicSource.Choose(sessions, windowsCurrentAppId: "Brave"));
+    }
+
+    [Fact]
+    public void With_none_playing_the_one_Windows_marks_is_shown_paused()
+    {
+        MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: false), new("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", IsPlaying: false)];
+
+        Assert.Equal("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", MusicSource.Choose(sessions, "AppleInc.AppleMusicWin_nzyj5cx40ttqa!App"));
+        Assert.Equal("Spotify.exe", MusicSource.Choose(sessions, windowsCurrentAppId: null));
+    }
+
+    [Fact]
+    public void No_sessions_means_no_music()
+    {
+        Assert.Null(MusicSource.Choose([], "Spotify.exe"));
     }
 
     [Theory]
-    [InlineData("Brave")] // Windows chose this as "current session" in the spike
-    [InlineData("Chrome")]
-    [InlineData("Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic")]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Other_sessions_are_ignored(string? appId)
+    [InlineData("Spotify.exe", "Spotify", null, true)]
+    [InlineData("Chrome", "chrome", null, true)]
+    [InlineData("Chrome._crx_cinhimbnkkaeohfgghhklpknlkffjgod", "chrome", null, true)] // YouTube Music installed from Chrome
+    [InlineData("MSEdge", "msedge", null, true)]
+    [InlineData("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", "AppleMusic", "AppleInc.AppleMusicWin_nzyj5cx40ttqa", true)]
+    [InlineData("Spotify.exe", "chrome", null, false)]
+    [InlineData("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", "AppleMusic", null, false)]
+    [InlineData("308046B0AF4A39CB", "firefox", null, false)] // Firefox names itself with a code
+    [InlineData("", "Spotify", null, false)]
+    public void The_music_apps_sound_is_found_in_the_mixer(string mediaAppId, string processName, string? packageFamily, bool isMatch)
     {
-        Assert.False(MusicSource.IsSpotify(appId));
+        Assert.Equal(isMatch, AudioAppMatch.IsMusicApp(mediaAppId, processName, packageFamily));
     }
 }

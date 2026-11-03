@@ -2,6 +2,8 @@
 // Position is the position at the moment PositionUpdatedAt; the island estimates the current
 // position from it between updates (FR-9, see PlaybackPosition.cs).
 // Artwork is not part of this record: it is an image the app loads separately.
+// AppId (v1.5) names the app the music comes from, as Windows' media session names it, so the
+// volume slider can find that app's sound (FR-39, AudioAppMatch.cs).
 
 namespace WinIsland.Core.Music;
 
@@ -14,7 +16,8 @@ public sealed record NowPlaying
         TimeSpan duration,
         TimeSpan position,
         DateTimeOffset positionUpdatedAt,
-        bool canSeek)
+        bool canSeek,
+        string appId = "")
     {
         if (duration < TimeSpan.Zero)
         {
@@ -28,6 +31,7 @@ public sealed record NowPlaying
         Position = position < TimeSpan.Zero ? TimeSpan.Zero : position;
         PositionUpdatedAt = positionUpdatedAt;
         CanSeek = canSeek;
+        AppId = appId ?? string.Empty;
     }
 
     public string Title { get; }
@@ -46,4 +50,7 @@ public sealed record NowPlaying
     public bool CanSeek { get; }
 
     public bool IsPlaying => Status == PlaybackStatus.Playing;
+
+    /// <summary>The music app's id in Windows' media session, for example "Spotify.exe" (FR-39, FR-41).</summary>
+    public string AppId { get; }
 }

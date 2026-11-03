@@ -1,10 +1,11 @@
-// SpotifyMediaSession.cs: connects WinIsland to the Spotify desktop app through the Windows media
-// session API (Windows.Media.Control), the only music source the PRD allows. No Spotify Web API,
-// no network.
+// MusicMediaSession.cs: connects WinIsland to the music app through the Windows media session API
+// (Windows.Media.Control), the only music source the PRD allows. No music service's web API, no
+// network. v1.5 (FR-41): any app that tells Windows what it plays, not only Spotify; which one
+// shows follows MusicSource.Choose, checked again whenever a session starts or stops playing.
 //   FR-7  reads title, artist, artwork, play state, position and length.
 //   FR-8  sends play/pause, next and previous.
-//   FR-10 follows Spotify opening, closing and changing songs without errors.
-//   FR-11 sends seek, when Spotify says it supports it (spike U6: it does).
+//   FR-10 follows the app opening, closing and changing songs without errors.
+//   FR-11 sends seek, when the app says it supports it (spike U6: Spotify does).
 // Windows raises its events on background threads; the app moves the results to the UI thread.
 
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -18,7 +19,7 @@ using WinIsland.Platform.Diagnostics;
 
 namespace WinIsland.Platform.Media;
 
-public sealed class SpotifyMediaSession : IDisposable
+public sealed class MusicMediaSession : IDisposable
 {
     // Album art is small; anything bigger than this is not worth holding in memory.
     private const ulong MaxArtworkBytes = 4 * 1024 * 1024;
@@ -31,19 +32,22 @@ public sealed class SpotifyMediaSession : IDisposable
 
     private readonly GlobalSystemMediaTransportControlsSessionManager _manager;
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
+    private readonly SemaphoreSlim _chooseGate = new(1, 1);
+    private readonly List<GlobalSystemMediaTransportControlsSession> _watched = [];
     private GlobalSystemMediaTransportControlsSession? _session;
     private string? _artworkTrackKey;
     private string? _missingArtworkTrackKey;
     private int _artworkRetries;
     private bool _isDisposed;
 
-    private SpotifyMediaSession(GlobalSystemMediaTransportControlsSessionManager manager)
+    private MusicMediaSession(GlobalSystemMediaTransportControlsSessionManager manager)
     {
         _manager = manager;
         _manager.SessionsChanged += OnSessionsChanged;
+        _manager.CurrentSessionChanged += OnCurrentSessionChanged;
     }
 
-    /// <summary>Raised with what Spotify reports, or null when Spotify has no media session.</summary>
+    /// <summary>Raised with what the music app reports, or null when no app has a media session.</summary>
     public event EventHandler<NowPlaying?>? NowPlayingChanged;
 
     /// <summary>Raised with the album art as image file bytes, or null when there is none.</summary>
@@ -53,15 +57,15 @@ public sealed class SpotifyMediaSession : IDisposable
     /// Gets the Windows media session manager. Subscribe to the events, then call ConnectAsync,
     /// so the first report is not missed.
     /// </summary>
-    public static async Task<SpotifyMediaSession> CreateAsync()
+    public static async Task<MusicMediaSession> CreateAsync()
     {
         GlobalSystemMediaTransportControlsSessionManager manager =
             await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-        return new SpotifyMediaSession(manager);
+        return new MusicMediaSession(manager);
     }
 
-    /// <summary>Finds Spotify and sends the first report through the events.</summary>
-    public Task ConnectAsync() => AttachToSpotifyAsync();
+    /// <summary>Finds the music app and sends the first report through the events.</summary>
+    public Task ConnectAsync() => ChooseSessionAsync();
 
     public Task<bool> TogglePlayPauseAsync() => SendAsync(session => session.TryTogglePlayPauseAsync(), "Play/pause");
 
@@ -78,8 +82,11 @@ public sealed class SpotifyMediaSession : IDisposable
     {
         _isDisposed = true;
         _manager.SessionsChanged -= OnSessionsChanged;
+        _manager.CurrentSessionChanged -= OnCurrentSessionChanged;
+        StopWatchingAll();
         Detach();
         _refreshGate.Dispose();
+        _chooseGate.Dispose();
     }
 
     private async Task<bool> SendAsync(Func<GlobalSystemMediaTransportControlsSession, IAsyncOperation<bool>> command, string name)
@@ -103,26 +110,46 @@ public sealed class SpotifyMediaSession : IDisposable
 
     private void OnSessionsChanged(GlobalSystemMediaTransportControlsSessionManager sender, SessionsChangedEventArgs args)
     {
-        _ = AttachToSpotifyAsync();
+        _ = ChooseSessionAsync();
     }
 
-    private async Task AttachToSpotifyAsync()
+    private void OnCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args)
     {
+        _ = ChooseSessionAsync();
+    }
+
+    // Any session starting or stopping can change which app should show (FR-41).
+    private void OnAnyPlaybackChanged(GlobalSystemMediaTransportControlsSession sender, PlaybackInfoChangedEventArgs args)
+    {
+        _ = ChooseSessionAsync();
+    }
+
+    private async Task ChooseSessionAsync()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        await _chooseGate.WaitAsync();
         try
         {
-            GlobalSystemMediaTransportControlsSession? spotify =
-                _manager.GetSessions().FirstOrDefault(session => MusicSource.IsSpotify(session.SourceAppUserModelId));
+            IReadOnlyList<GlobalSystemMediaTransportControlsSession> sessions = _manager.GetSessions();
+            WatchAll(sessions);
 
-            if (!ReferenceEquals(spotify, _session))
+            List<MediaSessionCandidate> candidates = [.. sessions.Select(session => new MediaSessionCandidate(session.SourceAppUserModelId, IsPlaying(session)))];
+            string? chosenId = MusicSource.Choose(candidates, _manager.GetCurrentSession()?.SourceAppUserModelId);
+            GlobalSystemMediaTransportControlsSession? chosen = sessions.FirstOrDefault(session => session.SourceAppUserModelId == chosenId);
+
+            if (!ReferenceEquals(chosen, _session))
             {
                 Detach();
-                _session = spotify;
+                _session = chosen;
                 _artworkTrackKey = null;
-                if (spotify is not null)
+                if (chosen is not null)
                 {
-                    spotify.MediaPropertiesChanged += OnSessionChanged;
-                    spotify.PlaybackInfoChanged += OnSessionChanged;
-                    spotify.TimelinePropertiesChanged += OnSessionChanged;
+                    chosen.MediaPropertiesChanged += OnSessionChanged;
+                    chosen.TimelinePropertiesChanged += OnSessionChanged;
                 }
             }
 
@@ -130,8 +157,49 @@ public sealed class SpotifyMediaSession : IDisposable
         }
         catch (Exception error)
         {
-            PlatformLog.Problem("Finding the Spotify media session failed", error);
+            PlatformLog.Problem("Finding the music media session failed", error);
         }
+        finally
+        {
+            if (!_isDisposed)
+            {
+                _chooseGate.Release();
+            }
+        }
+    }
+
+    private static bool IsPlaying(GlobalSystemMediaTransportControlsSession session)
+    {
+        try
+        {
+            return session.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+        }
+        catch (Exception error)
+        {
+            // A session that is closing can refuse; it does not play then.
+            PlatformLog.Problem("Reading the state of a media session failed", error);
+            return false;
+        }
+    }
+
+    private void WatchAll(IReadOnlyList<GlobalSystemMediaTransportControlsSession> sessions)
+    {
+        StopWatchingAll();
+        foreach (GlobalSystemMediaTransportControlsSession session in sessions)
+        {
+            session.PlaybackInfoChanged += OnAnyPlaybackChanged;
+            _watched.Add(session);
+        }
+    }
+
+    private void StopWatchingAll()
+    {
+        foreach (GlobalSystemMediaTransportControlsSession session in _watched)
+        {
+            session.PlaybackInfoChanged -= OnAnyPlaybackChanged;
+        }
+
+        _watched.Clear();
     }
 
     private void Detach()
@@ -143,7 +211,6 @@ public sealed class SpotifyMediaSession : IDisposable
         }
 
         old.MediaPropertiesChanged -= OnSessionChanged;
-        old.PlaybackInfoChanged -= OnSessionChanged;
         old.TimelinePropertiesChanged -= OnSessionChanged;
         _session = null;
     }
@@ -178,8 +245,8 @@ public sealed class SpotifyMediaSession : IDisposable
         }
         catch (Exception error)
         {
-            // Spotify closing mid-read is normal; report the problem and keep going.
-            PlatformLog.Problem("Reading the Spotify media session failed", error);
+            // The app closing mid-read is normal; report the problem and keep going.
+            PlatformLog.Problem("Reading the music media session failed", error);
         }
         finally
         {

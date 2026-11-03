@@ -220,6 +220,13 @@ public partial class IslandWindow : Window
             case HotkeyAction.CloseChat:
                 _island.CloseChat();
                 break;
+            case HotkeyAction.VolumeUp or HotkeyAction.VolumeDown:
+                if (_island.Page == ExpandedPage.Music)
+                {
+                    _musicPresenter.StepVolume(louder: action == HotkeyAction.VolumeUp);
+                }
+
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown hotkey action.");
         }

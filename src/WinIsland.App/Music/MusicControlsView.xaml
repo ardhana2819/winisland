@@ -18,6 +18,9 @@
   Buttons never take keyboard focus (FR-3).
   Empty view (FR-24, DESIGN_SPEC section 9): placeholder artwork, "Not playing", no progress row,
   controls dimmed and not clickable.
+  v1.5 (FR-39, DESIGN_SPEC section 12): a speaker button at the right end of the controls row; it
+  swaps the progress row for the volume row (VolumeRowView) in the same place. The time labels are
+  at least 30 wide, and the volume row's speaker symbols take the same slots.
 -->
 <UserControl x:Class="WinIsland.App.Music.MusicControlsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -67,7 +70,8 @@
         </StackPanel>
 
         <!-- Middle row: elapsed, progress bar, total. Hidden in the empty view (DESIGN_SPEC section 9). -->
-        <Grid x:Name="ProgressRow" Margin="0,14,0,0">
+        <Grid Margin="0,14,0,0">
+        <Grid x:Name="ProgressRow">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -75,6 +79,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="ElapsedText"
                        Grid.Column="0"
+                       MinWidth="30"
                        VerticalAlignment="Center"
                        Foreground="#A6ABB6"
                        FontFamily="Segoe UI Variable Text, Segoe UI"
@@ -100,6 +105,8 @@
             </Grid>
             <TextBlock x:Name="TotalText"
                        Grid.Column="2"
+                       MinWidth="30"
+                       TextAlignment="Right"
                        VerticalAlignment="Center"
                        Foreground="#A6ABB6"
                        FontFamily="Segoe UI Variable Text, Segoe UI"
@@ -107,9 +114,12 @@
                        Typography.NumeralAlignment="Tabular"
                        AutomationProperties.AutomationId="TotalTime" />
         </Grid>
+        <music:VolumeRowView x:Name="VolumeRow" Opacity="0" IsHitTestVisible="False" />
+        </Grid>
 
         <!-- Bottom row: previous, play or pause, next. At 35 percent and not clickable in the empty view. -->
-        <StackPanel x:Name="ControlsRow" Margin="0,14,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+        <Grid x:Name="ControlsRow" Margin="0,14,0,0">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="PreviousButton" Style="{StaticResource IslandButton}" AutomationProperties.Name="Previous track" Click="OnPreviousClick">
                 <Viewbox Width="22" Height="22">
                     <Canvas Width="24" Height="24">
@@ -132,5 +142,14 @@
                 </Viewbox>
             </Button>
         </StackPanel>
+        <!-- v1.5 (FR-39): the speaker, right of next, in the same row. -->
+        <Button x:Name="SpeakerButton" Style="{StaticResource IslandButton}" HorizontalAlignment="Right" AutomationProperties.Name="Volume" Click="OnSpeakerClick">
+            <Viewbox Width="20" Height="20">
+                <Canvas Width="24" Height="24">
+                    <Path x:Name="SpeakerIcon" Data="M3 9v6h4l5 5V4L7 9z" />
+                </Canvas>
+            </Viewbox>
+        </Button>
+        </Grid>
     </StackPanel>
 </UserControl>
