@@ -249,7 +249,8 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked; horizontal]
 
 - The music page keeps its rows and gaps (14). A speaker button, 44 with a 20 symbol in the accent, sits at the right end of the controls row, vertically centered with the other buttons. Its symbol follows the level: muted at 0, one wave under 50 percent, two waves above.
-- Clicking it fills it like the play button (accent at 22 percent) and swaps the progress row for the volume row in the same place: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart, symbols in the secondary text colour. The slider is the progress bar's twin: 16 high hit area, 4 high track (white at 18 percent), fill and a 10 thumb on hover in the accent.
+- Clicking it fills it like the play button (accent at 22 percent) and swaps the progress row for the volume row in the same place: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart. The slider has the progress bar's shape (16 high hit area, 4 high track in white at 18 percent, a 10 thumb on hover) but is white for every artwork: symbols, fill and thumb `#FFFFFF`, so it never looks like the song's progress, which stays in the accent (Diva, 3 Nov 2026).
+- The two rows share one place and cross over in 0.25 s (ease): the leaving row fades out and moves 6 up, the arriving row fades in from 6 below. Instant with Windows animation effects off.
 - It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
 - No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
 
