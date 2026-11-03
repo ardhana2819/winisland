@@ -314,7 +314,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The camera dot is untested, because you have no webcam; it ships marked so in the README and here. [Confirmed 3 Nov 2026]
 - FR-41. Music from every app. [Confirmed 3 Nov 2026: "semua aplikasi"; the CLAUDE.md rule changes]
   - Any app that tells Windows what it plays works: Spotify, YouTube or YouTube Music in a browser, Apple Music, Windows Media Player, and others. Still through the Windows media session API only, never a music service's web API, no network.
-  - [Confirmed 3 Nov 2026] Which app shows: the one that is playing; if several play, the one Windows marks as current; if none plays, the one Windows marks as current (paused).
+  - [Confirmed 3 Nov 2026] Which app shows: the one that is playing (changing songs counts as playing); if several play, the one already on the island stays, otherwise the one Windows marks as current; if none plays, the one Windows marks as current (paused). Play, pause, next and previous go only to the app on the island. [Confirmed 3 Nov 2026: Diva saw a skip reach both Spotify and YouTube Music]
   - Artwork that is not square, like a YouTube thumbnail, shows whole inside the artwork square on black, not cut. No artwork shows the same placeholder as today. [Confirmed 3 Nov 2026]
   - [Confirmed 3 Nov 2026] The colours come from the artwork as before (FR-25), from the picture itself, not the black around it.
   - [Confirmed 3 Nov 2026] When an app does not allow seeking, the progress bar still shows but cannot be dragged; with no progress at all, the row is hidden.

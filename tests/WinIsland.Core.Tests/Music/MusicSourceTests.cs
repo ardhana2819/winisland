@@ -25,6 +25,22 @@ public class MusicSourceTests
     }
 
     [Fact]
+    public void With_several_playing_the_app_on_the_island_stays()
+    {
+        MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: true), new("Brave", IsPlaying: true)];
+
+        Assert.Equal("Spotify.exe", MusicSource.Choose(sessions, windowsCurrentAppId: "Brave", shownAppId: "Spotify.exe"));
+    }
+
+    [Fact]
+    public void The_app_on_the_island_gives_way_once_it_stops()
+    {
+        MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: false), new("Brave", IsPlaying: true)];
+
+        Assert.Equal("Brave", MusicSource.Choose(sessions, windowsCurrentAppId: "Spotify.exe", shownAppId: "Spotify.exe"));
+    }
+
+    [Fact]
     public void With_none_playing_the_one_Windows_marks_is_shown_paused()
     {
         MediaSessionCandidate[] sessions = [new("Spotify.exe", IsPlaying: false), new("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", IsPlaying: false)];

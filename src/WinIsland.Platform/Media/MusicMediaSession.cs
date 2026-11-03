@@ -29,6 +29,7 @@ public sealed class MusicMediaSession : IDisposable
     // picture is read again a few times, a second apart, instead of being given up on.
     private const int MaxArtworkRetries = 5;
     private static readonly TimeSpan ArtworkRetryDelay = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan[] LatePictureChecks = [TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3)];
 
     private readonly GlobalSystemMediaTransportControlsSessionManager _manager;
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
@@ -36,6 +37,8 @@ public sealed class MusicMediaSession : IDisposable
     private readonly List<GlobalSystemMediaTransportControlsSession> _watched = [];
     private GlobalSystemMediaTransportControlsSession? _session;
     private string? _artworkTrackKey;
+    private byte[]? _shownArtwork;
+    private bool _isArtworkShown;
     private string? _missingArtworkTrackKey;
     private int _artworkRetries;
     private bool _isDisposed;
@@ -99,6 +102,7 @@ public sealed class MusicMediaSession : IDisposable
 
         try
         {
+            System.Diagnostics.Trace.TraceInformation("{0} sent to {1}", name, session.SourceAppUserModelId);
             return await command(session);
         }
         catch (Exception error)
@@ -138,7 +142,7 @@ public sealed class MusicMediaSession : IDisposable
             WatchAll(sessions);
 
             List<MediaSessionCandidate> candidates = [.. sessions.Select(session => new MediaSessionCandidate(session.SourceAppUserModelId, IsPlaying(session)))];
-            string? chosenId = MusicSource.Choose(candidates, _manager.GetCurrentSession()?.SourceAppUserModelId);
+            string? chosenId = MusicSource.Choose(candidates, _manager.GetCurrentSession()?.SourceAppUserModelId, _session?.SourceAppUserModelId);
             GlobalSystemMediaTransportControlsSession? chosen = sessions.FirstOrDefault(session => session.SourceAppUserModelId == chosenId);
 
             if (!ReferenceEquals(chosen, _session))
@@ -146,6 +150,7 @@ public sealed class MusicMediaSession : IDisposable
                 Detach();
                 _session = chosen;
                 _artworkTrackKey = null;
+                _isArtworkShown = false;
                 if (chosen is not null)
                 {
                     chosen.MediaPropertiesChanged += OnSessionChanged;
@@ -172,7 +177,9 @@ public sealed class MusicMediaSession : IDisposable
     {
         try
         {
-            return session.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+            // Changing songs counts as playing, so a skip does not hand the island to another app.
+            GlobalSystemMediaTransportControlsSessionPlaybackStatus status = session.GetPlaybackInfo().PlaybackStatus;
+            return status is GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing or GlobalSystemMediaTransportControlsSessionPlaybackStatus.Changing;
         }
         catch (Exception error)
         {
@@ -257,19 +264,25 @@ public sealed class MusicMediaSession : IDisposable
         }
     }
 
+    // The picture is read again on every report, not once per song: a browser can report a new
+    // video's title with the previous video's picture and send the right one a moment later (Diva,
+    // YouTube in Brave, 3 Nov 2026). A new song is also checked again after 1 and 3 seconds, in case
+    // the right picture arrives without an event. Only a picture that differs is passed on.
     private async Task RefreshArtworkAsync(GlobalSystemMediaTransportControlsSessionMediaProperties properties)
     {
         string trackKey = $"{properties.Title}\u0001{properties.Artist}\u0001{properties.AlbumTitle}";
-        if (trackKey == _artworkTrackKey)
+        if (trackKey != _artworkTrackKey)
         {
-            return;
+            _artworkTrackKey = trackKey;
+            _ = RetryAfterDelayAsync(LatePictureChecks[0]);
+            _ = RetryAfterDelayAsync(LatePictureChecks[1]);
         }
 
         IRandomAccessStreamReference? thumbnail = properties.Thumbnail;
         if (thumbnail is null)
         {
             // Spotify sometimes sends the picture a moment after the title.
-            ArtworkChanged?.Invoke(this, null);
+            ShowArtwork(null);
             RetryMissingArtwork(trackKey);
             return;
         }
@@ -277,22 +290,33 @@ public sealed class MusicMediaSession : IDisposable
         using IRandomAccessStreamWithContentType stream = await thumbnail.OpenReadAsync();
         if (stream.Size == 0)
         {
-            // Not ready yet. Do not remember the song as done, or its picture would never be read.
-            ArtworkChanged?.Invoke(this, null);
+            // Not ready yet; read it again shortly.
+            ShowArtwork(null);
             RetryMissingArtwork(trackKey);
             return;
         }
 
         if (stream.Size > MaxArtworkBytes)
         {
-            ArtworkChanged?.Invoke(this, null);
-            _artworkTrackKey = trackKey;
+            ShowArtwork(null);
             return;
         }
 
         IBuffer buffer = await stream.ReadAsync(new global::Windows.Storage.Streams.Buffer((uint)stream.Size), (uint)stream.Size, InputStreamOptions.None);
-        _artworkTrackKey = trackKey;
-        ArtworkChanged?.Invoke(this, buffer.ToArray());
+        ShowArtwork(buffer.ToArray());
+    }
+
+    private void ShowArtwork(byte[]? picture)
+    {
+        bool isSame = _isArtworkShown && (picture is null ? _shownArtwork is null : _shownArtwork is not null && picture.AsSpan().SequenceEqual(_shownArtwork));
+        if (isSame)
+        {
+            return;
+        }
+
+        _isArtworkShown = true;
+        _shownArtwork = picture;
+        ArtworkChanged?.Invoke(this, picture);
     }
 
     private void RetryMissingArtwork(string trackKey)
@@ -309,12 +333,12 @@ public sealed class MusicMediaSession : IDisposable
         }
 
         _artworkRetries++;
-        _ = RetryAfterDelayAsync();
+        _ = RetryAfterDelayAsync(ArtworkRetryDelay);
     }
 
-    private async Task RetryAfterDelayAsync()
+    private async Task RetryAfterDelayAsync(TimeSpan delay)
     {
-        await Task.Delay(ArtworkRetryDelay);
+        await Task.Delay(delay);
         await RefreshAsync();
     }
 }
