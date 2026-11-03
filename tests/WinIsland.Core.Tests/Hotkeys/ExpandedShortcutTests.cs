@@ -17,6 +17,8 @@ public class ExpandedShortcutTests
         Assert.Equal("Ctrl+Left", labels[HotkeyAction.MusicPrevious]);
         Assert.Equal("Alt+Down", labels[HotkeyAction.ShowNotificationsPage]);
         Assert.Equal("Alt+Up", labels[HotkeyAction.ShowMusicPage]);
+        Assert.Equal("Ctrl+Up", labels[HotkeyAction.VolumeUp]);
+        Assert.Equal("Ctrl+Down", labels[HotkeyAction.VolumeDown]);
     }
 
     [Fact]

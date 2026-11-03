@@ -12,7 +12,7 @@ Personal project, private repository.
 
 - Windows 11 (64-bit).
 - Games in **windowed or borderless** mode. Exclusive fullscreen is not supported. In exclusive fullscreen, Discord also shows messages only in its own in-game overlay, so they do not reach the island.
-- Spotify desktop app for music.
+- Music from any app that tells Windows what it plays: Spotify, YouTube or YouTube Music in a browser, Apple Music, and others. The volume button on the music page changes only that app's volume; for a browser that is every tab together. Firefox shows its music but gets no volume slider, because it does not name itself to Windows the usual way.
 - For notifications: WhatsApp Web installed as an app from Chrome (Chrome menu > Cast, save and share > Install page as app), or WhatsApp desktop from the Microsoft Store, and Discord desktop. With both WhatsApp apps open, WinIsland shows each message once, from WhatsApp Web.
 - Incoming call banner: WhatsApp Web only, with WhatsApp set to English. In another language, calls show as normal message banners.
 

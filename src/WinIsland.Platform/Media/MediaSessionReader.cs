@@ -1,5 +1,5 @@
 // MediaSessionReader.cs: turns what the Windows media session reports into Core's NowPlaying.
-// Kept separate from SpotifyMediaSession so the translation rules sit in one small place.
+// Kept separate from MusicMediaSession so the translation rules sit in one small place.
 
 using Windows.Media.Control;
 
@@ -27,7 +27,8 @@ internal static class MediaSessionReader
             duration < TimeSpan.Zero ? TimeSpan.Zero : duration,
             position,
             UsableUpdateTime(timeline.LastUpdatedTime, now),
-            playback.Controls.IsPlaybackPositionEnabled);
+            playback.Controls.IsPlaybackPositionEnabled,
+            session.SourceAppUserModelId);
     }
 
     private static PlaybackStatus ToStatus(GlobalSystemMediaTransportControlsSessionPlaybackStatus status)

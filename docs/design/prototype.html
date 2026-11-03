@@ -222,7 +222,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
               <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
               <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
               <button class="ib" id="bnext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
-              <button class="ib spk" id="bspk" aria-label="Volume" aria-pressed="false"><svg viewBox="0 0 24 24" id="spki"><path d="M3 9v6h4l5 5V4L7 9z"/></svg></button>
+              <button class="ib spk" id="bspk" aria-label="Volume" aria-pressed="false"><svg viewBox="0 0 24 24" id="spki"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button>
             </div>
           </div>
           <div class="page pg-notif" id="pn"></div>
@@ -429,7 +429,7 @@ $("a-claude").onclick=()=>notify("Claude","Claude","Claude is waiting for your i
 $("a-snip").onclick=()=>notify("Snipping Tool","Snipping Tool","Screenshot copied to clipboard");
 $("a-mic").onclick=()=>{S.mic=!S.mic;$("a-mic").setAttribute("aria-pressed",S.mic);render();log(S.mic?"An app uses the microphone: orange dot.":"Microphone free.")};
 $("a-cam").onclick=()=>{S.cam=!S.cam;$("a-cam").setAttribute("aria-pressed",S.cam);render();log(S.cam?"An app uses the camera: green dot (wins over orange).":"Camera free.")};
-const SPK={mute:"M3 9v6h4l5 5V4L7 9zm13.6 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z",low:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z",high:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"};
+const SPK={mute:"M3 9v6h4l5 5V4L7 9zm16.9 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z",low:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z",high:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"};
 function showVolume(open){clearTimeout(S.vt);$("pm").classList.toggle("vol-open",open);$("bspk").setAttribute("aria-pressed",open);if(open)S.vt=setTimeout(()=>showVolume(false),3000)}
 $("bspk").onclick=e=>{e.stopPropagation();const open=!$("pm").classList.contains("vol-open");showVolume(open);log(open?"Volume of the music app; back to the progress bar 3 s after the last touch.":"Back to the progress bar.")};
 function setVolume(v){S.vol=Math.min(1,Math.max(0,Math.round(v*100)/100));showVolume(true);render();log("Music app volume "+Math.round(S.vol*100)+"% (like the Volume Mixer). The game and Windows' volume stay the same.")}

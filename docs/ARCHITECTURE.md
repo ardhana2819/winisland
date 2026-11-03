@@ -64,7 +64,8 @@ In words:
 | `Music/` | `PlaybackPosition.cs` | Estimates where the song is between reports, so the progress bar moves smoothly. |
 | `Music/` | `TimeLabel.cs`, `SeekPosition.cs` | Song times like "1:24", and turning a click on the progress bar into a position. |
 | `Music/` | `ArtworkPalette.cs`, `ColorMath.cs`, `RgbColor.cs` | Works out the music page's colors from the artwork's pixels: a dark background, an accent for the controls, and grey text, all checked for readable contrast. |
-| `Music/` | `MusicSource.cs` | Picks the Spotify media session and ignores browsers and other players. |
+| `Music/` | `MusicSource.cs` | Picks which app's music shows: the one playing, else the one Windows marks as current (v1.5: every app, not only Spotify). |
+| `Music/` | `AudioAppMatch.cs` | Tells whether a sound in the Windows Volume Mixer belongs to the music app, so the volume slider changes only that app (v1.5). |
 | `Notifications/` | `RawNotification.cs`, `IslandNotification.cs`, `NotificationSource.cs` | A Windows notification as read, and as the island shows it: app, sender or chat, preview. Memory only. |
 | `Notifications/` | `NotificationParser.cs` | Turns the Windows text lines into sender and preview, and tells WhatsApp, Discord and other apps apart. |
 | `Notifications/` | `NotificationSettings.cs` | Which apps show, "Hide message text", and how long banners stay (defaults until the Settings window exists). |
@@ -87,7 +88,8 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (a white pill drawn in code, dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |
 | Platform | `Tray/DarkMenuColors.cs`, `Tray/DarkMenuRenderer.cs` | Draw the tray menu in the dark colors of the design board. |
 | Platform | `Hotkeys/GlobalHotkeys.cs`, `Hotkeys/HotkeyRegistration.cs` | Registers the global hotkeys with Windows, reports which ones another app already owns, and says when one is pressed. |
-| Platform | `Media/SpotifyMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to Spotify through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
+| Platform | `Media/MusicMediaSession.cs`, `Media/MediaSessionReader.cs` | Connects to the music app (any app, v1.5) through the Windows media session: reads the song, artwork and progress, sends play, pause, next, previous and seek, and follows Spotify opening and closing. |
+| Platform | `Media/AppVolume.cs` | Reads and sets one app's volume through the Windows audio session API, like the Volume Mixer (v1.5). |
 | Platform | `Diagnostics/PlatformLog.cs` | Records Windows API problems (kind and error code only, never song or message text). |
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |
@@ -109,6 +111,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, and fades them out 1.5 s later. |
 | App | `Notifications/UnreadDot.cs` | The small white dot on the clock and the compact music pill when a notification has not been seen yet. |
 | App | `Music/MusicControlsView.xaml` | The music page: artwork, title, artist, progress with seek, previous, play or pause, next; or the empty view when Spotify is closed. |
+| App | `Music/VolumeRowView.xaml`, `Music/RowSwap.cs` | The music app's volume, in the progress row's exact place, and the soft swap between the two rows (v1.5). |
 | App | `Music/ArtworkImage.cs`, `Music/ArtworkBrush.cs`, `Music/SongText.cs` | Album art (or the grey placeholder with a music note) and the title shown when a song has none. |
 | App | `Music/ArtworkColors.cs` | Reads the album art at 64 x 64 and asks Core for its colors, once per song. |
 | App | `Island/PillColors.cs` | The artwork color behind the open music page, with the shade that fades it to black at the bottom; black everywhere else. |

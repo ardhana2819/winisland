@@ -1,6 +1,7 @@
 // ExpandedShortcut.cs: the keyboard shortcuts that work only while the island is expanded.
 // Music (Diva, 31 Oct 2026, Spotify's own keys): Space plays or pauses, Ctrl+Right goes to the
-// next song, Ctrl+Left to the previous one.
+// next song, Ctrl+Left to the previous one; v1.5 (FR-39): Ctrl+Up and Ctrl+Down change the music
+// app's volume, also Spotify's own keys.
 // Pages (PRD FR-21, v1.1): Alt+Down shows the notifications page, Alt+Up the music page.
 // Chats (PRD FR-35, v1.4): Alt+Left goes from an open chat back to the list. It is taken only
 // while a chat is open, so the rest of the time games and browsers keep it (Alt+Left is "back").
@@ -16,6 +17,8 @@ public sealed record ExpandedShortcut(HotkeyAction Action, HotkeyModifiers Modif
         new(HotkeyAction.MusicPlayPause, HotkeyModifiers.None, ShortcutKey.Space),
         new(HotkeyAction.MusicNext, HotkeyModifiers.Ctrl, ShortcutKey.RightArrow),
         new(HotkeyAction.MusicPrevious, HotkeyModifiers.Ctrl, ShortcutKey.LeftArrow),
+        new(HotkeyAction.VolumeUp, HotkeyModifiers.Ctrl, ShortcutKey.UpArrow),
+        new(HotkeyAction.VolumeDown, HotkeyModifiers.Ctrl, ShortcutKey.DownArrow),
         new(HotkeyAction.ShowNotificationsPage, HotkeyModifiers.Alt, ShortcutKey.DownArrow),
         new(HotkeyAction.ShowMusicPage, HotkeyModifiers.Alt, ShortcutKey.UpArrow),
     ];

@@ -1,7 +1,8 @@
-// MusicController.cs: connects the Spotify media session to the island.
+// MusicController.cs: connects the music app's media session to the island (v1.5: any app, FR-41).
 // Windows reports music changes on background threads; this moves each report to the UI thread
 // and hands it to the island's rules (Core), decodes the album art and works out its colors
-// (FR-25), and forwards the button presses back to Spotify.
+// (FR-25), forwards the button presses back to the music app, and reads and sets the music app's
+// volume (FR-39).
 
 using System.Diagnostics;
 using System.Windows.Media;
@@ -20,7 +21,7 @@ internal sealed class MusicController : IDisposable
     private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(30);
 
     private readonly CancellationTokenSource _stop = new();
-    private SpotifyMediaSession? _session;
+    private MusicMediaSession? _session;
 
     public MusicController(IslandStateMachine island, Dispatcher dispatcher)
     {
@@ -49,7 +50,7 @@ internal sealed class MusicController : IDisposable
         {
             try
             {
-                SpotifyMediaSession session = await SpotifyMediaSession.CreateAsync();
+                MusicMediaSession session = await MusicMediaSession.CreateAsync();
                 // Subscribe before connecting, so the first report (what is playing right now) is not lost.
                 session.NowPlayingChanged += OnNowPlayingChanged;
                 session.ArtworkChanged += OnArtworkChanged;
@@ -80,6 +81,18 @@ internal sealed class MusicController : IDisposable
     public Task PreviousAsync() => _session?.PreviousAsync() ?? Task.FromResult(false);
 
     public Task SeekAsync(TimeSpan position) => _session?.SeekAsync(position) ?? Task.FromResult(false);
+
+    /// <summary>The music app's volume, 0 to 1, or null when it has no sound open with Windows (FR-39).</summary>
+    public float? GetVolume() => _island.Music is NowPlaying music ? AppVolume.Get(music.AppId) : null;
+
+    /// <summary>Sets the music app's volume, 0 to 1; Windows' own volume and other apps stay as they are.</summary>
+    public void SetVolume(float level)
+    {
+        if (_island.Music is NowPlaying music && !AppVolume.Set(music.AppId, level))
+        {
+            Trace.TraceInformation("The music app has no sound open with Windows; volume not set");
+        }
+    }
 
     public void Dispose()
     {
