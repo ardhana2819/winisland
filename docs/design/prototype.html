@@ -72,6 +72,10 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 /* One colour for every artwork, white, so the volume never looks like the song's progress. */
 .vol svg{fill:#fff}
 .vol svg{height:14px;width:auto;flex:none}
+/* The time labels and the speaker symbols share fixed 30 wide slots, so the volume bar is the
+   progress bar exactly: same length, same place. Only the fill colour and the slot contents change. */
+#xc,#xd,.vol .slot{width:30px;flex:none;display:flex;align-items:center}
+#xd,.vol .slot.r{justify-content:flex-end}
 .vol .seek .bar div{background:#fff}
 #vf::after{content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:#fff;opacity:0;transition:opacity .15s}
 #vol:hover #vf::after{opacity:1}
@@ -213,7 +217,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
           <div class="page pg-music" id="pm">
             <div class="xr"><span class="art big" id="xart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><div class="xm"><b id="xt"></b><span id="xa"></span></div><span class="eq xeq"><i></i><i></i><i></i></span></div>
             <div class="xrow"><div class="xp"><span id="xc">0:00</span><div class="seek" id="seek" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="xf"></div></div></div><span id="xd">0:00</span></div>
-            <div class="vol"><svg viewBox="3 4 9 16" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9z"/></svg><div class="seek" id="vol" role="slider" aria-label="Volume of the music app" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="vf"></div></div></div><svg viewBox="3 3.2 18 17.6" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></div></div>
+            <div class="vol"><span class="slot"><svg viewBox="3 4 9 16" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9z"/></svg></span><div class="seek" id="vol" role="slider" aria-label="Volume of the music app" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="vf"></div></div></div><span class="slot r"><svg viewBox="3 3.2 18 17.6" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></span></div></div>
             <div class="ctl">
               <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
               <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
