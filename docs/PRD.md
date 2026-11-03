@@ -324,7 +324,8 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Testing stays light: Spotify, YouTube in Chrome, and Apple Music once you have installed it. [Confirmed 3 Nov 2026]
 - FR-42. Notifications from other apps show their app's logo. [Confirmed 3 Nov 2026: "icon notif mengikuti app nya"]
   - Like WhatsApp and Discord: the app's own colour as the circle, its logo in white on it. Claude: orange with the white Claude mark. [Confirmed 3 Nov 2026]
-  - [Confirmed 3 Nov 2026] The app's logo comes from Windows, cut to its visible part (empty margins would make it tiny, as Diva saw with Snipping Tool). A thin mark, like Claude's, is drawn white on the logo's main colour (worked out like the artwork colours, FR-25). A plate, a logo that is already a coloured badge like Snipping Tool's, fills the circle as it is. No logo from Windows: the letter circle, as today.
+  - [Confirmed 3 Nov 2026] The app's logo comes from Windows, cut to its visible part (empty margins would make it tiny, as Diva saw with Snipping Tool). A thin mark, like Claude's, is drawn white on the logo's main colour (worked out like the artwork colours, FR-25). A plate, a logo that is already a coloured badge, fills the circle as it is. No logo from Windows: the letter circle, as today.
+  - [Confirmed 3 Nov 2026, Diva] Snipping Tool: its own logo still looked broken as a plate, so WinIsland draws the prototype's white scissors on purple (#6A5ACD) for it, like WhatsApp and Discord.
   - WhatsApp and Discord keep their drawn logos (FR-30).
   - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
 - FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
@@ -508,7 +509,7 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-31. Moving the volume slider while Spotify plays changes Spotify's level in the Windows Volume Mixer, and neither the game's level nor Windows' volume.
 - AC-32. Joining a Discord voice channel shows the orange dot on the idle island within 2 seconds, and leaving removes it within 2 seconds. (The camera dot is not tested.)
 - AC-33. A YouTube video playing in Chrome shows on the island with its title and its whole thumbnail on black, and play, pause, next and previous work. A song in Apple Music shows the same way.
-- AC-34. A notification from Claude or Snipping Tool, with "Show other Windows apps" on, shows that app's own logo.
+- AC-34. A notification from Claude, with "Show other Windows apps" on, shows that app's own logo; one from Snipping Tool shows the white scissors on purple.
 - AC-35. The tray shows the WinIsland app icon.
 - AC-36. Idle memory stays under 150 MB working set with the v1.5 features (G4).
 

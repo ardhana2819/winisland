@@ -268,7 +268,7 @@ Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
 
 Other apps' logos (PRD FR-42). [Confirmed 3 Nov 2026]
 
-- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). Only the logo's visible part counts (empty margins cut off). A thin mark (under 70 percent of that part filled) is drawn white on the logo's main colour; a plate (70 percent or more, like Snipping Tool's) fills the circle as it is, clipped round. No logo: the letter circle as before.
+- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). Only the logo's visible part counts (empty margins cut off). A thin mark (under 70 percent of that part filled) is drawn white on the logo's main colour; a plate (70 percent or more) fills the circle as it is, clipped round. Snipping Tool always gets the prototype's white scissors on `#6A5ACD`, drawn by WinIsland, because its own plate looked broken (Diva, 3 Nov 2026). No logo: the letter circle as before.
 
 Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
 

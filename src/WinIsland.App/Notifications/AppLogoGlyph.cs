@@ -1,7 +1,9 @@
-// AppLogoGlyph.cs: the WhatsApp and Discord logo shapes, drawn white on their app circle
-// (Diva, 1 Nov 2026 for WhatsApp; PRD FR-30, 2 Nov 2026 for Discord). WinIsland draws them
-// itself, so they look the same whatever Windows sends, also before Windows has sent any logo;
-// the WhatsApp Web app from Chrome sends none at all.
+// AppLogoGlyph.cs: the WhatsApp, Discord and Snipping Tool logo shapes, drawn white on their app
+// circle (Diva, 1 Nov 2026 for WhatsApp; PRD FR-30, 2 Nov 2026 for Discord; FR-42, 3 Nov 2026 for
+// Snipping Tool). WinIsland draws them itself, so they look the same whatever Windows sends, also
+// before Windows has sent any logo; the WhatsApp Web app from Chrome sends none at all.
+// Snipping Tool: its own Windows logo is a coloured plate that looked broken in the small circle
+// (Diva, 3 Nov 2026), so it gets the scissors from the prototype instead.
 // Both shapes are the icons from Simple Icons (CC0), on a 24 x 24 grid. Their arcs are written
 // with spaced flags ("0 0 1"), because WPF reads "01" as one number.
 
@@ -52,19 +54,24 @@ internal static class AppLogoGlyph
         "7.9748 0 c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 .9554 -2.4189 2.1569 -2.4189 1.2108 0 " +
         "2.1757 1.0952 2.1568 2.419 0 1.3332 -.946 2.4189 -2.1568 2.4189 Z";
 
+    private const string SnippingToolName = "Snipping Tool";
+
     private static readonly Geometry WhatsApp = Geometry.Parse(WhatsAppPath);
     private static readonly Geometry Discord = Geometry.Parse(DiscordPath);
+    private static readonly Geometry SnippingTool = Scissors();
 
     /// <summary>
     /// The app's logo sized for a circle of this diameter, moved so its ink starts at (0,0); a Path
     /// centered in the circle then puts the logo exactly in the middle. Null for apps without a drawn logo.
     /// </summary>
-    public static Geometry? ForCircle(NotificationSource source, double diameter)
+    public static Geometry? ForCircle(IslandNotification notification, double diameter)
     {
-        Geometry? logo = source switch
+        ArgumentNullException.ThrowIfNull(notification);
+        Geometry? logo = notification.Source switch
         {
             NotificationSource.WhatsApp => WhatsApp,
             NotificationSource.Discord => Discord,
+            _ when IsSnippingTool(notification) => SnippingTool,
             _ => null,
         };
         if (logo is null)
@@ -82,5 +89,22 @@ internal static class AppLogoGlyph
         sized.Transform = placement;
         sized.Freeze();
         return sized;
+    }
+
+    public static bool IsSnippingTool(IslandNotification notification) =>
+        notification.Source == NotificationSource.Other && string.Equals(notification.AppName, SnippingToolName, StringComparison.OrdinalIgnoreCase);
+
+    // The prototype's scissors (two rings and two crossing blades, 2 wide on the 24 grid), turned
+    // from lines into one filled shape so it is drawn like the other logos.
+    private static Geometry Scissors()
+    {
+        GeometryGroup lines = new();
+        lines.Children.Add(new EllipseGeometry(new Point(7, 17), 3, 3));
+        lines.Children.Add(new EllipseGeometry(new Point(17, 17), 3, 3));
+        lines.Children.Add(new LineGeometry(new Point(8.5, 14.5), new Point(17, 4)));
+        lines.Children.Add(new LineGeometry(new Point(15.5, 14.5), new Point(7, 4)));
+        Geometry shape = lines.GetWidenedPathGeometry(new Pen(Brushes.White, 2)).GetOutlinedPathGeometry();
+        shape.Freeze();
+        return shape;
     }
 }
