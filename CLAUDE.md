@@ -4,7 +4,7 @@ Instructions Claude Code loads at the start of every session in this repo.
 
 ## Project
 
-WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the iPhone Dynamic Island. A black, pill-shaped, topmost, non-activating overlay at the top center of the screen shows a clock, the current Spotify track with controls, and WhatsApp and Discord notification previews, so they are visible in borderless games without alt-tabbing. It is a personal project in a private GitHub repo.
+WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the iPhone Dynamic Island. A black, pill-shaped, topmost, non-activating overlay at the top center of the screen shows a clock, the current song from Spotify or another media app with controls, and WhatsApp and Discord notification previews, so they are visible in borderless games without alt-tabbing. It is a personal project in a private GitHub repo.
 
 **Before any feature work, read `docs/PRD.md`.** It is the source of truth for behavior. **Before any UI work, also read `docs/design/DESIGN_SPEC.md` and open `docs/design/prototype.html`:** the prototype is the source of truth for look and motion, the spec holds the exact values. Report any difference between them and the PRD instead of deciding it yourself. Build nothing that is not in it. `docs/BACKLOG.md` is next-release ideas only and is out of scope. If a requirement is missing, ambiguous, or conflicting, stop and ask.
 
@@ -15,7 +15,7 @@ WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the
 ## Locked technical decisions
 
 - C# on .NET 10 (LTS) with WPF. Windows 11 only.
-- Music comes only from the Windows media session API (`Windows.Media.Control`), using the Spotify desktop app. No Spotify Web API.
+- Music comes only from the Windows media session API (`Windows.Media.Control`), from any app that tells Windows what it plays (Spotify, a browser, Apple Music, ...; changed from Spotify only on 3 Nov 2026, PRD FR-41). No web API of Spotify or any other music service.
 - Notifications come only from the Windows notification listener API (`UserNotificationListener`), with Diva's permission.
 - No game injection, no hooks into other processes, no reading other apps' memory, no screen capture.
 - No network calls in the app.

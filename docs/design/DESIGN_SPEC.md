@@ -243,3 +243,32 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 - It shows over message banners and stays until the call notification is removed. The banner that was showing before comes back afterwards.
 - The banner card sits 8 inside the island, like a message banner.
 - Notifications page while ringing: the call is the top card (48 high, same layout, call circle 30 with a 16 symbol at the right), followed by the 2 newest notifications.
+
+## 12. v1.5 additions (approved 3 Nov 2026)
+
+Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked; horizontal]
+
+- The music page keeps its rows and gaps (14). A speaker button, 44 with a 20 symbol in the accent, sits at the right end of the controls row, vertically centered with the other buttons. Its symbol follows the level: muted at 0, one wave under 50 percent, two waves above.
+- Clicking it fills it like the play button (accent at 22 percent) and swaps the progress row for the volume row in the same place: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart. The slider has the progress bar's shape (16 high hit area, 4 high track in white at 18 percent, a 10 thumb on hover) but is white for every artwork: symbols, fill and thumb `#FFFFFF`, so it never looks like the song's progress, which stays in the accent (Diva, 3 Nov 2026).
+- The two rows share one place and cross over the same way in both directions, like the island's content swap: the leaving row fades out, blurs by 4 and shrinks to 0.96, the arriving row does the reverse, over 0.3 s on the ease curve (Diva, 3 Nov 2026: the same both ways). Instant with Windows animation effects off.
+- The volume bar is the progress bar exactly: same length and place (Diva, 3 Nov 2026). The two time labels sit in fixed 30 wide slots (the left one aligned left, the right one aligned right), and the speaker symbols take the same slots, aligned the same way, measured by their drawn shape. So switching only changes the slot contents and the fill colour.
+- It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
+- No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
+
+Camera and microphone dots (PRD FR-40). [Confirmed 3 Nov 2026]
+
+- 6 across, the unread dot's size and pop. Microphone `#FF9F0A`, camera `#30D158`; with both in use, the camera colour.
+- On the compact clock 12 from the right edge, the unread dot then sits 22 from the right edge (4 between them). On the compact music pill it is the last item, after the unread dot.
+- Not shown on banners or the open island.
+
+Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
+
+- Artwork that is not square shows whole inside the artwork square (64 on the music page, 24 on the pill), centered on black, with the square's usual radius. Its colours come from the picture only.
+
+Other apps' logos (PRD FR-42). [Confirmed 3 Nov 2026]
+
+- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). The colour is the logo's main colour; a logo that is a full square fills the circle as it is, clipped round. No logo: the letter circle as before.
+
+Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
+
+- The tray uses `WinIsland.ico` (concept B, "Mono pill") instead of the white pill drawn in code.

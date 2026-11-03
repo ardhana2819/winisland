@@ -1,6 +1,6 @@
-# WinIsland PRD (v1.4)
+# WinIsland PRD (v1.5)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos).
 
 ### What v1.3 adds, in short
 
@@ -16,6 +16,17 @@ Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, 
 - An optional setting that also clears a notification from Windows when you hide it on the island (FR-36).
 - A Glass look next to the solid black one (FR-37). Spike G1 to G5 passed on 2 Nov 2026.
 - An incoming call banner for WhatsApp Web calls, without buttons (FR-38). Spike C1 to C5 passed on 2 Nov 2026.
+
+### What v1.5 adds, in short (approved 3 Nov 2026)
+
+The last planned release (your wish, 3 Nov 2026): after it, only polish and the installer.
+
+- A volume slider on the music page for the app the music comes from, not Windows (FR-39).
+- Small green and orange dots on the idle island while an app uses the camera or the microphone (FR-40).
+- Music from every app that tells Windows what it plays (YouTube in a browser, YouTube Music, Apple Music, ...), not only Spotify (FR-41).
+- Notifications from other apps show that app's own logo (FR-42).
+- The tray icon becomes the WinIsland app icon (FR-43).
+- Then polish after your smoke test, and the installer (backlog F7) last.
 
 ### What v1.2 adds, in short
 
@@ -91,12 +102,21 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
 - Glass look, if the spike passes.
 - Incoming call banner, if the spike passes.
 
+### In scope for v1.5 [Confirmed 3 Nov 2026]
+
+- Volume of the music app only; Windows' own volume stays on your speaker and keyboard.
+- Camera and microphone dots; the camera cannot be tested (no webcam), so it ships marked untested.
+- Music from every app through the same Windows media session API.
+- Other apps' logos on notifications.
+- The app icon in the tray.
+- Polish from your smoke test, then the installer (F7) at the very end.
+
 ### Out of scope for MVP
 
 - Exclusive fullscreen and any game injection or hooking. [Confirmed]
 - Replying to messages from the island. [Confirmed] [v1.3] Asked for again on 2 Nov 2026 and kept out: the notification listener gives WinIsland only the notification's text and images, not its buttons or reply box [Verified: the `Notification` class has only `Visual` and `ExpirationTime`], and typing would take keyboard focus from the game (FR-3). [Confirmed 2 Nov 2026]
 - [v1.3] Answering or declining a WhatsApp call from the island. Same reason: WinIsland cannot press another app's notification buttons without controlling that app's window, which section 7 rules out. An incoming call banner without buttons is planned for v1.4 instead. [Confirmed 2 Nov 2026]
-- Spotify Web API, playlists, library browsing. Decided: use the Spotify desktop app only, no Web API.
+- Spotify Web API, playlists, library browsing. Decided: use the Spotify desktop app only, no Web API. [v1.5] Music now comes from every app through the Windows media session API (FR-41); still no web API of any music service.
 - Light theme, movable position, size setting ([v1.3] now in scope, FR-32), multi-monitor, animation tuning. Also later (see the backlog doc): glass or blur look, grouping notifications by category.
 - Notification sources beyond WhatsApp, Discord, and generic Windows toasts.
 - [v1.1] Opening WhatsApp or Discord when you tap a notification. Removed from the plans on 1 Nov 2026: an accidental click during a game would pull you out of it. [Confirmed]
@@ -278,6 +298,34 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Only WhatsApp Web. WhatsApp desktop is not covered, because you do not use it (spike C1 skipped). [Confirmed by Diva 2 Nov 2026]
   - Limitation: the check reads WhatsApp's English words. If WhatsApp is set to another language, calls show as normal message banners. [Confirmed 2 Nov 2026: document it in the README]
 
+**v1.5 [approved 3 Nov 2026]**
+
+- FR-39. Volume of the music app. [Confirmed 3 Nov 2026: the music app only, not Windows]
+  - A speaker button sits right of the next button, a little apart, in the same row; its symbol shows the level (muted, low, high). Clicking it swaps the progress row for the volume: a quiet speaker symbol, a slider, a loud speaker symbol, the slider exactly where the progress bar is, the same length, with the speaker symbols where the times were, and white for every artwork, so it is never mistaken for the song's progress (Diva, 3 Nov 2026). The two rows cross over with a short fade and slide. It swaps back 3 seconds after the last touch, or on a second click. [Confirmed 3 Nov 2026: hidden until clicked, Diva; horizontal in place of the progress row, because a vertical slider has no room inside the 190 high island and outside it would cover the game]
+  - It sets the volume of the app the music comes from, as the Windows Volume Mixer does, so a game's sound and Windows' own volume stay as they are.
+  - A browser counts as one app: lowering YouTube in Chrome also lowers every other Chrome sound, including WhatsApp Web's ringtone. This is how Windows groups sound. [Unverified: to check in your test]
+  - [Confirmed 3 Nov 2026] While the island is open, Ctrl+Up and Ctrl+Down change it by 10 percent (Spotify's own volume keys) and show the volume row, registered only while the island is open, like the other music keys (FR-8).
+  - [Confirmed 3 Nov 2026] No speaker button in the empty view. If the app has no sound open with Windows yet, the slider shows dimmed.
+  - [Confirmed 3 Nov 2026] Built on the Windows audio session API (the Volume Mixer's API), with no new library.
+- FR-40. Camera and microphone dots, like the iPhone. [Confirmed 3 Nov 2026; the rules are left to me]
+  - While any app uses the camera, a green `#30D158` dot shows on the idle island; while any app uses the microphone, an orange `#FF9F0A` dot. Same size and pop as the unread dot (FR-33). With both in use, the green camera dot shows. [Confirmed 3 Nov 2026]
+  - [Confirmed 3 Nov 2026] It shows on the compact clock and on the compact music pill, at the right end; the white unread dot moves to its left. Banners and the open island do not show it.
+  - [Confirmed 3 Nov 2026] WinIsland reads Windows' own record of which apps currently use the camera or microphone, the same record behind the microphone symbol on the Windows 11 taskbar, and follows its changes. It only learns "in use" or "not in use"; it never touches the camera or microphone and records nothing. [Unverified: Microsoft does not document this record; other apps use it widely]
+  - The camera dot is untested, because you have no webcam; it ships marked so in the README and here. [Confirmed 3 Nov 2026]
+- FR-41. Music from every app. [Confirmed 3 Nov 2026: "semua aplikasi"; the CLAUDE.md rule changes]
+  - Any app that tells Windows what it plays works: Spotify, YouTube or YouTube Music in a browser, Apple Music, Windows Media Player, and others. Still through the Windows media session API only, never a music service's web API, no network.
+  - [Confirmed 3 Nov 2026] Which app shows: the one that is playing; if several play, the one Windows marks as current; if none plays, the one Windows marks as current (paused).
+  - Artwork that is not square, like a YouTube thumbnail, shows whole inside the artwork square on black, not cut. No artwork shows the same placeholder as today. [Confirmed 3 Nov 2026]
+  - [Confirmed 3 Nov 2026] The colours come from the artwork as before (FR-25), from the picture itself, not the black around it.
+  - [Confirmed 3 Nov 2026] When an app does not allow seeking, the progress bar still shows but cannot be dragged; with no progress at all, the row is hidden.
+  - Testing stays light: Spotify, YouTube in Chrome, and Apple Music once you have installed it. [Confirmed 3 Nov 2026]
+- FR-42. Notifications from other apps show their app's logo. [Confirmed 3 Nov 2026: "icon notif mengikuti app nya"]
+  - Like WhatsApp and Discord: the app's own colour as the circle, its logo in white on it. Claude: orange with the white Claude mark. [Confirmed 3 Nov 2026]
+  - [Confirmed 3 Nov 2026] The app's logo comes from Windows. The circle's colour is the logo's main colour (worked out like the artwork colours, FR-25); the logo is drawn white from its shape. A logo that is a full square (no see-through parts) fills the circle as it is. No logo from Windows: the letter circle, as today.
+  - WhatsApp and Discord keep their drawn logos (FR-30).
+  - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
+- FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
+
 **Fixes [v1.1]**
 
 - FR-27. The artwork shows for the first song after WinIsland starts, not only from the second song on. Seen in your v1.0 tests. This is what AC-2 already asks for. [Confirmed]
@@ -452,6 +500,15 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-29. An incoming WhatsApp Web call shows the call banner within 2 seconds, with the caller's name, and the banner goes away when the call stops ringing.
 - AC-30. Idle memory stays under 150 MB working set with the v1.4 features (G4).
 
+### Acceptance criteria (v1.5)
+
+- AC-31. Moving the volume slider while Spotify plays changes Spotify's level in the Windows Volume Mixer, and neither the game's level nor Windows' volume.
+- AC-32. Joining a Discord voice channel shows the orange dot on the idle island within 2 seconds, and leaving removes it within 2 seconds. (The camera dot is not tested.)
+- AC-33. A YouTube video playing in Chrome shows on the island with its title and its whole thumbnail on black, and play, pause, next and previous work. A song in Apple Music shows the same way.
+- AC-34. A notification from Claude or Snipping Tool, with "Show other Windows apps" on, shows that app's own logo.
+- AC-35. The tray shows the WinIsland app icon.
+- AC-36. Idle memory stays under 150 MB working set with the v1.5 features (G4).
+
 ## 16. Phased plan
 
 - Phase 0: Prototype in Claude chat (visual states and animation), then your design approval.
@@ -482,6 +539,15 @@ v1.4 [Confirmed 2 Nov 2026]:
 - Phase 14: stacks per chat (FR-35) and clearing from Windows (FR-36).
 - Phase 15: glass look (FR-37) and call banner (FR-38). Both spikes passed on 2 Nov 2026.
 - Then release `v1.4.0-beta.1`.
+
+v1.5 [Confirmed 3 Nov 2026]:
+
+- Phase 16: this PRD and a prototype pass (volume row, camera and microphone dots, wide artwork, app logos, tray icon).
+- Phase 17: music from every app (FR-41) and the volume slider (FR-39).
+- Phase 18: camera and microphone dots (FR-40), app logos (FR-42), tray icon (FR-43).
+- Phase 19: polish from your smoke test.
+- Phase 20: the installer (backlog F7), last, because testing it means installing and uninstalling.
+- Then the last release, `v1.5.0-beta.1`. [Confirmed 3 Nov 2026: it stays a beta, and Glass keeps its beta label]
 
 ## 17. Top risks
 
@@ -519,3 +585,4 @@ v1.4 [Confirmed 2 Nov 2026]:
 20. Glass look, 2 Nov 2026 [Confirmed]: built on the documented host backdrop blur in a second window behind the island, after 10 spike rounds (docs/spike-results.md). Light (no tint), soft shadow behind text, no edge line. The undocumented accent blur was rejected because it cannot follow the pill's shape.
 21. Call banner, 2 Nov 2026 [Confirmed]: WhatsApp Web only, recognised by its "Incoming voice call" or "Incoming video call" text, shown while the call notification exists, no buttons. Missed calls need nothing new: WhatsApp sends them as ordinary notifications.
 22. v1.4 released as v1.4.0-beta.1 on 2 Nov 2026 (your request). Glass stays labelled beta. Next: no batch planned yet; the installer (backlog F7) and the glass music page (backlog F8) wait for your call.
+23. v1.5 answers, 3 Nov 2026 [Confirmed]: volume of the music app only; camera and microphone dots with the camera untested and the rules left to me; music from every app, wide artwork shown whole on black, no artwork shows the placeholder, and the CLAUDE.md rule changes; other apps' notifications show their own logo; the tray uses the app icon; polish after your smoke test; the installer last. The last release stays a beta: v1.5.0-beta.1, with Glass still labelled beta (Diva, 3 Nov 2026).
