@@ -246,11 +246,12 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 
 ## 12. v1.5 additions (draft, not approved yet)
 
-Volume row on the music page (PRD FR-39). [Proposed, 3 Nov 2026]
+Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked; horizontal]
 
-- The music page's rows are 10 apart instead of 14: top row 64, progress 16, controls 44, volume 16, total 170 inside 190.
-- Volume row: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart, symbols in the secondary text colour. The slider is the progress bar's twin: 16 high hit area, 4 high track (white at 18 percent), fill and a 10 thumb on hover in the accent.
-- Hidden in the empty view; dimmed to 35 percent while the app has no sound open with Windows.
+- The music page keeps its rows and gaps (14). A speaker button, 44 with a 20 symbol in the accent, sits at the right end of the controls row, vertically centered with the other buttons. Its symbol follows the level: muted at 0, one wave under 50 percent, two waves above.
+- Clicking it fills it like the play button (accent at 22 percent) and swaps the progress row for the volume row in the same place: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart, symbols in the secondary text colour. The slider is the progress bar's twin: 16 high hit area, 4 high track (white at 18 percent), fill and a 10 thumb on hover in the accent.
+- It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
+- No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
 
 Camera and microphone dots (PRD FR-40). [Proposed, 3 Nov 2026]
 
@@ -264,7 +265,7 @@ Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
 
 Other apps' logos (PRD FR-42). [Proposed, 3 Nov 2026]
 
-- The app circle is `#2C2C2E` (white at 14 percent on Glass) with the app's own logo from Windows at 70 percent; a logo that is a full square fills the circle, clipped round. No logo: the letter circle as before.
+- Like WhatsApp and Discord: the circle in the app's colour, the logo in white at 58 percent. Claude: `#D97757` with the white mark (Diva, 3 Nov 2026). The colour is the logo's main colour; a logo that is a full square fills the circle as it is, clipped round. No logo: the letter circle as before.
 
 Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
 

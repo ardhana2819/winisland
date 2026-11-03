@@ -54,14 +54,22 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .l[data-m=exp]{display:block;overflow:hidden}
 .track{transition:transform .5s cubic-bezier(.3,1.12,.5,1)}
 .page{height:190px;box-sizing:border-box}
-.pg-music{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:0 30px 0 16px}
-/* v1.5 (FR-39): volume of the music app, under the controls; the rows are 10 apart so it fits. */
-.vol{display:flex;align-items:center;gap:8px}
+.pg-music{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0 30px 0 16px}
+/* v1.5 (FR-39): a speaker button right of next; clicking it swaps the progress row for the volume
+   of the music app, which swaps back 3 s after the last touch or on a second click. */
+.ctl{position:relative}
+.ib.spk{position:absolute;right:0;top:0}
+.ib.spk svg{width:20px;height:20px}
+.ib.spk[aria-pressed=true]{background:var(--accs)}
+.xp,.vol{transition:opacity .2s}
+.vol{display:none;align-items:center;gap:8px;height:16px}
+.pg-music.vol-open .vol{display:flex}
+.pg-music.vol-open .xp{display:none}
 .vol svg{width:14px;height:14px;fill:var(--sec);flex:none;transition:fill .45s}
 .vol .seek .bar div{background:var(--acc)}
 #vf::after{content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .15s}
 #vol:hover #vf::after{opacity:1}
-.pg-music.empty .vol{display:none}
+.pg-music.empty .vol,.pg-music.empty .spk{display:none}
 /* v1.5 (FR-41): artwork that is not square shows whole on black. */
 .art.wide{background-color:#000;background-size:contain}
 .xr{display:flex;gap:14px;align-items:center}
@@ -108,7 +116,7 @@ h2{font-size:14px;margin:0 0 8px;font-weight:650}
 .pd.cam{background:#30d158}
 .l[data-m=idle] .pd{position:absolute;right:12px;top:50%;margin-top:-3px}
 .l[data-m=idle].priv .ud{right:22px}
-/* v1.5 (FR-42): other apps show their own logo on a dark circle (appColor). */
+/* v1.5 (FR-42): other apps show their logo in white on their own colour (appColor), like WhatsApp and Discord. */
 .l[data-m=idle]{justify-content:center}
 .l[data-m=idle] .clk{width:auto}
 .l[data-m=idle] .ud{position:absolute;right:12px;top:50%;margin-top:-3px}
@@ -186,7 +194,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 <body>
 <main>
 <h1>WinIsland prototype</h1>
-<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds, a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. New in v1.4 (draft): messages from the same chat stack into one card ("Same chat again", "Four from one chat"), and a Settings switch that also clears hidden notifications from Windows. "Look: Glass" shows the glass island; "Game scene: Bright" puts a bright game behind it. New in v1.5 (draft): a volume row on the music page (drag it, or Ctrl+Up and Ctrl+Down while open), "YouTube in Chrome" with wide artwork, Claude and Snipping Tool notifications with their own logo, and camera and microphone dots under "Privacy (v1.5)". Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
+<p class="lead">Interactive mock with fake data, v1.3. It shows the look and the motion only. New in v1.3: the page dots show on opening and on a page change and fade after 1.5 seconds, a white dot next to the clock for notifications you have not seen on the notifications page, Discord's logo on a blurple circle, the island size choice, and three app icon concepts at the bottom. New in v1.4 (draft): messages from the same chat stack into one card ("Same chat again", "Four from one chat"), and a Settings switch that also clears hidden notifications from Windows. "Look: Glass" shows the glass island; "Game scene: Bright" puts a bright game behind it. New in v1.5 (draft): a speaker button right of next that swaps the progress bar for the music app's volume (or Ctrl+Up and Ctrl+Down while open), "YouTube in Chrome" with wide artwork, Claude and Snipping Tool notifications with their own logo in white on their colour, and camera and microphone dots under "Privacy (v1.5)". Spotify, Windows notifications and games get tested in Claude Code. Click the island or press Ctrl+Alt+I to open it, even when it shows the clock. On the open island, scroll down or press Alt+Down for notifications, scroll up or Alt+Up for music, or click the dots on the right. Ctrl+Alt+H hides the island, Alt+X hides notifications. Swipe a notification banner sideways to hide it.</p>
 
 <div class="stage" id="stage">
   <div class="scene" aria-hidden="true">Game running in a borderless window</div>
@@ -199,12 +207,13 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
           <div class="page pg-music" id="pm">
             <div class="xr"><span class="art big" id="xart"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1 0 11 18V8h6V3z"/></svg></span><div class="xm"><b id="xt"></b><span id="xa"></span></div><span class="eq xeq"><i></i><i></i><i></i></span></div>
             <div class="xp"><span id="xc">0:00</span><div class="seek" id="seek" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="xf"></div></div></div><span id="xd">0:00</span></div>
+            <div class="vol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9z"/></svg><div class="seek" id="vol" role="slider" aria-label="Volume of the music app" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="vf"></div></div></div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></div>
             <div class="ctl">
               <button class="ib" id="bprev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
               <button class="ib main" id="bpp" aria-label="Pause"><svg viewBox="0 0 24 24" id="ppi"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
               <button class="ib" id="bnext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+              <button class="ib spk" id="bspk" aria-label="Volume" aria-pressed="false"><svg viewBox="0 0 24 24" id="spki"><path d="M3 9v6h4l5 5V4L7 9z"/></svg></button>
             </div>
-            <div class="vol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9z"/></svg><div class="seek" id="vol" role="slider" aria-label="Volume of the music app" aria-valuemin="0" aria-valuemax="100"><div class="bar"><div id="vf"></div></div></div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></div>
           </div>
           <div class="page pg-notif" id="pn"></div>
         </div>
@@ -288,13 +297,15 @@ const pill=$("pill"),layers=[...pill.querySelectorAll(".l")];
 layers.forEach(l=>{const d=D[l.dataset.m];l.style.setProperty("--w",d[0]+"px");l.style.setProperty("--h",d[1]+"px")});
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 const now=()=>new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-const appColor=a=>a==="Discord"?"#5865f2":a==="WhatsApp"?"#30d158":"#2c2c2e";
+// v1.5 (FR-42): every app on its own colour with a white logo; the app takes the colour from its logo.
+const APP_COLOR={Discord:"#5865f2",WhatsApp:"#30d158",Claude:"#d97757","Snipping Tool":"#6a5acd"};
+const appColor=a=>APP_COLOR[a]||"#2c2c2e";
 // v1.3: WhatsApp and Discord show their white logo (Simple Icons, CC0), drawn by WinIsland itself.
 const LOGO={
   WhatsApp:"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1 -5.031 -1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1 -1.51 -5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0 -3.48 -8.413Z",
   Discord:"M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"};
 // v1.5 (FR-42): stand-ins for other apps' own logos, which the app gets from Windows.
-const APP_LOGO={Claude:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#d97757" d="M11 2h2l.6 6.2L17.7 3.4l1.4 1.4-4.8 4.1L20.6 9v2l-6.2.6 4.8 4.1-1.4 1.4-4.1-4.8L13 22h-2l-.6-6.2-4.1 4.8-1.4-1.4 4.8-4.1L3.4 13v-2l6.2-.6L4.8 6.3l1.4-1.4 4.1 4.8z"/></svg>',"Snipping Tool":'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="17" r="3" fill="none" stroke="#7a7cf0" stroke-width="2"/><circle cx="17" cy="17" r="3" fill="none" stroke="#7a7cf0" stroke-width="2"/><path d="M8.5 14.5 17 4M15.5 14.5 7 4" stroke="#e0598b" stroke-width="2" fill="none"/></svg>'};
+const APP_LOGO={Claude:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M11 2h2l.6 6.2L17.7 3.4l1.4 1.4-4.8 4.1L20.6 9v2l-6.2.6 4.8 4.1-1.4 1.4-4.1-4.8L13 22h-2l-.6-6.2-4.1 4.8-1.4-1.4 4.8-4.1L3.4 13v-2l6.2-.6L4.8 6.3l1.4-1.4 4.1 4.8z"/></svg>',"Snipping Tool":'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="17" r="3" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17" cy="17" r="3" fill="none" stroke="#fff" stroke-width="2"/><path d="M8.5 14.5 17 4M15.5 14.5 7 4" stroke="#fff" stroke-width="2" fill="none"/></svg>'};
 const iconHtml=a=>APP_LOGO[a]?APP_LOGO[a]:LOGO[a]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LOGO[a]+'"/></svg>':a[0];
 const DOTS_SHOWN_MS=1500;
 function mode(){
@@ -329,7 +340,7 @@ function render(){
   ["bprev","bpp","bnext"].forEach(id=>$(id).disabled=empty);
   $("bpp").setAttribute("aria-label",S.playing?"Pause":"Play");
   $("ppi").innerHTML=S.playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M7 5v14l12-7z"/>';
-  $("vf").style.width=(S.vol*100)+"%";
+  $("vf").style.width=(S.vol*100)+"%";$("spki").innerHTML='<path d="'+SPK[S.vol===0?"mute":S.vol<.5?"low":"high"]+'"/>';
   const priv=S.cam?"cam":S.mic?"mic":null;
   ["pd1","pd2"].forEach(id=>{$(id).classList.toggle("on",!!priv);$(id).classList.toggle("cam",priv==="cam")});
   document.querySelector(".l[data-m=idle]").classList.toggle("priv",!!priv);
@@ -367,7 +378,7 @@ function markSeen(){if(S.ov==="exp"&&S.page===1)S.hist.forEach(x=>x.seen=true)}
 // Dots show on expand and on a page change, and fade 1.5 s after.
 function flashDots(){const d=$("dots");d.classList.add("show");clearTimeout(S.dt);S.dt=setTimeout(()=>d.classList.remove("show"),DOTS_SHOWN_MS)}
 function openIsland(page){if(S.hidden||S.paused)return;clearTimeout(S.tm);S.q=[];S.ov="exp";S.page=page;markSeen();render();flashDots()}
-function collapse(msg){if(S.ov!=="exp")return;S.ov=null;S.chat=null;renderList();clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
+function collapse(msg){if(S.ov!=="exp")return;showVolume(false);S.ov=null;S.chat=null;renderList();clearTimeout(S.dt);$("dots").classList.remove("show");if(S.music&&!S.playing)S.pausedAt=Date.now();render();if(msg)log(msg)}
 function toggleOpen(){if(S.ov==="exp")collapse("Island closed.");else{openIsland(S.call?1:0);log(S.music?(S.playing?"Music page.":"Music page with the paused song. Press play here."):"Empty music view: Spotify is closed.")}}
 function setPage(p){if(S.ov!=="exp"||p===S.page)return;S.page=p;S.chat=null;renderList();markSeen();render();flashDots();log(p?"Notifications page: the last "+S.hist.length+" notifications.":"Music page.")}
 
@@ -408,7 +419,10 @@ $("a-claude").onclick=()=>notify("Claude","Claude","Claude is waiting for your i
 $("a-snip").onclick=()=>notify("Snipping Tool","Snipping Tool","Screenshot copied to clipboard");
 $("a-mic").onclick=()=>{S.mic=!S.mic;$("a-mic").setAttribute("aria-pressed",S.mic);render();log(S.mic?"An app uses the microphone: orange dot.":"Microphone free.")};
 $("a-cam").onclick=()=>{S.cam=!S.cam;$("a-cam").setAttribute("aria-pressed",S.cam);render();log(S.cam?"An app uses the camera: green dot (wins over orange).":"Camera free.")};
-function setVolume(v){S.vol=Math.min(1,Math.max(0,Math.round(v*100)/100));render();log("Music app volume "+Math.round(S.vol*100)+"% (like the Volume Mixer). The game and Windows' volume stay the same.")}
+const SPK={mute:"M3 9v6h4l5 5V4L7 9zm13.6 3 2.7-2.7-1.2-1.2-2.7 2.7-2.7-2.7-1.2 1.2 2.7 2.7-2.7 2.7 1.2 1.2 2.7-2.7 2.7 2.7 1.2-1.2z",low:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z",high:"M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"};
+function showVolume(open){clearTimeout(S.vt);$("pm").classList.toggle("vol-open",open);$("bspk").setAttribute("aria-pressed",open);if(open)S.vt=setTimeout(()=>showVolume(false),3000)}
+$("bspk").onclick=e=>{e.stopPropagation();const open=!$("pm").classList.contains("vol-open");showVolume(open);log(open?"Volume of the music app; back to the progress bar 3 s after the last touch.":"Back to the progress bar.")};
+function setVolume(v){S.vol=Math.min(1,Math.max(0,Math.round(v*100)/100));showVolume(true);render();log("Music app volume "+Math.round(S.vol*100)+"% (like the Volume Mixer). The game and Windows' volume stay the same.")}
 let vk=false;
 $("vol").addEventListener("pointerdown",e=>{if(!S.music)return;vk=true;$("vol").setPointerCapture(e.pointerId);const r=$("vol").getBoundingClientRect();setVolume((e.clientX-r.left)/r.width)});
 $("vol").addEventListener("pointermove",e=>{if(!vk)return;const r=$("vol").getBoundingClientRect();setVolume((e.clientX-r.left)/r.width)});
