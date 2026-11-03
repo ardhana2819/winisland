@@ -243,3 +243,29 @@ Call banner (PRD FR-38). [Proposed, 2 Nov 2026]
 - It shows over message banners and stays until the call notification is removed. The banner that was showing before comes back afterwards.
 - The banner card sits 8 inside the island, like a message banner.
 - Notifications page while ringing: the call is the top card (48 high, same layout, call circle 30 with a 16 symbol at the right), followed by the 2 newest notifications.
+
+## 12. v1.5 additions (draft, not approved yet)
+
+Volume row on the music page (PRD FR-39). [Proposed, 3 Nov 2026]
+
+- The music page's rows are 10 apart instead of 14: top row 64, progress 16, controls 44, volume 16, total 170 inside 190.
+- Volume row: a quiet speaker symbol 14, the slider, a loud speaker symbol 14, 8 apart, symbols in the secondary text colour. The slider is the progress bar's twin: 16 high hit area, 4 high track (white at 18 percent), fill and a 10 thumb on hover in the accent.
+- Hidden in the empty view; dimmed to 35 percent while the app has no sound open with Windows.
+
+Camera and microphone dots (PRD FR-40). [Proposed, 3 Nov 2026]
+
+- 6 across, the unread dot's size and pop. Microphone `#FF9F0A`, camera `#30D158`; with both in use, the camera colour.
+- On the compact clock 12 from the right edge, the unread dot then sits 22 from the right edge (4 between them). On the compact music pill it is the last item, after the unread dot.
+- Not shown on banners or the open island.
+
+Artwork from every app (PRD FR-41). [Confirmed 3 Nov 2026]
+
+- Artwork that is not square shows whole inside the artwork square (64 on the music page, 24 on the pill), centered on black, with the square's usual radius. Its colours come from the picture only.
+
+Other apps' logos (PRD FR-42). [Proposed, 3 Nov 2026]
+
+- The app circle is `#2C2C2E` (white at 14 percent on Glass) with the app's own logo from Windows at 70 percent; a logo that is a full square fills the circle, clipped round. No logo: the letter circle as before.
+
+Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
+
+- The tray uses `WinIsland.ico` (concept B, "Mono pill") instead of the white pill drawn in code.
