@@ -19,6 +19,7 @@ To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland th
 | `Add-StartMenuShortcut.ps1` | Puts WinIsland in this user's Start menu (`-Remove` takes it out again). Pin it from Start > All yourself; Windows does not let apps pin themselves. | No |
 | `Install-WinIslandIdentity.ps1` | One step for WinIsland: checks the certificate, builds and signs the package, replaces an earlier registration, registers it for the folder with `WinIsland.App.exe`. | No |
 | `WinIslandFolder.ps1` | Shared helper: finds the folder with `WinIsland.App.exe` (the unzipped release, or the repo's Release build). | |
+| `Assets\` | The package's logos, made from the WinIsland icon. Windows shows the 44 one on the taskbar for WinIsland's Settings window. | |
 | `AppxManifest.template.xml` | Manifest with `{{...}}` placeholders. Declares external content, full trust, and the `userNotificationListener` capability. | |
 | `New-DevCertificate.ps1` | Creates a self-signed code signing certificate (`CN=WinIsland Dev`) in your certificate store and trusts it on this PC. | **Yes** |
 | `Build-IdentityPackage.ps1` | Fills in the template, packs it with `makeappx`, signs it with `signtool`. | No |

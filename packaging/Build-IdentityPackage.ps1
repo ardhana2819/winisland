@@ -1,6 +1,10 @@
 # Build-IdentityPackage.ps1: builds and signs the identity package (.msix) for one exe.
-# Fills in AppxManifest.template.xml, adds placeholder logos that Windows requires, packs it
-# with makeappx, and signs it with the certificate from New-DevCertificate.ps1.
+# Fills in AppxManifest.template.xml, adds the logos that Windows requires, packs it with
+# makeappx, and signs it with the certificate from New-DevCertificate.ps1.
+# The logos come from Assets\ next to this script (the WinIsland icon, made from
+# src\WinIsland.App\Assets\WinIsland.ico): Windows shows the 44 one on the taskbar for a window of
+# a packaged app, so plain black placeholders made WinIsland's Settings window show a blank square
+# there (Diva, 4 Nov 2026). Without that folder (the spike packages) it falls back to black.
 # Signing uses the certificate's thumbprint from your certificate store, so no .pfx file or
 # password is involved. Output goes to packaging\out\, which git ignores.
 #
@@ -36,6 +40,12 @@ function Find-SdkTool([string]$toolName) {
 
 function New-PlaceholderLogo([string]$path, [int]$size) {
     # Windows requires logo files in the manifest even though AppListEntry="none" hides them.
+    $logo = Join-Path $PSScriptRoot ("Assets\" + (Split-Path -Leaf $path))
+    if (Test-Path $logo) {
+        Copy-Item $logo $path
+        return
+    }
+
     $bitmap = New-Object System.Drawing.Bitmap $size, $size
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     $graphics.Clear([System.Drawing.Color]::Black)
