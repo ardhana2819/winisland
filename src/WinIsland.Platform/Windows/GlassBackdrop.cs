@@ -9,6 +9,10 @@
 // outside the blur, so the smooth clip makes the edge. The window's hard region (no edge smoothing)
 // only keeps the window small for clicks and lies a few pixels outside, where nothing shows. Before,
 // the region was the edge, to hide the black around the blur (round 10).
+// v1.7: the region is no longer reshaped every frame while the island moves: that made Windows
+// redraw the window's shape each frame, and Diva saw the Glass island stutter when it opened (Solid
+// was smooth). While it moves the window has no region (OpenRegion); once it is still the region is
+// fitted again (FitRegion), so clicks around the island reach the windows behind it.
 // Windows draws the blur; nothing here captures or reads the screen (PRD section 7).
 // Two fixes from Diva's first test (2 Nov 2026):
 //   - PlaceBelow puts the blur window right under the island; shown later, it had covered the
@@ -42,7 +46,8 @@ public sealed class GlassBackdrop
     private readonly DesktopWindowTarget _target;
     private readonly SpriteVisual _blur;
     private readonly CompositionRoundedRectangleGeometry _shape;
-    private (int Left, int Top, int Width, int Height, int Radius) _shownRegion;
+    private (int Left, int Top, int Width, int Height, int Radius) _shownShape;
+    private bool _isRegionOpen;
 
     /// <summary>Sets the glass window up for the blur. Throws when Windows refuses; the caller shows Solid then.</summary>
     public GlassBackdrop(IntPtr window)
@@ -68,7 +73,7 @@ public sealed class GlassBackdrop
         _target.Root = _blur;
     }
 
-    /// <summary>Places the blur over the island; pixels relative to the window, opacity 0 to 1.</summary>
+    /// <summary>Places the blur over the island; pixels relative to the window, opacity 0 to 1. Cheap enough for every frame.</summary>
     public void Update(int left, int top, int width, int height, int radius, float opacity)
     {
         _blur.Opacity = opacity;
@@ -77,15 +82,29 @@ public sealed class GlassBackdrop
         _blur.Size = size;
         _shape.Size = size;
         _shape.CornerRadius = new Vector2(radius, radius);
+        _shownShape = (left, top, width, height, radius);
+    }
 
-        (int, int, int, int, int) region = (left, top, width, height, radius);
-        if (region != _shownRegion)
+    /// <summary>While the island moves: the whole window, so its shape is not redrawn every frame.</summary>
+    public void OpenRegion()
+    {
+        if (_isRegionOpen)
         {
-            _shownRegion = region;
-            int margin = RegionMarginPixels;
-            int corner = 2 * (radius + margin);
-            NativeMethods.SetWindowRgn(_window, NativeMethods.CreateRoundRectRgn(left - margin, top - margin, left + width + margin + 1, top + height + margin + 1, corner, corner), true);
+            return;
         }
+
+        _isRegionOpen = true;
+        NativeMethods.SetWindowRgn(_window, IntPtr.Zero, true);
+    }
+
+    /// <summary>Once the island is still: the window shrinks to the island's shape plus a small margin.</summary>
+    public void FitRegion()
+    {
+        _isRegionOpen = false;
+        (int left, int top, int width, int height, int radius) = _shownShape;
+        int margin = RegionMarginPixels;
+        int corner = 2 * (radius + margin);
+        NativeMethods.SetWindowRgn(_window, NativeMethods.CreateRoundRectRgn(left - margin, top - margin, left + width + margin + 1, top + height + margin + 1, corner, corner), true);
     }
 
     /// <summary>Puts the blur window directly under the given window (the island), without activating either.</summary>

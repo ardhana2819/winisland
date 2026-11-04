@@ -6,6 +6,8 @@
 // (glass spike G3).
 // Following costs a little each frame, so it runs only while something may be moving: it starts
 // when the island changes or lays out, and stops once the pill has been still for half a second.
+// While the pill moves the blur window's click region is open, and it is fitted again when the pill
+// is still (v1.7: reshaping it every frame made the Glass island stutter, Diva 4 Nov 2026).
 // If Windows refuses the blur, Enable returns false and logs why; the island then shows Solid and
 // tries Glass again on the next start.
 // Every 2 seconds the blur is refreshed, because after some games are minimized Windows keeps
@@ -135,6 +137,7 @@ internal sealed class GlassLook : IDisposable
         {
             if (++_stillFrames >= StillFramesBeforeStop)
             {
+                _blur.Backdrop.FitRegion();
                 StopFollowing();
             }
 
@@ -144,6 +147,7 @@ internal sealed class GlassLook : IDisposable
         _stillFrames = 0;
         _shown = pill;
         (int left, int top, int width, int height, int radius, float opacity) = pill;
+        _blur.Backdrop.OpenRegion();
         _blur.Backdrop.Update(left, top, width, height, radius, opacity);
     }
 
