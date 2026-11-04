@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 using WinIsland.App.Animation;
+using WinIsland.App.Text;
 using WinIsland.Core.Notifications;
 
 namespace WinIsland.App.Notifications;
@@ -41,8 +42,8 @@ public partial class NotificationBannerView : UserControl
         ArgumentNullException.ThrowIfNull(notification);
 
         Icon.Show(notification, logo);
-        SenderText.Text = notification.Sender;
-        PreviewText.Text = preview;
+        EmojiText.Show(SenderText, notification.Sender);
+        EmojiText.Show(PreviewText, preview);
         PreviewText.Visibility = string.IsNullOrEmpty(preview) ? Visibility.Collapsed : Visibility.Visible;
 
         // +N counts the other waiting banners; hidden when this is the only one.
@@ -59,8 +60,8 @@ public partial class NotificationBannerView : UserControl
         _isCall = true;
         Cursor = Cursors.Arrow;
         Icon.Show(call.Notification, null);
-        SenderText.Text = call.Caller;
-        PreviewText.Text = call.Description;
+        EmojiText.Show(SenderText, call.Caller);
+        EmojiText.Show(PreviewText, call.Description);
         PreviewText.Visibility = Visibility.Visible;
         Badge.Visibility = Visibility.Collapsed;
 

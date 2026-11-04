@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 using WinIsland.App.Animation;
+using WinIsland.App.Text;
 
 namespace WinIsland.App.Music;
 
@@ -22,6 +23,7 @@ public partial class MarqueeText : UserControl
     private const int FramesPerSecond = 30;
 
     private bool _isActive;
+    private string _text = string.Empty;
 
     public MarqueeText()
     {
@@ -32,17 +34,19 @@ public partial class MarqueeText : UserControl
 
     public string Text
     {
-        get => FirstCopy.Text;
+        get => _text;
         set
         {
             string text = value ?? string.Empty;
-            if (text == FirstCopy.Text)
+            if (text == _text)
             {
                 return;
             }
 
-            FirstCopy.Text = text;
-            SecondCopy.Text = text;
+            // Emoji in a song title show in color (FR-47); both copies, so the loop stays seamless.
+            _text = text;
+            EmojiText.Show(FirstCopy, text, cutToFit: false);
+            EmojiText.Show(SecondCopy, text, cutToFit: false);
             AutomationProperties.SetName(this, text);
             Restart();
         }
