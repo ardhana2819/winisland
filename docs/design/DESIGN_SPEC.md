@@ -292,3 +292,12 @@ Update button in Settings (PRD FR-46). [Confirmed 4 Nov 2026]
 - Greyed out (40 percent) with the tooltip "Update needs the installed WinIsland" when the update script is not next to WinIsland.
 - "Update available: 1.7.0-beta.1" under the button, right-aligned, 4 below it, in 12 amber `#FBBF24` (the color of the hotkey problem note), only when the check finds a newer release; otherwise nothing. Its line is always reserved, so nothing moves when it appears 2 seconds after opening. (Diva, 4 Nov 2026)
 - Clicking it opens the update script's own window; the Settings window stays as it is until the update closes WinIsland.
+
+## 14. v1.8 additions (draft, 4 Nov 2026)
+
+Color emoji (PRD FR-47, spike E1 to E3).
+
+- Emoji in another app's text (sender, preview, caller, song title, artist) are drawn in color from Segoe UI Emoji's simple color layers, at the text's own size, on its baseline, as wide as WPF lays them out. The rest of the text keeps its font, color and size.
+- On Glass the emoji keep the text's soft shadow, like the letters around them.
+- Trimming: a cut line still ends with "…"; an emoji is never cut in half.
+- The prototype already shows color emoji, because the browser draws them; on a Mac it shows Apple's emoji, which WinIsland will not. WinIsland's look is Windows' flat Fluent emoji, as in `Claude outputs/emoji-spike.png` from the spike.
