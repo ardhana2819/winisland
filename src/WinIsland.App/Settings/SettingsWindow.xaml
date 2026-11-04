@@ -9,6 +9,8 @@
   v1.4: a Look row, Solid or Glass (FR-37), and the "Also clear from Windows" switch (FR-36).
   v1.7: an Update button on the title row and the installed version under the title (FR-46,
   DESIGN_SPEC section 13). The button only starts the update script; WinIsland stays offline.
+  Opening the window runs the script's quiet check; "Update available: x" shows under the button
+  in amber only when a newer release exists.
 -->
 <Window x:Class="WinIsland.App.Settings.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -195,14 +197,22 @@
     <Border Margin="24" Padding="24,20,24,20" Background="#1C1C1E" BorderBrush="#2C2C2E" BorderThickness="1" CornerRadius="10">
         <StackPanel>
             <DockPanel Margin="0,0,0,6">
-                <Button x:Name="UpdateButton"
-                        DockPanel.Dock="Right"
-                        VerticalAlignment="Top"
-                        Style="{StaticResource UpdateButtonStyle}"
-                        Content="Update"
-                        AutomationProperties.Name="Update WinIsland"
-                        ToolTipService.ShowOnDisabled="True"
-                        Click="OnUpdateClick" />
+                <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top">
+                    <Button x:Name="UpdateButton"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource UpdateButtonStyle}"
+                            Content="Update"
+                            AutomationProperties.Name="Update WinIsland"
+                            ToolTipService.ShowOnDisabled="True"
+                            Click="OnUpdateClick" />
+                    <!-- Shows only when a newer release exists; hidden when up to date (Diva, 4 Nov 2026). -->
+                    <TextBlock x:Name="UpdateNote"
+                               HorizontalAlignment="Right"
+                               Foreground="#FBBF24"
+                               FontSize="12"
+                               Margin="0,4,0,0"
+                               Visibility="Hidden" />
+                </StackPanel>
                 <StackPanel>
                     <TextBlock Text="WinIsland settings" Foreground="{StaticResource TextBrush}" FontSize="18" FontWeight="SemiBold" />
                     <TextBlock x:Name="VersionText" Foreground="#A6ABB6" FontSize="12" Margin="0,2,0,0" />

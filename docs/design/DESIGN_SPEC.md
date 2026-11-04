@@ -290,4 +290,5 @@ Update button in Settings (PRD FR-46). [Confirmed 4 Nov 2026]
 - On the title row of the Settings card, right-aligned: a button "Update" in the same style as the hotkey buttons (same fill, border, radius, height and 14 text), as wide as its text plus 16 on each side.
 - Under the title "WinIsland settings": "Version 1.7.0-beta.1" (the installed version, without the leading "v") in 12, in the grey note color used under "Look"; the first setting row moves down by the line's height.
 - Greyed out (40 percent) with the tooltip "Update needs the installed WinIsland" when the update script is not next to WinIsland.
+- "Update available: 1.7.0-beta.1" under the button, right-aligned, 4 below it, in 12 amber `#FBBF24` (the color of the hotkey problem note), only when the check finds a newer release; otherwise nothing. Its line is always reserved, so nothing moves when it appears 2 seconds after opening. (Diva, 4 Nov 2026)
 - Clicking it opens the update script's own window; the Settings window stays as it is until the update closes WinIsland.

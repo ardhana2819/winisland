@@ -87,7 +87,8 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Windows/NonActivatingWindow.cs` | Makes the island window stay on top and take clicks without stealing focus from the game. |
 | Platform | `Windows/GlassBackdrop.cs` | Puts Windows' own blur (the host backdrop brush) into a window, cut to the island's rounded shape with smooth edges (v1.4 Glass). |
 | Platform | `Windows/GlassWindow.cs` | The plain Windows window that carries the blur, see-through outside it, so the island's glass edge is smooth (v1.5 polish). |
-| Platform | `Updates/UpdateScript.cs` | Finds `packaging/Update-WinIsland.ps1` next to WinIsland and starts it in its own window, for the Update button in Settings (v1.7, FR-46). WinIsland itself never goes online. |
+| Core | `Updates/UpdateCheckOutput.cs` | Reads the update script's quiet result line, so Settings can show "Update available" (v1.7, FR-46). |
+| Platform | `Updates/UpdateScript.cs` | Finds `packaging/Update-WinIsland.ps1` next to WinIsland and starts it in its own window for the Update button, or runs its quiet check without a window when Settings opens (v1.7, FR-46). WinIsland itself never goes online. |
 | Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |
 | Platform | `Windows/NativeMethods.cs` | The Win32 functions above, in one place. They only touch WinIsland's own windows. |
 | Platform | `Tray/TrayIcon.cs`, `Tray/TrayIconImage.cs` | The tray icon (the app icon, WinIsland.ico, since v1.5; dimmed while paused) and its menu: Pause for 1 hour or Resume, Hide or Show island, Quit. |

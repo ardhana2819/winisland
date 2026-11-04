@@ -6,7 +6,9 @@
 // like the design board.
 // Island size (FR-32): Small, Medium, Large or Extra large; the island resizes at once.
 // v1.7 (FR-46): the installed version under the title, and an Update button that starts the
-// update script in its own window. WinIsland itself does not go online.
+// update script in its own window. WinIsland itself does not go online. When the window opens,
+// the script's quiet check runs without a window; only if a newer release exists does an amber
+// "Update available: x" show under the button (Diva, 4 Nov 2026).
 
 using System.Reflection;
 using System.Windows;
@@ -17,6 +19,7 @@ using System.Windows.Interop;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Core.Settings;
+using WinIsland.Core.Updates;
 using WinIsland.Platform.Updates;
 using WinIsland.Platform.Windows;
 
@@ -25,6 +28,7 @@ namespace WinIsland.App.Settings;
 public partial class SettingsWindow : Window
 {
     private const string RecordingText = "Press keys…";
+    private static readonly TimeSpan UpdateCheckTimeout = TimeSpan.FromSeconds(20);
 
     private static readonly (IslandSize Size, string Name)[] SizeNames =
     [
@@ -78,6 +82,23 @@ public partial class SettingsWindow : Window
         bool canUpdate = UpdateScript.Find() is not null;
         UpdateButton.IsEnabled = canUpdate;
         UpdateButton.ToolTip = canUpdate ? "Install the newest WinIsland" : "Update needs the installed WinIsland";
+        if (canUpdate)
+        {
+            Loaded += async (_, _) => await ShowIfUpdateAvailableAsync();
+        }
+    }
+
+    // Each opening checks again; up to date, offline or no GitHub CLI shows nothing.
+    private async Task ShowIfUpdateAvailableAsync()
+    {
+        if (UpdateScript.Find() is not string script)
+        {
+            return;
+        }
+
+        string? version = UpdateCheckOutput.AvailableVersion(await UpdateScript.CheckAsync(script, UpdateCheckTimeout));
+        UpdateNote.Text = version is null ? string.Empty : $"Update available: {version}";
+        UpdateNote.Visibility = version is null ? Visibility.Hidden : Visibility.Visible;
     }
 
     private void OnUpdateClick(object sender, RoutedEventArgs e)

@@ -11,11 +11,16 @@
 #      closes WinIsland, updates it in place and keeps the settings, FR-44), deletes the download
 #      and starts WinIsland again. Otherwise it says WinIsland is up to date.
 # With -CheckOnly it stops after step 2 and changes nothing.
+# With -Quiet (implies -CheckOnly) it never waits or asks, and ends with one line WinIsland reads
+# when its Settings window opens, to show "Update available" (Diva, 4 Nov 2026):
+#   WINISLAND-UPDATE: available 1.7.0-beta.1 | WINISLAND-UPDATE: latest | WINISLAND-UPDATE: unknown
 
 [CmdletBinding()]
 param(
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [switch]$Quiet
 )
+if ($Quiet) { $CheckOnly = $true }
 
 $ErrorActionPreference = "Stop"
 
@@ -23,9 +28,10 @@ $repository = "ardhana2819/WinIsland"
 $releasesPage = "https://github.com/$repository/releases"
 $secondsBeforeClosing = 10
 
-$Host.UI.RawUI.WindowTitle = "Update WinIsland"
+if (-not $Quiet) { $Host.UI.RawUI.WindowTitle = "Update WinIsland" }
 
 function Close-AfterSuccess {
+    if ($Quiet) { exit 0 }
     Write-Host ""
     Write-Host "This window closes in $secondsBeforeClosing seconds."
     Start-Sleep -Seconds $secondsBeforeClosing
@@ -34,6 +40,10 @@ function Close-AfterSuccess {
 
 # After a problem the window waits, so the message can be read.
 function Close-AfterProblem([string]$message, [switch]$OfferReleasesPage) {
+    if ($Quiet) {
+        Write-Output "WINISLAND-UPDATE: unknown"
+        exit 1
+    }
     Write-Host ""
     Write-Host $message -ForegroundColor Yellow
     if ($OfferReleasesPage) {
@@ -137,11 +147,13 @@ Write-Host "Newest release: $($newest.Text)"
 if (-not (Test-ShouldUpdate $newest $installed)) {
     Write-Host ""
     Write-Host "WinIsland $($installed.Text) is up to date." -ForegroundColor Green
+    if ($Quiet) { Write-Output "WINISLAND-UPDATE: latest" }
     Close-AfterSuccess
 }
 if ($CheckOnly) {
     Write-Host ""
     Write-Host "WinIsland $($newest.Text) is available (check only, nothing changed)." -ForegroundColor Green
+    if ($Quiet) { Write-Output "WINISLAND-UPDATE: available $($newest.Text)" }
     Close-AfterSuccess
 }
 

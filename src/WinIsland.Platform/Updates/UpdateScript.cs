@@ -43,4 +43,43 @@ public static class UpdateScript
             return false;
         }
     }
+
+    /// <summary>
+    /// Runs the script's quiet check without a window (it reports only, nothing changes) and returns
+    /// its output, or null when it fails or takes longer than the timeout. Started when the
+    /// Settings window opens, so "Update available" can show (Diva, 4 Nov 2026).
+    /// </summary>
+    public static async Task<string?> CheckAsync(string scriptPath, TimeSpan timeout)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(scriptPath);
+        ProcessStartInfo start = new("powershell.exe", $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"{scriptPath}\" -Quiet")
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            WorkingDirectory = Path.GetDirectoryName(scriptPath) ?? AppContext.BaseDirectory,
+        };
+        try
+        {
+            using Process process = Process.Start(start) ?? throw new InvalidOperationException("PowerShell did not start.");
+            using CancellationTokenSource limit = new(timeout);
+            try
+            {
+                string output = await process.StandardOutput.ReadToEndAsync(limit.Token);
+                await process.WaitForExitAsync(limit.Token);
+                return output;
+            }
+            catch (OperationCanceledException)
+            {
+                process.Kill(entireProcessTree: true);
+                PlatformLog.Problem("Checking for an update took too long", new TimeoutException());
+                return null;
+            }
+        }
+        catch (Exception error) when (error is Win32Exception or InvalidOperationException)
+        {
+            PlatformLog.Problem("Checking for an update failed", error);
+            return null;
+        }
+    }
 }
