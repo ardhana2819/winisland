@@ -253,6 +253,7 @@ Volume of the music app (PRD FR-39). [Confirmed 3 Nov 2026: hidden until clicked
 - The two rows share one place and cross over the same way in both directions, like the island's content swap: the leaving row fades out, blurs by 4 and shrinks to 0.96, the arriving row does the reverse, over 0.3 s on the ease curve (Diva, 3 Nov 2026: the same both ways). Instant with Windows animation effects off.
 - The volume bar is the progress bar exactly: same length and place (Diva, 3 Nov 2026). The two time labels sit in fixed 30 wide slots (the left one aligned left, the right one aligned right), and the speaker symbols take the same slots, aligned the same way, measured by their drawn shape. So switching only changes the slot contents and the fill colour.
 - It swaps back 3 seconds after the last touch, on a second click, or when the island closes. Ctrl+Up and Ctrl+Down also open it.
+- Clicking the quiet speaker symbol on the volume row sets the volume to 0, the loud one to full; the click area is the symbol's 30 wide slot plus 8 on every side, the gap to the bar included (Diva, 4 Nov 2026).
 - The wheel over the speaker button, or over the open volume row and 8 below it, changes the volume 5 percent a notch (touchpad steps add up); elsewhere it switches pages.
 - No speaker button in the empty view; the slider is dimmed to 35 percent while the app has no sound open with Windows.
 

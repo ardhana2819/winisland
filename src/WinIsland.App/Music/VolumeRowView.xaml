@@ -5,6 +5,9 @@
   shape: 16 high hit area, 4 high track in white at 18 percent, 6 high with a 10 round thumb on
   hover. White for every artwork, so it is never mistaken for the song's progress (Diva, 3 Nov 2026).
   Speaker symbols 14 high, measured by their drawn shape, so both sit exactly 8 from the bar.
+  Clicking the quiet speaker sets the volume to 0, the loud one to full (Diva, 4 Nov 2026). The
+  click area is the symbol's slot plus 8 on every side, the gap to the bar included (Diva asked
+  for a wider area); the padding keeps the symbol where it was.
 -->
 <UserControl x:Class="WinIsland.App.Music.VolumeRowView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -16,13 +19,22 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition x:Name="RightSlot" Width="30" />
         </Grid.ColumnDefinitions>
-        <Path Grid.Column="0"
-              Height="14"
-              Stretch="Uniform"
-              HorizontalAlignment="Left"
-              VerticalAlignment="Center"
-              Fill="#FFFFFF"
-              Data="M3 9v6h4l5 5V4L7 9z" />
+        <Border x:Name="QuietEnd"
+                Grid.Column="0"
+                Margin="-8"
+                Padding="8"
+                Background="Transparent"
+                Cursor="Hand"
+                AutomationProperties.Name="Mute the music app"
+                MouseLeftButtonDown="OnQuietEndClick"
+                MouseLeftButtonUp="OnEndMouseUp">
+            <Path Height="14"
+                  Stretch="Uniform"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Center"
+                  Fill="#FFFFFF"
+                  Data="M3 9v6h4l5 5V4L7 9z" />
+        </Border>
         <Grid x:Name="BarArea"
               Grid.Column="1"
               Height="16"
@@ -41,12 +53,21 @@
                 <Ellipse x:Name="Thumb" Width="10" Height="10" Fill="#FFFFFF" Canvas.Top="3" Visibility="Hidden" />
             </Canvas>
         </Grid>
-        <Path Grid.Column="2"
-              Height="14"
-              Stretch="Uniform"
-              HorizontalAlignment="Right"
-              VerticalAlignment="Center"
-              Fill="#FFFFFF"
-              Data="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z" />
+        <Border x:Name="LoudEnd"
+                Grid.Column="2"
+                Margin="-8"
+                Padding="8"
+                Background="Transparent"
+                Cursor="Hand"
+                AutomationProperties.Name="Music app at full volume"
+                MouseLeftButtonDown="OnLoudEndClick"
+                MouseLeftButtonUp="OnEndMouseUp">
+            <Path Height="14"
+                  Stretch="Uniform"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  Fill="#FFFFFF"
+                  Data="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z" />
+        </Border>
     </Grid>
 </UserControl>
