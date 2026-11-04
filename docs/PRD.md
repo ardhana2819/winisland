@@ -1,4 +1,4 @@
-# WinIsland PRD (v1.7)
+# WinIsland PRD (v1.8)
 
 Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos). Built in Phases 17 to 19, tested by you, idle memory measured and lowered (`docs/performance-results.md`), and released as v1.5.0-beta.1 on 4 Nov 2026, before the installer (decision 24). **v1.6 (the installer, FR-44) approved by you on 4 Nov 2026**, built in Phase 20, tested by you (install, update, uninstall, start with Windows after a restart), and released as v1.6.0-beta.1 on 4 Nov 2026. **v1.7 (the glass music page, FR-45, and one-click update, FR-46) approved by you on 4 Nov 2026**, built in Phases 21 and 22 with fixes to the Glass look's smoothness and click area, tested by you, and released as v1.7.0-beta.1 on 4 Nov 2026.
 
@@ -36,6 +36,10 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 
 - On Glass, the music page is glass too while a song plays: the artwork colour at the top fades into plain glass at the bottom, like the solid page fades to black (FR-45, backlog F8, variant C in the prototype).
 - An "Update" button in WinIsland's Settings window (and an "Update WinIsland" shortcut in the Start menu) that installs the newest release in one click; WinIsland itself stays offline (FR-46).
+
+### What v1.8 adds, in short (draft, 4 Nov 2026)
+
+- Emoji in notifications and in the song's title and artist show in color, in Windows' own emoji style, instead of black and white outlines (FR-47, spike E1 to E3).
 
 ### What v1.2 adds, in short
 
@@ -366,6 +370,16 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The window closes by itself 10 seconds after a successful update; after a problem it waits for a key, so the message can be read.
   - First use: v1.7.0-beta.1 itself is installed with its setup as usual; from then on the shortcut brings later releases.
 
+**v1.8 [Proposed, 4 Nov 2026]**
+
+- FR-47. Color emoji. [Proposed, 4 Nov 2026: you asked for Apple-style emoji and chose Windows' own color emoji (option A); notifications and songs both]
+  - Today WinIsland shows emoji as black and white outlines, because WPF cannot draw color emoji. [Verified 4 Nov 2026: 0 colored pixels]
+  - Emoji show in color everywhere the island shows text from another app: the sender and preview on banners, notification cards, stacks and the opened chat, the caller on the call banner, and the song's title and artist on the music pill and the music page. Island text WinIsland writes itself (the clock, "Not playing", times) has no emoji and stays as it is.
+  - The colors are Windows' own emoji (Segoe UI Emoji), in its flat style: the font's simple color layers, drawn by WinIsland over WPF's normal layout. Skin tones and joined emoji (families) show as one emoji, as in Windows. No new library, no extra files. [Verified in spike E1, 4 Nov 2026]
+  - Not Apple's emoji: Apple's emoji art belongs to Apple and may not be used in other apps.
+  - Unchanged: country flags show as letters (Windows' emoji font has no flags; Windows shows the same letters); emoji the font does not have stay as they are today; text keeps its size, line, trimming with "…" and, on Glass, its soft shadow.
+  - Cost: about 3 MB more memory, read once when the first emoji appears, and a few milliseconds per line. [Verified in spike E3: 37 ms and about 3 MB once; 2.6 to 6 ms per line] Measured again in the app.
+
 **v1.6 [Confirmed 4 Nov 2026]**
 
 - FR-44. An installer. [Confirmed 4 Nov 2026: backlog F7, option 1, and your answers to its three questions]
@@ -567,6 +581,9 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-42. With an older WinIsland installed, one click on Settings > Update (or "Update WinIsland") installs the newest release, keeps the settings, and WinIsland runs again afterwards.
 - AC-43. With the newest release installed, "Update WinIsland" says so and changes nothing.
 - AC-44. Without the GitHub CLI or its sign-in, "Update WinIsland" explains what to do and changes nothing.
+- AC-45. A WhatsApp or Discord message with 😂 👍 ❤️ 🔥, a skin-tone emoji and a family emoji shows them in color on the banner, the notifications page and the opened chat; a song title with an emoji shows it in color on the music pill and page.
+- AC-46. A long preview or title with emoji still fits on its line and ends with "…" where it is cut.
+- AC-47. Idle memory rises by no more than about 5 MB after the first emoji, and stays under 150 MB (G4).
 
 ## 16. Phased plan
 
@@ -620,6 +637,11 @@ v1.7 [Confirmed 4 Nov 2026]:
 - Phase 22: the update button and shortcut (FR-46).
 - Then release `v1.7.0-beta.1`.
 
+v1.8 [Proposed, 4 Nov 2026]:
+
+- Phase 23: color emoji (FR-47), after you approve this PRD. Spike E1 to E3 passed on 4 Nov 2026.
+- Then release `v1.8.0-beta.1`, installed through the Update button.
+
 ## 17. Top risks
 
 1. Notifications may not reach the listener during DND or with banners off (U1, U2). Mitigation: test first. Fallback is a documented setup, for example turning off the automatic DND rule for games.
@@ -663,3 +685,4 @@ v1.7 [Confirmed 4 Nov 2026]:
 27. Glass music page, 4 Nov 2026 [Confirmed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.
 28. Updating, 4 Nov 2026 [Confirmed]: you asked for an update button in Settings. Downloading inside WinIsland would break two rules (no network calls in the app; never handle tokens, and the private repository needs one), so you chose option B: a separate update script that uses the GitHub CLI already signed in on the PC. Then you asked for the button in Settings after all: it only starts that script, so both rules hold (FR-46).
 29. v1.7 released as v1.7.0-beta.1 on 4 Nov 2026 (your request). It is the first release the Update button can install: from an older WinIsland, Settings shows "Update available" and Update brings it in place (AC-42, checked with this release). Next: no batch planned.
+30. Color emoji, 4 Nov 2026 [Proposed]: you asked whether notifications can show Apple's emoji. Apple's emoji art may not be used in other apps, so you chose Windows' own color emoji (option A, over a free set like Twemoji or Noto, or leaving them black and white), for notifications and songs. Spike E1 to E3 passed; written as FR-47 for v1.8.

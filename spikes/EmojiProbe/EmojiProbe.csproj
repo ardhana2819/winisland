@@ -1,0 +1,18 @@
+<!--
+  EmojiProbe: throwaway v1.8 spike (E1 to E3 in docs/spike-results.md).
+  Finds out whether WinIsland can show Windows' own color emoji (Segoe UI Emoji) although WPF draws
+  emoji only as black and white outlines: it lets WPF lay the text out, then redraws each emoji
+  glyph as the colored layers stored in the font's COLR and CPAL tables. Renders a few sample
+  lines to PNG files and prints the time and memory it took. No new library.
+  Not part of WinIsland.slnx and never referenced by product code.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows$(WindowsTargetVersion)</TargetFramework>
+    <SupportedOSPlatformVersion>$(WindowsMinimumVersion)</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>
