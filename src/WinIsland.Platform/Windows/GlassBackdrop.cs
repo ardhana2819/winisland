@@ -100,6 +100,11 @@ public sealed class GlassBackdrop
     /// <summary>Once the island is still: the window shrinks to the island's shape plus a small margin.</summary>
     public void FitRegion()
     {
+        if (!_isRegionOpen)
+        {
+            return;
+        }
+
         _isRegionOpen = false;
         (int left, int top, int width, int height, int radius) = _shownShape;
         int margin = RegionMarginPixels;
