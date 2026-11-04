@@ -6,6 +6,10 @@ Labels follow `docs/spike-results.md`: "Claude ran" means Claude Code ran it on 
 
 Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650 Super (4 GB), 16 GB DDR4 2666 MHz, Windows 11 Pro 24H2 (build 26100).
 
+## v1.8 color emoji (4 Nov 2026)
+
+**Summary:** color emoji (FR-47) do not change idle use noticeably (AC-47). The installed v1.8.0-test.1 build, after Diva's emoji tests (Glass, Extra large, music paused, clock showing), three runs of 30 s: working set 133.7 to 134.3 MB, private memory 46.4 to 46.5 MB, CPU 0.02 to 0.16 %. v1.7 freshly started measured 128.4 to 135.4 MB and 46.9 to 54.2 MB. The spike measured about 3 MB for the color tables; that is inside the run-to-run spread here. Claude ran `spikes/measure-idle.ps1 -Seconds 30`. Not checked: whether the color tables had been read in this process (they load on the first emoji; the log does not record it).
+
 ## v1.7 glass music page, and memory after use (4 Nov 2026)
 
 **Summary:** the glass music page (FR-45) and the smoother glass opening do not change idle use. Freshly started, v1.7.0-test.2 (installed, Glass, Extra large, Spotify paused, clock showing): working set 128.4 to 135.4 MB, private memory 46.9 to 54.2 MB, CPU 0.06 to 0.09 %. v1.6.0-beta.1 from the release zip, measured the same way right before it: 126.9 to 135.0 MB, 46.6 to 55.1 MB, 0.08 to 0.15 %.
