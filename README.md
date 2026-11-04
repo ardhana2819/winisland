@@ -19,15 +19,16 @@ Personal project, private repository.
 ## Install on another PC
 
 1. Sign in to GitHub in your browser (the repository is private).
-2. Open the repository's **Releases** page and download `WinIsland-<version>-win-x64.zip` (about 83 MB) from the newest release. Beta releases are marked **Pre-release**.
-   Or, with GitHub CLI, naming the version: `gh release download v1.5.0-beta.1 --repo ardhana2819/WinIsland --pattern "*.zip"`
+2. Open the repository's **Releases** page and download `WinIsland-<version>-setup.exe` from the newest release (from v1.6.0-beta.1 on). Beta releases are marked **Pre-release**.
+   Or, with GitHub CLI, naming the version: `gh release download v1.6.0-beta.1 --repo ardhana2819/WinIsland --pattern "*-setup.exe"`
    (without a version, GitHub CLI only looks at releases that are not pre-releases).
-3. Right-click the zip > **Properties** > tick **Unblock** > OK. Windows marks downloaded files, and without this the setup scripts in step 5 are refused.
-4. Unzip it to a folder you keep, for example `%LOCALAPPDATA%\Programs\WinIsland`.
-   No .NET install is needed. The build is self-contained.
-5. **Add WinIsland to the Start menu:** in that folder, open the `packaging` folder, right-click `Add-StartMenuShortcut.ps1` > **Run with PowerShell**. To pin it: Start > All, right-click WinIsland > Pin to Start.
-6. Start **WinIsland** from the Start menu. It starts with Windows from then on (switch it off in Settings).
-7. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). If you move the WinIsland folder later, run the setup again.
+3. Run it. The setup is not signed, so Windows SmartScreen warns once per version: click **More info** > **Run anyway**.
+   It installs WinIsland for your Windows account only, without administrator rights, into `%LOCALAPPDATA%\Programs\WinIsland`, adds it to the Start menu, and offers to start it. No .NET install is needed.
+   To update later, run the setup of the newer version: it closes WinIsland, replaces it, and keeps your settings.
+4. To pin it: Start > All, right-click WinIsland > Pin to Start. It starts with Windows from the first run on (switch it off in Settings).
+5. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). The installed WinIsland has the scripts in `%LOCALAPPDATA%\Programs\WinIsland\packaging`.
+
+**Without the installer:** each release also has `WinIsland-<version>-win-x64.zip` (about 83 MB). Right-click it > **Properties** > tick **Unblock** > OK (without this the setup scripts are refused), unzip it to a folder you keep, then in its `packaging` folder right-click `Add-StartMenuShortcut.ps1` > **Run with PowerShell** to add it to the Start menu. Use either the installer or the zip on one PC, not both.
 
 ## First run
 
@@ -39,27 +40,28 @@ Personal project, private repository.
 
 ## Uninstall
 
-WinIsland has no installer, so there is no entry in Windows Settings > Apps. Deleting the folder removes the program, but a few small things outside the folder stay behind. Do the steps in this order:
+**Installed with the setup:** Windows Settings > Apps > Installed apps > WinIsland > **Uninstall**. It closes WinIsland and removes its files, the Start menu shortcut, the start with Windows entry, and the instant notifications package. Two things stay on purpose:
 
-1. **Turn off start with Windows:** tray icon > Settings > switch off start with Windows > Save. This removes WinIsland from the startup list. If you skip it, Windows keeps a startup entry that points at a missing file. It does no harm, but it stays in Settings > Apps > Startup.
+- `%USERPROFILE%\.winisland`, with `settings.json` and `winisland.log` (never message text), so a later install keeps your settings. Delete the folder yourself if you want them gone.
+- The signing certificate, if you set up instant notifications, because removing it needs administrator rights. Only if you want it gone: in PowerShell opened as administrator, run
+  `Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
+  If you created the certificate on that PC (packaging option B), also remove its private key, in a normal PowerShell:
+  `Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
+  Do not do this on the PC you build WinIsland on if you still want to sign new packages there.
+
+Windows may still list WinIsland under Settings > Privacy & security > Notifications. That entry is only the permission you gave and does nothing without the app.
+
+**Installed from the zip:** there is no entry in Installed apps. Do these steps in this order:
+
+1. **Turn off start with Windows:** tray icon > Settings > switch off start with Windows > Save. If you skip it, Windows keeps a harmless startup entry that points at a missing file.
 2. **Quit WinIsland:** tray icon > Quit.
-3. **Remove the Start menu shortcut:** open PowerShell in the WinIsland folder's `packaging` folder (in File Explorer: right-click the folder > Open in Terminal) and run:
-   `.\Add-StartMenuShortcut.ps1 -Remove`
-4. **Only if you set up instant notifications (step 7 of the install):** in the same folder, in a normal PowerShell, run:
-   `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`
-5. **Delete the WinIsland folder**, for example `%LOCALAPPDATA%\Programs\WinIsland`.
-6. **Delete the settings and log folder** `%USERPROFILE%\.winisland` (it holds `settings.json` and `winisland.log`, never message text).
-7. **Optional, only if you trusted the signing certificate:** in PowerShell opened as administrator, run:
-   `Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
-   If you created the certificate on that PC (packaging option B), also remove its private key, in a normal PowerShell:
-   `Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq "CN=WinIsland Dev" | Remove-Item`
-   Do not do this on the PC you build WinIsland on if you still want to sign new packages there.
+3. **Remove the Start menu shortcut:** open PowerShell in the WinIsland folder's `packaging` folder (in File Explorer: right-click the folder > Open in Terminal) and run `.\Add-StartMenuShortcut.ps1 -Remove`
+4. **Only if you set up instant notifications:** in the same folder, run `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`
+5. **Delete the WinIsland folder**, and if you want, `%USERPROFILE%\.winisland` and the certificate as above.
 
 If you already deleted the folder first, the startup entry can be removed in PowerShell:
 `Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name WinIsland`
 and the shortcut by deleting `WinIsland` from `%APPDATA%\Microsoft\Windows\Start Menu\Programs`. An identity package can still be removed with `Get-AppxPackage WinIsland | Remove-AppxPackage`.
-
-Windows may still list WinIsland under Settings > Privacy & security > Notifications. That entry is only the permission you gave and does nothing without the app.
 
 ## Build from source
 

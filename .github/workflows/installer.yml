@@ -1,0 +1,61 @@
+# installer.yml: builds WinIsland-<version>-setup.exe so the installer (PRD FR-44) can be tested
+# before a release. It runs by itself on a pull request that changes the installer, and on request
+# from the Actions tab (Installer > Run workflow, pick the branch) or with
+# gh workflow run installer.yml --ref <branch>. The setup is kept as a download on the run's page for
+# 7 days. Nothing is published, and no certificates or secrets are used. Not on every pull request,
+# because Windows build minutes cost double.
+
+name: Installer
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "packaging/WinIsland.iss"
+      - "packaging/Build-Installer.ps1"
+      - "packaging/Publish-WinIsland.ps1"
+      - ".github/workflows/installer.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version shown in the installer, for example v1.6.0-test.1"
+        required: true
+        default: "v1.6.0-test.1"
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+      VERSION_TAG: ${{ inputs.version || 'v1.6.0-test.1' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Set up .NET (version from global.json)
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Publish self-contained win-x64 build with the packaging scripts
+        shell: pwsh
+        run: ./packaging/Publish-WinIsland.ps1 -Version $env:VERSION_TAG -OutputFolder publish
+
+      - name: Build the installer
+        shell: pwsh
+        run: >
+          ./packaging/Build-Installer.ps1 -Version $env:VERSION_TAG
+          -SourceFolder "publish/WinIsland-$env:VERSION_TAG-win-x64"
+          -OutputFolder publish
+
+      - name: Keep the installer as a download
+        uses: actions/upload-artifact@v7
+        with:
+          name: WinIsland-${{ env.VERSION_TAG }}-setup
+          path: publish/WinIsland-${{ env.VERSION_TAG }}-setup.exe
+          retention-days: 7

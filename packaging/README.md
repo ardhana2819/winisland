@@ -7,7 +7,7 @@ Scripts and a manifest template that give WinIsland **package identity**, using 
 ## Set it up on this PC
 
 1. **Once per PC, as administrator:** open PowerShell with "Run as administrator" and run `.\New-DevCertificate.ps1`. It creates the signing certificate and trusts it. (Already done on Diva's PC during the spike.)
-2. **Each time WinIsland's folder changes:** in a normal PowerShell, run `.\Install-WinIslandIdentity.ps1`. Without arguments it uses the repo's Release build folder; for an unzipped release pass `-AppFolder "<folder with WinIsland.App.exe>"`.
+2. **Each time WinIsland's folder changes:** in a normal PowerShell, run `.\Install-WinIslandIdentity.ps1`. Run from a WinIsland folder's own `packaging` folder (installed or unzipped), it uses that WinIsland; run from the repo, it uses the repo's Release build folder. For another folder pass `-AppFolder "<folder with WinIsland.App.exe>"`, for example `-AppFolder "$env:LOCALAPPDATA\Programs\WinIsland"` for the installed WinIsland (v1.6). The installer keeps that folder fixed, so this is needed once, not after each update.
 3. Quit WinIsland from the tray and start it again from that folder.
 
 To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland then simply checks notifications once per second again.
@@ -24,6 +24,8 @@ To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland th
 | `Build-IdentityPackage.ps1` | Fills in the template, packs it with `makeappx`, signs it with `signtool`. | No |
 | `Register-IdentityPackage.ps1` | Registers a signed package for your user, pointing at the exe's folder. | No |
 | `Unregister-IdentityPackage.ps1` | Removes a registered package again. | No |
+| `Publish-WinIsland.ps1` | Build only (not shipped): makes the self-contained folder a release ships, with these scripts in it. Used by the Release and Installer workflows. | No |
+| `WinIsland.iss`, `Build-Installer.ps1` | Build only (not shipped): the Inno Setup script for `WinIsland-<version>-setup.exe` (PRD FR-44) and the script that builds it on GitHub's build machine. Uninstalling removes the identity package too. | No |
 
 The package turns off Windows' file and registry virtualization (`unvirtualizedResources`), so WinIsland writes the start-with-Windows entry to the real registry. Raise `$packageVersion` in `Install-WinIslandIdentity.ps1` whenever the manifest template changes; with the same version Windows may keep the old manifest.
 

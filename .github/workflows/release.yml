@@ -1,10 +1,11 @@
 # release.yml: builds a downloadable WinIsland when a version tag like v1.0.0-beta.1 is pushed.
 # A tag with a "-" part (for example -beta.1) is published as a GitHub pre-release.
 # Publishes a self-contained win-x64 build (no .NET install needed on the target PC),
-# zips it, and attaches it to a GitHub Release with notes generated from merged pull requests.
-# The zip also holds the packaging scripts (Start menu shortcut, optional instant notifications),
-# but never packaging/out, certificates or keys. No certificates or secrets are used here; package
-# identity is set up on the target PC (see packaging/README.md).
+# zips it, builds the installer (PRD FR-44, Inno Setup, already on GitHub's Windows machines), and
+# attaches both to a GitHub Release with notes generated from merged pull requests.
+# The build also holds the packaging scripts (Start menu shortcut, optional instant notifications),
+# but never packaging/out, certificates or keys. No certificates or secrets are used here: the
+# installer is not signed, and package identity is set up on the target PC (packaging/README.md).
 
 name: Release
 
@@ -35,18 +36,9 @@ jobs:
       - name: Run tests before releasing
         run: dotnet test WinIsland.slnx -c Release
 
-      - name: Publish self-contained win-x64 build
-        run: >
-          dotnet publish src/WinIsland.App/WinIsland.App.csproj
-          -c Release -r win-x64 --self-contained true
-          -o "publish/WinIsland-$env:VERSION_TAG-win-x64"
-
-      - name: Add the packaging scripts
+      - name: Publish self-contained win-x64 build with the packaging scripts
         shell: pwsh
-        run: |
-          $target = "publish/WinIsland-$env:VERSION_TAG-win-x64/packaging"
-          New-Item -ItemType Directory -Force $target | Out-Null
-          Copy-Item packaging/*.ps1, packaging/*.xml, packaging/README.md $target
+        run: ./packaging/Publish-WinIsland.ps1 -Version $env:VERSION_TAG -OutputFolder publish
 
       - name: Zip the build
         shell: pwsh
@@ -54,6 +46,13 @@ jobs:
           Compress-Archive
           -Path "publish/WinIsland-$env:VERSION_TAG-win-x64/*"
           -DestinationPath "publish/WinIsland-$env:VERSION_TAG-win-x64.zip"
+
+      - name: Build the installer
+        shell: pwsh
+        run: >
+          ./packaging/Build-Installer.ps1 -Version $env:VERSION_TAG
+          -SourceFolder "publish/WinIsland-$env:VERSION_TAG-win-x64"
+          -OutputFolder publish
 
       - name: Create GitHub Release with notes from merged pull requests
         shell: pwsh
@@ -63,6 +62,7 @@ jobs:
           $releaseArguments = @(
             $env:VERSION_TAG,
             "publish/WinIsland-$env:VERSION_TAG-win-x64.zip",
+            "publish/WinIsland-$env:VERSION_TAG-setup.exe",
             "--title", "WinIsland $env:VERSION_TAG",
             "--generate-notes"
           )

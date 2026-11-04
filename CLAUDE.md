@@ -20,7 +20,7 @@ WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the
 - No game injection, no hooks into other processes, no reading other apps' memory, no screen capture.
 - No network calls in the app.
 - Message text stays in memory only. Never write it to disk or logs.
-- Releases contain only the app zip. No certificates or keys in CI or in the repo. Package identity is set up on the target PC.
+- Releases contain only the app zip and the installer (`WinIsland-<version>-setup.exe`, built with Inno Setup in CI; changed 4 Nov 2026, PRD FR-44). No certificates or keys in CI or in the repo. Package identity is set up on the target PC.
 
 ## Readability rules
 

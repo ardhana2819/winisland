@@ -1,4 +1,4 @@
-# WinIsland PRD (v1.5)
+# WinIsland PRD (v1.6)
 
 Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos). Built in Phases 17 to 19, tested by you, idle memory measured and lowered (`docs/performance-results.md`), and released as v1.5.0-beta.1 on 4 Nov 2026, before the installer (decision 24).
 
@@ -27,6 +27,10 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 - Notifications from other apps show that app's own logo (FR-42).
 - The tray icon becomes the WinIsland app icon (FR-43).
 - Then polish after your smoke test, and the installer (backlog F7) last.
+
+### What v1.6 adds, in short (approved 4 Nov 2026)
+
+- An installer, `WinIsland-<version>-setup.exe`: install and uninstall WinIsland like a normal app, from Windows Settings > Apps (FR-44). The zip stays in each release too.
 
 ### What v1.2 adds, in short
 
@@ -336,6 +340,17 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
 - FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
 
+**v1.6 [Confirmed 4 Nov 2026]**
+
+- FR-44. An installer. [Confirmed 4 Nov 2026: backlog F7, option 1, and your answers to its three questions]
+  - Each release has `WinIsland-<version>-setup.exe` next to the zip. Running it installs WinIsland for your Windows account only, without administrator rights, into `%LOCALAPPDATA%\Programs\WinIsland`. The folder is fixed, so instant notifications (packaging/README.md) only need setting up once.
+  - It adds a Start menu shortcut and offers to start WinIsland at the end. Start with Windows stays WinIsland's own setting, as today.
+  - WinIsland shows in Windows Settings > Apps > Installed apps with its icon and the publisher "Diva". The publisher is one line in the installer script and can be changed in a later version.
+  - Running the setup of a newer version updates WinIsland in place: it closes WinIsland first, keeps the settings, and offers to start it again.
+  - Uninstalling from Installed apps closes WinIsland and removes its files, the Start menu shortcut, the start with Windows entry, and the instant notifications package (no administrator rights needed for that). It keeps `%USERPROFILE%\.winisland` (settings and log, never message text), your choice. The signing certificate, if you trusted one, stays; removing it needs administrator rights, so the README keeps those steps.
+  - The installer is not signed, so Windows SmartScreen warns once per version: More info > Run anyway. A paid signature is only worth it for a public release (backlog F7 option 2).
+  - Built with Inno Setup (free, also for commercial use), only on GitHub's build machine, where it is already installed: nothing to install on your PC, and no certificates or keys in CI. An "Installer" workflow builds the setup on pull requests that change the installer, and on request from any branch, so you can test it before a release.
+
 **Fixes [v1.1]**
 
 - FR-27. The artwork shows for the first song after WinIsland starts, not only from the second song on. Seen in your v1.0 tests. This is what AC-2 already asks for. [Confirmed]
@@ -518,6 +533,9 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-34. A notification from Claude, with "Show other Windows apps" on, shows that app's own logo; one from Snipping Tool shows the white scissors on purple.
 - AC-35. The tray shows the WinIsland app icon.
 - AC-36. Idle memory stays under 150 MB working set with the v1.5 features (G4).
+- AC-37. On a PC without WinIsland, the setup installs it without administrator rights, it starts from the Start menu, and it appears in Installed apps as WinIsland by Diva.
+- AC-38. Uninstalling from Installed apps leaves no WinIsland files, shortcut, startup entry or identity package behind, and keeps `%USERPROFILE%\.winisland`.
+- AC-39. Running a newer setup over an installed WinIsland updates it in place and keeps its settings.
 
 ## 16. Phased plan
 
@@ -560,6 +578,11 @@ v1.5 [Confirmed 3 Nov 2026]:
 - Then the last release, `v1.5.0-beta.1`. [Confirmed 3 Nov 2026: it stays a beta, and Glass keeps its beta label]
 - [Changed 4 Nov 2026, decision 24] v1.5.0-beta.1 is released before Phase 20; the installer comes in a later release.
 
+v1.6 [Confirmed 4 Nov 2026]:
+
+- Phase 20: the installer (FR-44). Your old copy was removed first (4 Nov 2026), so the test starts clean.
+- Then release `v1.6.0-beta.1`, with the installer and the zip.
+
 ## 17. Top risks
 
 1. Notifications may not reach the listener during DND or with banners off (U1, U2). Mitigation: test first. Fallback is a documented setup, for example turning off the automatic DND rule for games.
@@ -598,3 +621,4 @@ v1.5 [Confirmed 3 Nov 2026]:
 22. v1.4 released as v1.4.0-beta.1 on 2 Nov 2026 (your request). Glass stays labelled beta. Next: no batch planned yet; the installer (backlog F7) and the glass music page (backlog F8) wait for your call.
 23. v1.5 answers, 3 Nov 2026 [Confirmed]: volume of the music app only; camera and microphone dots with the camera untested and the rules left to me; music from every app, wide artwork shown whole on black, no artwork shows the placeholder, and the CLAUDE.md rule changes; other apps' notifications show their own logo; the tray uses the app icon; polish after your smoke test; the installer last. The last release stays a beta: v1.5.0-beta.1, with Glass still labelled beta (Diva, 3 Nov 2026).
 24. v1.5 released as v1.5.0-beta.1 on 4 Nov 2026 (your request), after Phase 19 and before the installer (Phase 20), which this PRD had planned first; the installer comes in a later release, its version still to be chosen. Glass keeps its beta label. Next: the installer (backlog F7) and its open questions.
+25. Installer answers, 4 Nov 2026 [Confirmed]: uninstall keeps `.winisland`; publisher "Diva" (can change later); the zip stays in each release next to the installer; Inno Setup approved as a new build tool, used only in CI; the CLAUDE.md rule "Releases contain only the app zip" becomes "the app zip and the installer"; released as v1.6.0-beta.1.
