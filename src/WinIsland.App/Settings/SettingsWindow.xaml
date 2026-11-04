@@ -7,6 +7,8 @@
   so every control works with the keyboard (PRD section 7, accessibility).
   v1.3: the title bar shows the WinIsland icon (FR-34) and there is an Island size row (FR-32).
   v1.4: a Look row, Solid or Glass (FR-37), and the "Also clear from Windows" switch (FR-36).
+  v1.7: an Update button on the title row and the installed version under the title (FR-46,
+  DESIGN_SPEC section 13). The button only starts the update script; WinIsland stays offline.
 -->
 <Window x:Class="WinIsland.App.Settings.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -31,6 +33,35 @@
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- The hotkey buttons' look, as wide as its text plus 16 on each side (FR-46). -->
+        <Style x:Key="UpdateButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Frame"
+                                Background="{StaticResource ControlBrush}"
+                                BorderBrush="{StaticResource ControlBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="16,6,16,6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource FocusBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Frame" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="HotkeyButton" TargetType="Button">
@@ -163,7 +194,20 @@
 
     <Border Margin="24" Padding="24,20,24,20" Background="#1C1C1E" BorderBrush="#2C2C2E" BorderThickness="1" CornerRadius="10">
         <StackPanel>
-            <TextBlock Text="WinIsland settings" Foreground="{StaticResource TextBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,6" />
+            <DockPanel Margin="0,0,0,6">
+                <Button x:Name="UpdateButton"
+                        DockPanel.Dock="Right"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource UpdateButtonStyle}"
+                        Content="Update"
+                        AutomationProperties.Name="Update WinIsland"
+                        ToolTipService.ShowOnDisabled="True"
+                        Click="OnUpdateClick" />
+                <StackPanel>
+                    <TextBlock Text="WinIsland settings" Foreground="{StaticResource TextBrush}" FontSize="18" FontWeight="SemiBold" />
+                    <TextBlock x:Name="VersionText" Foreground="#A6ABB6" FontSize="12" Margin="0,2,0,0" />
+                </StackPanel>
+            </DockPanel>
 
             <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12,0,12">
                 <DockPanel>

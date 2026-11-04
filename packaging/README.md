@@ -24,6 +24,7 @@ To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland th
 | `Build-IdentityPackage.ps1` | Fills in the template, packs it with `makeappx`, signs it with `signtool`. | No |
 | `Register-IdentityPackage.ps1` | Registers a signed package for your user, pointing at the exe's folder. | No |
 | `Unregister-IdentityPackage.ps1` | Removes a registered package again. | No |
+| `Update-WinIsland.ps1` | Installs the newest WinIsland release through the GitHub CLI signed in on this PC (PRD FR-46). Started by Settings > Update and by Start > Update WinIsland. `-CheckOnly` only reports. | No |
 | `Publish-WinIsland.ps1` | Build only (not shipped): makes the self-contained folder a release ships, with these scripts in it. Used by the Release and Installer workflows. | No |
 | `WinIsland.iss`, `Build-Installer.ps1` | Build only (not shipped): the Inno Setup script for `WinIsland-<version>-setup.exe` (PRD FR-44) and the script that builds it on GitHub's build machine. Uninstalling removes the identity package too. | No |
 
