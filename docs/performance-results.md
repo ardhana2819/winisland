@@ -6,6 +6,52 @@ Labels follow `docs/spike-results.md`: "Claude ran" means Claude Code ran it on 
 
 Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650 Super (4 GB), 16 GB DDR4 2666 MHz, Windows 11 Pro 24H2 (build 26100).
 
+## v1.5 before release (4 Nov 2026)
+
+**Decision (Diva, 4 Nov 2026): tiered compilation is turned off** (`<TieredCompilation>false</TieredCompilation>` in `WinIsland.App.csproj`), the option the v1.1 decision kept for this moment. With it, v1.5 idles at 126.6 to 130.7 MB working set and 44.8 to 47.4 MB private memory, about 16 MB and 7 MB less than before, with the same near-zero idle CPU and half the startup CPU (1734 ms instead of 3297 ms). Diva checks whether the first opening of a page feels slower; if it does, the setting goes back.
+
+**Before the change:** v1.5 still met AC-30 at idle, but with little room left. Glass, clock showing, music paused: working set 142.1 to 147.0 MB on average (peaks up to 151.8 MB), private memory 50.0 to 53.9 MB, CPU 0.08 and 0.15 % on average in the two runs without a notification. Compared with v1.4 Glass (136.9 to 140.7 MB), the working set is about 5 MB higher; private memory is the same (v1.4: 51.2 to 54.5 MB), so the extra is probably shared Windows code that v1.5 loads (the audio session API for the volume and the microphone dot), not WinIsland's own data. This is the point the v1.1 decision below named: idle memory is near 150 MB again.
+
+### Method
+
+Claude ran, 4 Nov 2026, on `main` at `bf79caa` (Release build, run from the build folder with package identity for notifications):
+
+1. Stopped `WinIsland.App`, started it with Look Glass and size Extra large, as Diva has it. Startup CPU in the first 6 s: 3297 ms. Waited 6 s more.
+2. Ran `spikes/measure-idle.ps1 -ProcessName WinIsland.App -Seconds 30` four times in a row. Spotify and Brave were paused (checked through the media session API), the island showed the clock, Diva left the PC alone.
+3. WhatsApp messages arrived during runs 2 and 4 (log: 11:11:31, 11:11:46, 11:12:56), so those runs include banner animations; runs 1 and 3 are true idle.
+
+### Raw data
+
+| Run | Notifications during the run | CPU avg / peak (%) | Working set avg / peak (MB) | Private avg / peak (MB) |
+|---|---|---|---|---|
+| 1 | none | 0.08 / 0.52 | 142.1 / 151.8 | 53.9 / 63.6 |
+| 2 | 2 banners | 1.19 / 13.40 | 146.3 / 149.8 | 53.6 / 56.2 |
+| 3 | none | 0.15 / 3.57 | 147.0 / 148.6 | 52.7 / 54.4 |
+| 4 | 1 banner | 0.34 / 8.74 | 144.2 / 150.0 | 50.0 / 55.2 |
+
+### What it means
+
+- Idle CPU is near zero (0.08 and 0.15 % in the quiet runs). A banner costs a short peak of 9 to 13 %, then CPU falls back.
+- With music playing (3 Nov 2026, Spotify, measured during Phase 19) the working set went up and down between 141.7 and 152.5 MB in 30 s runs, rising until .NET's clean-up and then dropping: memory in use, not a leak.
+- The microphone check (FR-40, once a second) is not the cause: a build with the check turned off measured the same (146.6 to 150.4 MB), and letting go of the Windows audio objects at once did not change it either. Both experiments were undone.
+- The one setting that lowered memory in v1.1, turning off tiered compilation (about 13 MB less), was the option for more room. Diva chose it; see below.
+
+### With tiered compilation off
+
+Claude ran, 4 Nov 2026, the same way as above, on branch `chore/v1.5-memory` (the same code as `bf79caa` plus the setting). Spotify and Brave paused (checked), Glass, Extra large, PC untouched. Startup CPU in the first 6 s: 1734 ms. A WhatsApp banner showed in run 3 (log 11:17:37) and hid at the start of run 4, so runs 1 and 2 are true idle.
+
+| Run | Notifications during the run | CPU avg / peak (%) | Working set avg / peak (MB) | Private avg / peak (MB) |
+|---|---|---|---|---|
+| 1 | none | 0.09 / 0.78 | 129.2 / 130.8 | 47.4 / 49.1 |
+| 2 | none | 0.05 / 0.26 | 126.6 / 126.7 | 44.8 / 44.8 |
+| 3 | 1 banner | 0.33 / 6.21 | 128.1 / 131.1 | 45.3 / 46.8 |
+| 4 | banner hiding | 0.21 / 4.13 | 130.7 / 131.8 | 46.3 / 47.5 |
+
+- Working set about 16 MB lower (126.6 to 130.7 MB against 142.1 to 147.0 MB), and steadier: peaks stay within 2 MB of the average instead of up to 10 MB.
+- Private memory about 7 MB lower (44.8 to 47.4 MB against 50.0 to 53.9 MB): the background recompiling and its code are gone.
+- Idle CPU is the same (0.05 and 0.09 % in the quiet runs); a banner costs 4 to 6 % for a moment instead of 9 to 13 %.
+- Not measured: whether a page opens a little slower the first time after start, because its code is now compiled fully on first use. Diva judges that by feel.
+
 ## v1.4 Glass look vs Solid (2 Nov 2026)
 
 **Summary:** the Glass look (FR-37) costs nothing measurable at idle. Glass: working set 136.9 to 140.7 MB, private memory 51.2 to 54.5 MB, CPU 0.38 to 0.64 % on average. Solid: 133.4 to 143.6 MB, 50.0 to 59.3 MB, 0.48 to 1.91 %. Both meet AC-30 (under 150 MB working set) and stay in the v1.1 range. While Diva was actively testing (animations, a game running) one 60 s sample showed 154.9 MB average and 3.72 % CPU; that is use, not idle.
