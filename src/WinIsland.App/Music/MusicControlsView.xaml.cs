@@ -5,8 +5,8 @@
 // released, so the music app is not flooded with requests while dragging. Without seek support the bar
 // is display only. Without a music session it shows the empty view instead (FR-24).
 // Colors come from the artwork (FR-25, DESIGN_SPEC section 9): the icons, play circle, progress
-// fill, thumb and equalizer use the accent, the artist and times the grey text color, and every
-// change fades over 0.45 s.
+// fill, thumb and equalizer use the accent, the artist and times the grey text color (near-white on
+// Glass, v1.7 FR-45), and every change fades over 0.45 s.
 // v1.5 (FR-39): the speaker button asks for the volume row; the row swaps in for the progress row
 // (RowSwap) and reports levels the user picks. The presenter decides when it opens and closes.
 
@@ -36,6 +36,8 @@ public partial class MusicControlsView : UserControl
     private static readonly Geometry SpeakerHigh = Geometry.Parse("M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z");
     private static readonly Geometry PauseIcon = Geometry.Parse(PauseIconPath);
     private static readonly Geometry PlayIcon = Geometry.Parse(PlayIconPath);
+    // White at 85 percent, the second lines' color on Glass (DESIGN_SPEC sections 11 and 13).
+    private static readonly Color GlassSecondary = Color.FromArgb(0xD9, 0xFF, 0xFF, 0xFF);
 
     // Owned, not frozen, so their colors can fade.
     private readonly SolidColorBrush _accent = new(Colors.White);
@@ -48,6 +50,7 @@ public partial class MusicControlsView : UserControl
     private bool _isActive;
     private ArtworkPalette _shownPalette = ArtworkPalette.Black;
     private bool _isVolumeShown;
+    private bool _isGlass;
     private int _wheelDelta;
 
     public MusicControlsView()
@@ -88,11 +91,26 @@ public partial class MusicControlsView : UserControl
         ShowPalette(palette, fade: true);
     }
 
+    /// <summary>
+    /// On Glass the artist and the times are white at 85 percent, like the second lines on the other
+    /// glass pages (FR-45, DESIGN_SPEC section 13); on Solid they take the artwork's grey (FR-25).
+    /// </summary>
+    public void SetGlass(bool isGlass)
+    {
+        if (isGlass == _isGlass)
+        {
+            return;
+        }
+
+        _isGlass = isGlass;
+        ShowPalette(_shownPalette, fade: true);
+    }
+
     private void ShowPalette(ArtworkPalette palette, bool fade)
     {
         Color accent = ToColor(palette.Accent);
         Color accentSoft = Color.FromArgb((byte)Math.Round(ArtworkPalette.AccentSoftOpacity * 255), accent.R, accent.G, accent.B);
-        Color secondary = ToColor(palette.Secondary);
+        Color secondary = _isGlass ? GlassSecondary : ToColor(palette.Secondary);
         if (fade)
         {
             ColorFade.To(_accent, accent);
