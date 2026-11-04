@@ -1,7 +1,8 @@
 // VolumeRowView.xaml.cs: shows the music app's volume and turns clicks and drags on the bar into
 // new levels (PRD FR-39). While dragging, each new level is reported at once, so the music gets
-// louder or quieter under the finger, like the Volume Mixer. Without a sound open with Windows the
-// row is dimmed and does nothing.
+// louder or quieter under the finger, like the Volume Mixer. A click on the quiet speaker mutes
+// the music app, on the loud one sets it to full (Diva, 4 Nov 2026). Without a sound open with
+// Windows the row is dimmed and does nothing.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -35,6 +36,8 @@ public partial class VolumeRowView : UserControl
         bool isAvailable = level is not null;
         Opacity = isAvailable ? 1 : UnavailableOpacity;
         BarArea.IsHitTestVisible = isAvailable;
+        QuietEnd.IsHitTestVisible = isAvailable;
+        LoudEnd.IsHitTestVisible = isAvailable;
         if (!_isDragging)
         {
             _level = level ?? 0;
@@ -77,6 +80,28 @@ public partial class VolumeRowView : UserControl
         Draw(level);
         LevelChosen?.Invoke(this, (float)level);
     }
+
+    private void Pick(double level)
+    {
+        _level = level;
+        Draw(level);
+        LevelChosen?.Invoke(this, (float)level);
+    }
+
+    // Clicks on the speakers never close the island, like clicks on the bar.
+    private void OnQuietEndClick(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        Pick(0);
+    }
+
+    private void OnLoudEndClick(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        Pick(1);
+    }
+
+    private void OnEndMouseUp(object sender, MouseButtonEventArgs e) => e.Handled = true;
 
     private void OnBarMouseEnter(object sender, MouseEventArgs e) => ShowHover(true);
 

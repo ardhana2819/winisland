@@ -306,6 +306,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - It sets the volume of the app the music comes from, as the Windows Volume Mixer does, so a game's sound and Windows' own volume stay as they are.
   - A browser counts as one app: lowering YouTube in Chrome also lowers every other Chrome sound, including WhatsApp Web's ringtone. This is how Windows groups sound. [Unverified: to check in your test]
   - [Confirmed 3 Nov 2026] While the island is open, Ctrl+Up and Ctrl+Down change it by 10 percent (Spotify's own volume keys) and show the volume row, registered only while the island is open, like the other music keys (FR-8).
+  - [Confirmed 4 Nov 2026, Diva] Clicking the quiet speaker at the left of the volume row mutes the music app at once; clicking the loud speaker at the right sets it to full.
   - The mouse wheel over the speaker button, or over the open volume row and a little below it, changes it by 5 percent a notch, like Spotify; elsewhere on the island the wheel still switches pages (FR-21). [Confirmed 3 Nov 2026, Diva]
   - [Confirmed 3 Nov 2026] No speaker button in the empty view. If the app has no sound open with Windows yet, the slider shows dimmed.
   - [Confirmed 3 Nov 2026] Built on the Windows audio session API (the Volume Mixer's API), with no new library.
