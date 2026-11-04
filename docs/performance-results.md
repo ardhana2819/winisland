@@ -8,7 +8,7 @@ Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650
 
 ## v1.5 before release (4 Nov 2026)
 
-**Summary:** v1.5 still meets AC-30 at idle, but with little room left. Glass, clock showing, music paused: working set 142.1 to 147.0 MB on average (peaks up to 151.8 MB), private memory 50.0 to 53.9 MB, CPU 0.08 to 0.34 % on average in the runs without a notification. Compared with v1.4 Glass (136.9 to 140.7 MB), the working set is about 5 MB higher; private memory is the same (v1.4: 51.2 to 54.5 MB), so the extra is probably shared Windows code that v1.5 loads (the audio session API for the volume and the microphone dot), not WinIsland's own data. This is the point the v1.1 decision below named: idle memory is near 150 MB again.
+**Summary:** v1.5 still meets AC-30 at idle, but with little room left. Glass, clock showing, music paused: working set 142.1 to 147.0 MB on average (peaks up to 151.8 MB), private memory 50.0 to 53.9 MB, CPU 0.08 and 0.15 % on average in the two runs without a notification. Compared with v1.4 Glass (136.9 to 140.7 MB), the working set is about 5 MB higher; private memory is the same (v1.4: 51.2 to 54.5 MB), so the extra is probably shared Windows code that v1.5 loads (the audio session API for the volume and the microphone dot), not WinIsland's own data. This is the point the v1.1 decision below named: idle memory is near 150 MB again.
 
 ### Method
 
