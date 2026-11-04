@@ -5,7 +5,10 @@
 // the island is black. Changes fade over 0.45 s; the shade only darkens, so text stays readable.
 // v1.4 Glass look (FR-37): everywhere the island would be black it is clear instead, so the blur
 // behind it shows; almost clear (1 of 255), because a fully clear pixel lets clicks fall through
-// to the window behind. The music page keeps its artwork color on Glass too.
+// to the window behind.
+// v1.7 (FR-45, Diva 4 Nov 2026): on Glass the music page is glass too. The black shade is not
+// drawn; instead GlassTint lays the artwork color over the blur, fading from the top to nothing at
+// the bottom, the way the solid page fades to black.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -25,17 +28,20 @@ internal sealed class PillColors
 
     private readonly SolidColorBrush _background = new(Colors.Black);
     private readonly UIElement _shade;
+    private readonly GlassTint _glassTint;
     private bool _isTinted;
     private RgbColor _shownColor = RgbColor.Black;
     private bool _isGlass;
 
-    public PillColors(Border pill, UIElement shade)
+    public PillColors(Border pill, UIElement shade, GlassTint glassTint)
     {
         ArgumentNullException.ThrowIfNull(pill);
         ArgumentNullException.ThrowIfNull(shade);
+        ArgumentNullException.ThrowIfNull(glassTint);
         pill.Background = _background;
         _shade = shade;
         _shade.Opacity = 0;
+        _glassTint = glassTint;
     }
 
     /// <summary>
@@ -54,8 +60,17 @@ internal sealed class PillColors
         _isTinted = tinted;
         _shownColor = color;
         _isGlass = isGlass;
-        byte alpha = isGlass && !tinted ? (byte)1 : (byte)255;
-        ColorFade.To(_background, Color.FromArgb(alpha, color.R, color.G, color.B));
+        if (isGlass)
+        {
+            // The blur shows everywhere; on the music page the artwork color lies over it as a gradient.
+            ColorFade.To(_background, Color.FromArgb(1, 0, 0, 0));
+            Motion.Run(_shade, UIElement.OpacityProperty, Motion.To(0, FadeSeconds, EaseCurve));
+            _glassTint.Show(tinted, color);
+            return;
+        }
+
+        ColorFade.To(_background, Color.FromRgb(color.R, color.G, color.B));
         Motion.Run(_shade, UIElement.OpacityProperty, Motion.To(tinted ? 1 : 0, FadeSeconds, EaseCurve));
+        _glassTint.Show(false, color);
     }
 }

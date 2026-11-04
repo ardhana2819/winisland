@@ -111,6 +111,9 @@ internal sealed class IslandMusicPresenter : IDisposable
     public ArtworkPalette CurrentPalette =>
         _island.Music is not null && _music.Artwork is not null ? _music.Palette : ArtworkPalette.Black;
 
+    /// <summary>The look changed (FR-37, FR-45): on Glass the music page's second lines are near-white.</summary>
+    public void SetGlass(bool isGlass) => _controls.SetGlass(isGlass);
+
     /// <summary>Call after every island change.</summary>
     public void Refresh()
     {

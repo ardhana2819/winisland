@@ -107,6 +107,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/IslandLayout.cs` | Where the window goes and how big it is on the current display, at the chosen island size. |
 | App | `Island/IslandResizeAnimator.cs` | Grows or shrinks the island with the shape spring when the size changes in Settings. |
 | App | `Island/GlassLook.cs`, `Island/BlurWindow.cs` | The Glass look: an empty, click-through window right behind the island carries the blur, and follows the island's shape and opacity while it moves. Falls back to Solid if Windows refuses (v1.4). |
+| App | `Island/GlassTint.cs` | On Glass, the artwork color over the blur on the open music page, fading from the top (v1.7, FR-45). |
 | App | `Island/IslandLookResources.cs` | The colors inside the island that change with the look (cards, second lines, badge, peeking cards) and the soft text shadow on Glass (v1.4). |
 | App | `Assets/WinIsland.ico`, `Assets/New-AppIcon.ps1` | The app icon (black tile with the white pill) for the exe, the Start menu and the Settings window, and the script that draws it from the design spec. |
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |

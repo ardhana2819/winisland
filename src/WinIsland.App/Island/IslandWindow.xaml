@@ -81,6 +81,19 @@
                         </Border.Background>
                     </Border>
 
+                    <!-- v1.7 Glass music page (FR-45, DESIGN_SPEC section 13): the artwork color over
+                         the blur, 90 percent at the top, 50 percent at 45 percent of the height, none at
+                         the bottom. PillColors sets the color and fades it in and out. -->
+                    <Border x:Name="PillGlassTint" IsHitTestVisible="False" Opacity="0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop x:Name="GlassTintTop" Color="#00000000" Offset="0" />
+                                <GradientStop x:Name="GlassTintMiddle" Color="#00000000" Offset="0.45" />
+                                <GradientStop x:Name="GlassTintBottom" Color="#00000000" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
                     <!-- Compact, idle: the clock. -->
                     <Grid x:Name="ClockLayer"
                           Width="120"

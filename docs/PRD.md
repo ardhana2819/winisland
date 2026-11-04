@@ -32,7 +32,7 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 
 - An installer, `WinIsland-<version>-setup.exe`: install and uninstall WinIsland like a normal app, from Windows Settings > Apps (FR-44). The zip stays in each release too.
 
-### What v1.7 adds, in short (draft, 4 Nov 2026)
+### What v1.7 adds, in short (approved 4 Nov 2026)
 
 - On Glass, the music page is glass too while a song plays: the artwork colour at the top fades into plain glass at the bottom, like the solid page fades to black (FR-45, backlog F8, variant C in the prototype).
 
@@ -344,12 +344,12 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
 - FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
 
-**v1.7 [Proposed, 4 Nov 2026: variant C picked by you in the prototype]**
+**v1.7 [Confirmed 4 Nov 2026: variant C picked by you in the prototype, PRD approved the same day]**
 
 - FR-45. Glass music page while a song plays (backlog F8).
   - With Look Glass, the open music page of a song with artwork is glass too, like the other pages: Windows' blur behind it, the soft text shadow, no dark fade at the bottom. [Confirmed 4 Nov 2026: variant C]
   - Over the blur lies the artwork's background colour (FR-25), strongest at the top and fading to nothing at the bottom: 90 percent at the top, 50 percent at 45 percent of the height, 0 at the bottom. The solid page fades to black the same way; this one fades to plain glass. [Confirmed 4 Nov 2026: "dari atas ke bawah kayak yang solid"]
-  - The artist and the times are white at 85 percent, as the second lines on the other glass pages (FR-37), not the grey of the solid page, which disappears over bright games. [Confirmed 4 Nov 2026: "disamain kayak yang notification, jadi selaras"]
+  - The artist and the times are white at 85 percent, as the second lines on the other glass pages (FR-37), not the grey of the solid page, which disappears over bright games. Also on the plain glass music page (no artwork, nothing playing), so every glass page matches. [Confirmed 4 Nov 2026: "disamain kayak yang notification, jadi selaras"]
   - Unchanged: the title in white; the artwork; the play button, previous and next, equalizer, progress bar and speaker in the artwork's accent (FR-25); the white volume row (FR-39); the 0.45 second colour fade when the song changes. Solid keeps today's music page. No artwork, or nothing playing: plain glass, as today.
   - [Unverified] Readability over real games: the prototype only imitates the blur, and the accent controls at the bottom sit on plain glass. You check it with light, dark and grey covers over a bright and a dark game, as for FR-37.
   - Idle memory and CPU: no change expected, because only the colours drawn on the page change; checked once after the build.
@@ -599,7 +599,7 @@ v1.6 [Confirmed 4 Nov 2026]:
 - Phase 20: the installer (FR-44). Your old copy was removed first (4 Nov 2026), so the test starts clean.
 - Then release `v1.6.0-beta.1`, with the installer and the zip.
 
-v1.7 [Proposed, 4 Nov 2026]:
+v1.7 [Confirmed 4 Nov 2026]:
 
 - Phase 21: the glass music page (FR-45), after you approve this PRD. The prototype already shows it (variant C).
 - Then release `v1.7.0-beta.1`.
@@ -644,4 +644,4 @@ v1.7 [Proposed, 4 Nov 2026]:
 24. v1.5 released as v1.5.0-beta.1 on 4 Nov 2026 (your request), after Phase 19 and before the installer (Phase 20), which this PRD had planned first; the installer comes in a later release, its version still to be chosen. Glass keeps its beta label. Next: the installer (backlog F7) and its open questions.
 25. Installer answers, 4 Nov 2026 [Confirmed]: uninstall keeps `.winisland`; publisher "Diva" (can change later); the zip stays in each release next to the installer; Inno Setup approved as a new build tool, used only in CI; the CLAUDE.md rule "Releases contain only the app zip" becomes "the app zip and the installer"; released as v1.6.0-beta.1.
 26. v1.6 released as v1.6.0-beta.1 on 4 Nov 2026 (your request), with the installer and the zip. The README now has a plain-language "How light is it?" section with the measured numbers (your request). Next: no batch planned; the glass music page (backlog F8) waits for your call.
-27. Glass music page, 4 Nov 2026 [Proposed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.
+27. Glass music page, 4 Nov 2026 [Confirmed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.

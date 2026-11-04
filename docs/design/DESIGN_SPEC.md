@@ -275,12 +275,12 @@ Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
 
 - The tray uses `WinIsland.ico` (concept B, "Mono pill") instead of the white pill drawn in code.
 
-## 13. v1.7 additions (draft, 4 Nov 2026)
+## 13. v1.7 additions (approved 4 Nov 2026)
 
 Glass music page while a song plays (PRD FR-45, backlog F8). Variant C in the prototype, picked by Diva on 4 Nov 2026.
 
 - Only with Look Glass, on the open music page while a song with artwork is shown. Solid is unchanged; with no artwork the page stays plain glass.
 - Background: Windows' blur (as on the other glass pages) with the artwork's background colour (section 9) laid over it as a top to bottom gradient: 90 percent opacity at the top, 50 percent at 45 percent of the height, 0 at the bottom. The dark fade of the solid page (black from 0 to 100 percent) is not drawn.
-- Text: the title white; the artist, the elapsed time and the total time white at 85 percent (the solid page's secondary text is in section 9). All text has the glass text shadow (black, blur radius 3, 1 down, 45 percent).
+- Text: the title white; the artist, the elapsed time and the total time white at 85 percent, on every glass music page (also the plain one without artwork) (the solid page's secondary text is in section 9). All text has the glass text shadow (black, blur radius 3, 1 down, 45 percent).
 - Unchanged: artwork 64 with its radius, the accent on the play button (accent at 22 percent fill), previous, next, equalizer, progress fill and speaker; the progress track white at 18 percent; the white volume row; all sizes, gaps and the 0.45 second colour fade between songs.
 - The prototype imitates the blur with CSS, so the app's look is checked over real games (PRD AC-41).

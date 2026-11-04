@@ -88,7 +88,7 @@ public partial class IslandWindow : Window
         _outsideClickWatcher = new OutsideClickWatcher(island, Pill);
         _notificationPresenter = new IslandNotificationPresenter(island, notifications, BannerLayer, CallLayer, ExpandedLayer.Notifications);
         ExpandedLayer.PageRequested += (_, page) => _island.ShowPage(page);
-        _pillColors = new PillColors(Pill, PillShade);
+        _pillColors = new PillColors(Pill, PillShade, new GlassTint(PillGlassTint, GlassTintTop, GlassTintMiddle, GlassTintBottom));
         _resizeAnimator = new IslandResizeAnimator(IslandGrowScale);
         _music.ArtworkChanged += (_, _) => UpdatePillColors();
         _permissionPrompt = new PermissionPromptBehavior(island, PermissionLayer);
@@ -349,6 +349,7 @@ public partial class IslandWindow : Window
 
         _shownLook = look;
         IslandLookResources.Apply(Application.Current.Resources, look, Pill);
+        _musicPresenter.SetGlass(look == IslandLook.Glass);
         UpdatePillColors();
     }
 
