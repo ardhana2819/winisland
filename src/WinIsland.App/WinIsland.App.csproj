@@ -13,6 +13,11 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\WinIsland.ico</ApplicationIcon>
+    <!-- Compile each method fully once instead of twice (quick, then optimized in the background).
+         About 16 MB less memory at idle, no extra idle CPU and half the startup CPU (measured 4 Nov
+         2026, docs/performance-results.md). Turned off before the v1.5 release, when idle memory came
+         near 150 MB (Diva, 4 Nov 2026). -->
+    <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
 
   <ItemGroup>
