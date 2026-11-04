@@ -5,8 +5,9 @@
   shape: 16 high hit area, 4 high track in white at 18 percent, 6 high with a 10 round thumb on
   hover. White for every artwork, so it is never mistaken for the song's progress (Diva, 3 Nov 2026).
   Speaker symbols 14 high, measured by their drawn shape, so both sit exactly 8 from the bar.
-  Clicking the quiet speaker sets the volume to 0, the loud one to full (Diva, 4 Nov 2026); each
-  takes its whole slot as the click area.
+  Clicking the quiet speaker sets the volume to 0, the loud one to full (Diva, 4 Nov 2026). The
+  click area is the symbol's slot plus 8 on every side, the gap to the bar included (Diva asked
+  for a wider area); the padding keeps the symbol where it was.
 -->
 <UserControl x:Class="WinIsland.App.Music.VolumeRowView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -20,6 +21,8 @@
         </Grid.ColumnDefinitions>
         <Border x:Name="QuietEnd"
                 Grid.Column="0"
+                Margin="-8"
+                Padding="8"
                 Background="Transparent"
                 Cursor="Hand"
                 AutomationProperties.Name="Mute the music app"
@@ -52,6 +55,8 @@
         </Grid>
         <Border x:Name="LoudEnd"
                 Grid.Column="2"
+                Margin="-8"
+                Padding="8"
                 Background="Transparent"
                 Cursor="Hand"
                 AutomationProperties.Name="Music app at full volume"
