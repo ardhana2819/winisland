@@ -70,6 +70,8 @@ A setting to switch the island from solid black to a glass or blur style, so it 
 
 ### F7. Install and uninstall like a normal app [Confirmed]
 
+Moved to the PRD as FR-44 (v1.6, 4 Nov 2026), built as option 1 with your answers: keep `.winisland`, publisher "Diva", keep the zip. Option 2 (MSIX) stays an idea for a public release.
+
 Today WinIsland comes as a zip with manual steps (README "Install on another PC" and "Uninstall"). Instead: a `WinIsland-Setup.exe` that installs it, and uninstalling from Windows Settings > Apps > Installed apps removes everything.
 
 - [Proposed] Option 1 first: a per-user installer (for example Inno Setup), no admin rights. It adds the files, the Start menu shortcut and start with Windows; uninstall removes them. Built by CI at release time. Without a paid signature, Windows shows a SmartScreen warning once per version (More info > Run anyway).
