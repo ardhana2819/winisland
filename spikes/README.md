@@ -8,6 +8,7 @@ Small, throwaway test programs for Phase 1. Each one answers a technical questio
 | `OverlayProbe/` | U4, U5 | Black topmost, non-activating pill at the top center. Shows click focus result and hotkey status. Right-click to close. |
 | `GlassProbe/` | G1 to G5 (v1.4) | A glass pill with Windows' own blurred backdrop, a dark tint and a clock; click to change its shape. Tests the glass look of backlog F6. Right-click to close. |
 | `MediaProbe/` | U6, B3 | Console program that reads the Spotify media session and tries each control. `--report` reads only. |
+| `EmojiProbe/` | E1 to E3 (v1.8) | Console program that draws sample lines with Windows' color emoji layers (COLR version 0) over WPF's own layout, to PNG files, and prints time and memory. |
 | `measure-idle.ps1` | Idle CPU and memory | Samples a running process's CPU and memory for a number of seconds. |
 
 How to build and run each test: see `docs/spike-results.md`.

@@ -67,6 +67,14 @@ Settings that worked for Diva: tint 0 (as light as her TranslucentTB taskbar), a
 | C4. A missed call leaves a notification, and what it says | Pass, 2 Nov 2026 | Answered and declined calls leave nothing. A call left to ring out: the incoming notification is REMOVED after 60 s and 0.05 s later a new one is ADDED: caller's name, then an emoji plus "Missed voice call" | A missed call arrives as an ordinary WhatsApp Web notification, so it already becomes a normal banner and card |
 | C5. Video call instead of voice call | Pass (Web), 2 Nov 2026 | Same shape; second text: emoji plus "Incoming video call"; REMOVED after 7.1 s | The banner can say "Incoming video call" |
 
+v1.8 color emoji spike (`spikes/EmojiProbe`, 4 Nov 2026, Claude ran on Diva's PC). Diva asked for Apple-style emoji in notifications; Apple's emoji art is Apple's and may not be used in other apps, so she chose option A: Windows' own color emoji (Segoe UI Emoji). WPF draws emoji only as black and white outlines (checked: 0 colored pixels). The font holds two color versions: COLR version 1 (gradients) and, for older programs, COLR version 0 (flat colored layers) for 3,487 emoji. The probe lets WPF lay the text out (so skin tones and families are joined by the font) and redraws every emoji glyph as its version 0 layers. No new library.
+
+| Test | Result | Evidence | What it means for the PRD |
+|---|---|---|---|
+| E1. Emoji show in color, laid out in normal text | Pass, 4 Nov 2026 | 😂 👍 ❤️ 🔥 🎉 ✨ 🙏 🥹 ✔ in color; skin tones 👍🏽 👋🏿 and the family 👨‍👩‍👧 joined and colored; text stays white. Images: `Claude outputs/emoji-spike.png` (top line of each pair as today, bottom line colored) | Color emoji are possible in WPF without a library, in Windows' flat Fluent style |
+| E2. What does not change | Noted, 4 Nov 2026 | Country flags show as letters (ID, JP): Segoe UI Emoji has no flags, Windows shows the same letters. 🫠 🫶 show as empty boxes in both lines: WPF's font fallback does not find them. Keycap 1️⃣ stays an outline. ☺ without the emoji marker stays text, as Unicode intends | These stay as they are today; the feature changes only emoji the font colors |
+| E3. Cost | Pass, 4 Nov 2026 | Reading the color tables: 37 ms once, about 3 MB of memory kept (the probe also kept a 7 MB table copy only while reading). Drawing a line: 318 ms the first time (start-up of the drawing code), then 2.6 to 6.0 ms per line | Read once at start or on the first emoji; about 3 MB more memory, measured again in the app |
+
 ### Extra findings
 
 - **Media "current session" is not Spotify.** Windows reported 3 sessions (Spotify.exe, Chrome, Brave) and chose Brave as the current one. The product must pick the Spotify session by its app id (`Spotify.exe`), not use Windows' current session (FR-7, FR-10).
