@@ -6,6 +6,14 @@ Labels follow `docs/spike-results.md`: "Claude ran" means Claude Code ran it on 
 
 Test machine (Diva's PC): Intel Core i5-9400F (6 cores), NVIDIA GeForce GTX 1650 Super (4 GB), 16 GB DDR4 2666 MHz, Windows 11 Pro 24H2 (build 26100).
 
+## v1.7 glass music page, and memory after use (4 Nov 2026)
+
+**Summary:** the glass music page (FR-45) and the smoother glass opening do not change idle use. Freshly started, v1.7.0-test.2 (installed, Glass, Extra large, Spotify paused, clock showing): working set 128.4 to 135.4 MB, private memory 46.9 to 54.2 MB, CPU 0.06 to 0.09 %. v1.6.0-beta.1 from the release zip, measured the same way right before it: 126.9 to 135.0 MB, 46.6 to 55.1 MB, 0.08 to 0.15 %.
+
+After use the numbers sit higher: the same v1.7 build, after about 5 minutes of use (the island opened, songs skipped, music playing, then paused), idled at 147.4 to 156.2 MB working set and 56.5 to 65.2 MB private memory, with the same near-zero CPU. In both builds memory climbs about 3 MB every 30 s while idle and drops back when .NET collects (for example 155.4 to 147.4 MB), so it is short-lived memory being tidied up, not a leak. Its source was not traced; it was already in v1.6. With music playing (equalizer moving), v1.7 used 139.6 to 139.7 MB and 0.88 to 1.06 % CPU.
+
+Claude ran `spikes/measure-idle.ps1 -Seconds 30`, three or four runs per build, on Diva's PC.
+
 ## v1.5 before release (4 Nov 2026)
 
 **Decision (Diva, 4 Nov 2026): tiered compilation is turned off** (`<TieredCompilation>false</TieredCompilation>` in `WinIsland.App.csproj`), the option the v1.1 decision kept for this moment. With it, v1.5 idles at 126.6 to 130.7 MB working set and 44.8 to 47.4 MB private memory, about 16 MB and 7 MB less than before, with the same near-zero idle CPU and half the startup CPU (1734 ms instead of 3297 ms). Diva checks whether the first opening of a page feels slower; if it does, the setting goes back.

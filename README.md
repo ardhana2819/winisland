@@ -16,12 +16,12 @@ WinIsland is meant to sit on screen all day, also while you play, so it was buil
 |---|---|---|
 | Processor (CPU) while idle | 0.05 to 0.09 % | Less than a tenth of one percent of the processor: in practice, nothing. |
 | Processor when a message arrives | 4 to 6 % for a moment | The banner's short animation; it drops back to almost zero right after. |
-| Memory (RAM) | about 127 to 131 MB, of which 45 to 47 MB is WinIsland's own | Less than 1 % of 16 GB. The part that is not WinIsland's own is mostly Windows' shared program parts, which other apps load too. |
+| Memory (RAM) | about 127 to 135 MB right after it starts, of which 45 to 55 MB is WinIsland's own; about 140 to 155 MB after it has been used for a while | Less than 1 % of 16 GB. The part that is not WinIsland's own is mostly Windows' shared program parts, which other apps load too. After use, .NET keeps a little more memory ready, and it goes up and down a few MB as .NET tidies up; it does not keep growing. |
 | Video memory (graphics card) | 0 MB | The island is drawn by the processor, not the graphics card, so it takes nothing away from your games. With the Glass look, the blur behind it is drawn by Windows itself, which draws your screen anyway. |
 | Start-up | about 1.7 s of processor time | Spread over the first seconds after Windows starts. |
 | Network | none | WinIsland never goes online. |
 
-**In short:** WinIsland is very light. While it waits, it uses almost no processor time; it takes less than 1 % of the memory on a 16 GB PC and no graphics card memory at all. On a PC like the one above you should not notice it in games or daily work. On a slower PC or one with less memory it still uses the same small amounts, so it takes a bigger share there.
+**In short:** WinIsland is very light. While it waits, it uses almost no processor time; it takes about 1 % of the memory on a 16 GB PC and no graphics card memory at all. On a PC like the one above you should not notice it in games or daily work. On a slower PC or one with less memory it still uses the same small amounts, so it takes a bigger share there.
 
 ## Requirements
 

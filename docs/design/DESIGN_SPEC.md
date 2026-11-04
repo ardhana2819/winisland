@@ -284,3 +284,10 @@ Glass music page while a song plays (PRD FR-45, backlog F8). Variant C in the pr
 - Text: the title white; the artist, the elapsed time and the total time white at 85 percent, on every glass music page (also the plain one without artwork) (the solid page's secondary text is in section 9). All text has the glass text shadow (black, blur radius 3, 1 down, 45 percent).
 - Unchanged: artwork 64 with its radius, the accent on the play button (accent at 22 percent fill), previous, next, equalizer, progress fill and speaker; the progress track white at 18 percent; the white volume row; all sizes, gaps and the 0.45 second colour fade between songs.
 - The prototype imitates the blur with CSS, so the app's look is checked over real games (PRD AC-41).
+
+Update button in Settings (PRD FR-46). [Proposed, 4 Nov 2026]
+
+- On the title row of the Settings card, right-aligned: a button "Update" in the same style as the hotkey buttons (same fill, border, radius, height and 14 text), as wide as its text plus 16 on each side.
+- Under the title "WinIsland settings": "Version 1.7.0-beta.1" (the installed version, without the leading "v") in 12, in the grey note color used under "Look"; the first setting row moves down by the line's height.
+- Greyed out (40 percent) with the tooltip "Update needs the installed WinIsland" when the update script is not next to WinIsland.
+- Clicking it opens the update script's own window; the Settings window stays as it is until the update closes WinIsland.
