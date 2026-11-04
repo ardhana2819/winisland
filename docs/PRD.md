@@ -1,4 +1,4 @@
-# WinIsland PRD (v1.6)
+# WinIsland PRD (v1.7)
 
 Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos). Built in Phases 17 to 19, tested by you, idle memory measured and lowered (`docs/performance-results.md`), and released as v1.5.0-beta.1 on 4 Nov 2026, before the installer (decision 24). **v1.6 (the installer, FR-44) approved by you on 4 Nov 2026**, built in Phase 20, tested by you (install, update, uninstall, start with Windows after a restart), and released as v1.6.0-beta.1 on 4 Nov 2026.
 
@@ -31,6 +31,10 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 ### What v1.6 adds, in short (approved 4 Nov 2026)
 
 - An installer, `WinIsland-<version>-setup.exe`: install and uninstall WinIsland like a normal app, from Windows Settings > Apps (FR-44). The zip stays in each release too.
+
+### What v1.7 adds, in short (draft, 4 Nov 2026)
+
+- On Glass, the music page is glass too while a song plays: the artwork colour at the top fades into plain glass at the bottom, like the solid page fades to black (FR-45, backlog F8, variant C in the prototype).
 
 ### What v1.2 adds, in short
 
@@ -291,7 +295,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The blur follows every shape change of the island (open, close, banners, size change) in the same frame. [Verified in spike G3 at 30 fps]
   - [v1.5 polish, Diva 4 Nov 2026: the edges looked rough after a few days of Glass] The edge of the blur is smoothed like the rest of the island. The second window is see-through outside the blur, so its hard window shape (which has no smoothing) no longer forms the edge. [Checked 4 Nov 2026 by Claude: screen captures over black and white stripes, before and after, show stair steps before and a smooth edge after]
   - If Windows refuses the blur (for example right after sign-in, or a Windows update changes it), the island quietly shows the Solid look instead, logs the error type, and tries Glass again on the next start. It never shows a grey or black box. [Confirmed 2 Nov 2026]
-  - The music page keeps its solid artwork colour while a song with artwork is shown, so text stays readable (FR-25). When Spotify is closed or the song has no artwork, the music page is glass too. [Confirmed by Diva 2 Nov 2026; a glass music page while playing is backlog F8]
+  - The music page keeps its solid artwork colour while a song with artwork is shown, so text stays readable (FR-25). When Spotify is closed or the song has no artwork, the music page is glass too. [Confirmed by Diva 2 Nov 2026; a glass music page while playing is backlog F8] [v1.7: replaced by FR-45 once it is built]
   - Banners, notification cards, stacks and the opened chat use a light see-through white fill on the glass (14 percent white), not the dark `#1C1C1E`, so they match the glass. No second blur of their own. [Confirmed by Diva 2 Nov 2026: "cukup blur yang gak begitu gelap"]
 - FR-38. Incoming call banner for WhatsApp Web, without buttons. [Confirmed 2 Nov 2026; spike C1 to C5 passed 2 Nov 2026]
   - When a WhatsApp Web notification's second text ends in "Incoming voice call" or "Incoming video call", the island shows a call banner instead of a message banner: WhatsApp icon, caller name (the first text), "Incoming voice call" or "Incoming video call", and a green circle that gently pulses with a phone symbol for a voice call or a camera for a video call, so a video call is never mistaken for a voice call. No answer or decline buttons (section 4). [Verified in spike C3 and C5; camera confirmed by Diva 2 Nov 2026]
@@ -339,6 +343,16 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - WhatsApp and Discord keep their drawn logos (FR-30).
   - [Confirmed 3 Nov 2026] "Show other Windows apps" stays a setting, off by default; you turn it on.
 - FR-43. The tray icon is the WinIsland app icon (concept B, "Mono pill", FR-34) instead of the plain white pill. [Confirmed 3 Nov 2026]
+
+**v1.7 [Proposed, 4 Nov 2026: variant C picked by you in the prototype]**
+
+- FR-45. Glass music page while a song plays (backlog F8).
+  - With Look Glass, the open music page of a song with artwork is glass too, like the other pages: Windows' blur behind it, the soft text shadow, no dark fade at the bottom. [Confirmed 4 Nov 2026: variant C]
+  - Over the blur lies the artwork's background colour (FR-25), strongest at the top and fading to nothing at the bottom: 90 percent at the top, 50 percent at 45 percent of the height, 0 at the bottom. The solid page fades to black the same way; this one fades to plain glass. [Confirmed 4 Nov 2026: "dari atas ke bawah kayak yang solid"]
+  - The artist and the times are white at 85 percent, as the second lines on the other glass pages (FR-37), not the grey of the solid page, which disappears over bright games. [Confirmed 4 Nov 2026: "disamain kayak yang notification, jadi selaras"]
+  - Unchanged: the title in white; the artwork; the play button, previous and next, equalizer, progress bar and speaker in the artwork's accent (FR-25); the white volume row (FR-39); the 0.45 second colour fade when the song changes. Solid keeps today's music page. No artwork, or nothing playing: plain glass, as today.
+  - [Unverified] Readability over real games: the prototype only imitates the blur, and the accent controls at the bottom sit on plain glass. You check it with light, dark and grey covers over a bright and a dark game, as for FR-37.
+  - Idle memory and CPU: no change expected, because only the colours drawn on the page change; checked once after the build.
 
 **v1.6 [Confirmed 4 Nov 2026]**
 
@@ -536,6 +550,8 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-37. On a PC without WinIsland, the setup installs it without administrator rights, it starts from the Start menu, and it appears in Installed apps as WinIsland by Diva.
 - AC-38. Uninstalling from Installed apps leaves no WinIsland files, shortcut, startup entry or identity package behind, and keeps `%USERPROFILE%\.winisland`.
 - AC-39. Running a newer setup over an installed WinIsland updates it in place and keeps its settings.
+- AC-40. With Look Glass and a song with artwork playing, the open music page shows the blur with the artwork colour fading from the top, and the artist and times in near-white; with Look Solid it looks as in v1.6.
+- AC-41. Over a bright and a dark game, with a light, a dark and a grey cover, you can read the title, artist and times and see the controls on the Glass music page.
 
 ## 16. Phased plan
 
@@ -583,6 +599,11 @@ v1.6 [Confirmed 4 Nov 2026]:
 - Phase 20: the installer (FR-44). Your old copy was removed first (4 Nov 2026), so the test starts clean.
 - Then release `v1.6.0-beta.1`, with the installer and the zip.
 
+v1.7 [Proposed, 4 Nov 2026]:
+
+- Phase 21: the glass music page (FR-45), after you approve this PRD. The prototype already shows it (variant C).
+- Then release `v1.7.0-beta.1`.
+
 ## 17. Top risks
 
 1. Notifications may not reach the listener during DND or with banners off (U1, U2). Mitigation: test first. Fallback is a documented setup, for example turning off the automatic DND rule for games.
@@ -623,3 +644,4 @@ v1.6 [Confirmed 4 Nov 2026]:
 24. v1.5 released as v1.5.0-beta.1 on 4 Nov 2026 (your request), after Phase 19 and before the installer (Phase 20), which this PRD had planned first; the installer comes in a later release, its version still to be chosen. Glass keeps its beta label. Next: the installer (backlog F7) and its open questions.
 25. Installer answers, 4 Nov 2026 [Confirmed]: uninstall keeps `.winisland`; publisher "Diva" (can change later); the zip stays in each release next to the installer; Inno Setup approved as a new build tool, used only in CI; the CLAUDE.md rule "Releases contain only the app zip" becomes "the app zip and the installer"; released as v1.6.0-beta.1.
 26. v1.6 released as v1.6.0-beta.1 on 4 Nov 2026 (your request), with the installer and the zip. The README now has a plain-language "How light is it?" section with the measured numbers (your request). Next: no batch planned; the glass music page (backlog F8) waits for your call.
+27. Glass music page, 4 Nov 2026 [Proposed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.

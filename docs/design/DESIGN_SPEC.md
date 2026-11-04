@@ -231,7 +231,7 @@ Glass look (PRD FR-37). [Confirmed in spike rounds 5 to 10, 2 Nov 2026]
 - Text on Glass gets a small soft shadow: black, blur radius 3, 1 down, 45 percent opacity. A larger glow (radius 8, 70 percent) looked like a dark box around each line in the prototype. [Diva, 2 Nov 2026]
 - Second lines on Glass (message previews, times, "N messages", the back chevron) are white at 85 percent instead of `#A6ABB6`, which disappears over bright games. [Diva, 2 Nov 2026]
 - Cards on Glass (banners, notification cards, opened chat rows): white at 14 percent instead of `#1C1C1E`. Peeking stacked cards: white at 10 and 6 percent, drawn only where they peek out below the card, because the card above is see-through.
-- Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork.
+- Music page on Glass: the artwork colour while a song with artwork is shown; glass when Spotify is closed or there is no artwork. v1.7 (FR-45): glass with the artwork colour fading from the top, see section 13.
 - Unchanged on Glass: the page dots and the unread dot.
 - The prototype imitates the blur with CSS `backdrop-filter: blur(22px) saturate(1.3)`; the app uses Windows' own blur, which looks lighter and smoother. "Game scene: Bright" in the prototype puts a bright scene behind the island to check readability.
 
@@ -274,3 +274,13 @@ Other apps' logos (PRD FR-42). [Confirmed 3 Nov 2026]
 Tray icon (PRD FR-43). [Confirmed 3 Nov 2026]
 
 - The tray uses `WinIsland.ico` (concept B, "Mono pill") instead of the white pill drawn in code.
+
+## 13. v1.7 additions (draft, 4 Nov 2026)
+
+Glass music page while a song plays (PRD FR-45, backlog F8). Variant C in the prototype, picked by Diva on 4 Nov 2026.
+
+- Only with Look Glass, on the open music page while a song with artwork is shown. Solid is unchanged; with no artwork the page stays plain glass.
+- Background: Windows' blur (as on the other glass pages) with the artwork's background colour (section 9) laid over it as a top to bottom gradient: 90 percent opacity at the top, 50 percent at 45 percent of the height, 0 at the bottom. The dark fade of the solid page (black from 0 to 100 percent) is not drawn.
+- Text: the title white; the artist, the elapsed time and the total time white at 85 percent (the solid page's secondary text is in section 9). All text has the glass text shadow (black, blur radius 3, 1 down, 45 percent).
+- Unchanged: artwork 64 with its radius, the accent on the play button (accent at 22 percent fill), previous, next, equalizer, progress fill and speaker; the progress track white at 18 percent; the white volume row; all sizes, gaps and the 0.45 second colour fade between songs.
+- The prototype imitates the blur with CSS, so the app's look is checked over real games (PRD AC-41).
