@@ -293,7 +293,7 @@ Update button in Settings (PRD FR-46). [Confirmed 4 Nov 2026]
 - "Update available: 1.7.0-beta.1" under the button, right-aligned, 4 below it, in 12 amber `#FBBF24` (the color of the hotkey problem note), only when the check finds a newer release; otherwise nothing. Its line is always reserved, so nothing moves when it appears 2 seconds after opening. (Diva, 4 Nov 2026)
 - Clicking it opens the update script's own window; the Settings window stays as it is until the update closes WinIsland.
 
-## 14. v1.8 additions (draft, 4 Nov 2026)
+## 14. v1.8 additions (approved 4 Nov 2026)
 
 Color emoji (PRD FR-47, spike E1 to E3).
 

@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using WinIsland.App.Animation;
+using WinIsland.App.Text;
 using WinIsland.Core.Music;
 
 namespace WinIsland.App.Music;
@@ -180,7 +181,7 @@ public partial class MusicControlsView : UserControl
         SetEmptyLook(false);
 
         TitleText.Text = SongText.TitleOf(music);
-        ArtistText.Text = music.Artist;
+        EmojiText.Show(ArtistText, music.Artist);
         Artwork.Background = ArtworkBrush.For(artwork);
         TotalText.Text = TimeLabel.Format(music.Duration);
 
@@ -209,7 +210,7 @@ public partial class MusicControlsView : UserControl
 
         SetEmptyLook(true);
         TitleText.Text = EmptyTitle;
-        ArtistText.Text = string.Empty;
+        EmojiText.Show(ArtistText, string.Empty);
         Artwork.Background = ArtworkBrush.For(null);
         PlayPauseIcon.Data = PlayIcon;
         AutomationProperties.SetName(PlayPauseButton, "Play");

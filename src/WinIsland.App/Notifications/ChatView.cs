@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 
 using WinIsland.App.Island;
+using WinIsland.App.Text;
 using WinIsland.Core.Notifications;
 
 namespace WinIsland.App.Notifications;
@@ -101,12 +102,12 @@ internal static class ChatView
     {
         TextBlock block = new()
         {
-            Text = text,
             FontFamily = IslandFont,
             FontSize = size,
             Margin = margin,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        EmojiText.Show(block, text);
         if (colorKey is not null)
         {
             block.SetResourceReference(TextBlock.ForegroundProperty, colorKey);

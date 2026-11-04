@@ -87,6 +87,9 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Windows/NonActivatingWindow.cs` | Makes the island window stay on top and take clicks without stealing focus from the game. |
 | Platform | `Windows/GlassBackdrop.cs` | Puts Windows' own blur (the host backdrop brush) into a window, cut to the island's rounded shape with smooth edges (v1.4 Glass). |
 | Platform | `Windows/GlassWindow.cs` | The plain Windows window that carries the blur, see-through outside it, so the island's glass edge is smooth (v1.5 polish). |
+| Core | `Text/EmojiSegments.cs`, `Text/EmojiColorTable.cs` | Splits another app's text into plain text and emoji, and reads the emoji font's simple color layers (v1.8, FR-47). |
+| Platform | `Text/EmojiFont.cs` | Reads only the color tables from Windows' emoji font file, once, on the first emoji (v1.8, FR-47). |
+| App | `Text/ColorEmoji.cs`, `Text/EmojiText.cs` | Draws an emoji in color as a small picture, and puts text with emoji into a TextBlock with its line height, trimming and Glass shadow intact (v1.8, FR-47). |
 | Core | `Updates/UpdateCheckOutput.cs` | Reads the update script's quiet result line, so Settings can show "Update available" (v1.7, FR-46). |
 | Platform | `Updates/UpdateScript.cs` | Finds `packaging/Update-WinIsland.ps1` next to WinIsland and starts it in its own window for the Update button, or runs its quiet check without a window when Settings opens (v1.7, FR-46). WinIsland itself never goes online. |
 | Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |

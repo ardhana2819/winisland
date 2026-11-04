@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 
 using WinIsland.App.Island;
+using WinIsland.App.Text;
 using WinIsland.Core.Notifications;
 
 namespace WinIsland.App.Notifications;
@@ -92,15 +93,16 @@ internal static class NotificationCard
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        line.Children.Add(new TextBlock
+        TextBlock sender = new()
         {
-            Text = notification.Sender,
             Foreground = Brushes.White,
             FontFamily = IslandFont,
             FontSize = 14,
             FontWeight = FontWeights.SemiBold,
             TextTrimming = TextTrimming.CharacterEllipsis,
-        });
+        };
+        EmojiText.Show(sender, notification.Sender);
+        line.Children.Add(sender);
 
         TextBlock time = new()
         {
@@ -137,7 +139,6 @@ internal static class NotificationCard
     {
         TextBlock block = new()
         {
-            Text = preview,
             FontFamily = IslandFont,
             FontSize = 13,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -150,6 +151,8 @@ internal static class NotificationCard
             block.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
             block.MaxHeight = MaxLines * TextLineDips;
         }
+
+        EmojiText.Show(block, preview);
 
         block.SetResourceReference(TextBlock.ForegroundProperty, IslandLookResources.SecondaryTextBrush);
         return block;

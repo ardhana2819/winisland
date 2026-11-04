@@ -37,7 +37,7 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 - On Glass, the music page is glass too while a song plays: the artwork colour at the top fades into plain glass at the bottom, like the solid page fades to black (FR-45, backlog F8, variant C in the prototype).
 - An "Update" button in WinIsland's Settings window (and an "Update WinIsland" shortcut in the Start menu) that installs the newest release in one click; WinIsland itself stays offline (FR-46).
 
-### What v1.8 adds, in short (draft, 4 Nov 2026)
+### What v1.8 adds, in short (approved 4 Nov 2026)
 
 - Emoji in notifications and in the song's title and artist show in color, in Windows' own emoji style, instead of black and white outlines (FR-47, spike E1 to E3).
 
@@ -370,13 +370,14 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The window closes by itself 10 seconds after a successful update; after a problem it waits for a key, so the message can be read.
   - First use: v1.7.0-beta.1 itself is installed with its setup as usual; from then on the shortcut brings later releases.
 
-**v1.8 [Proposed, 4 Nov 2026]**
+**v1.8 [Confirmed 4 Nov 2026]**
 
-- FR-47. Color emoji. [Proposed, 4 Nov 2026: you asked for Apple-style emoji and chose Windows' own color emoji (option A); notifications and songs both]
+- FR-47. Color emoji. [Confirmed 4 Nov 2026: you asked for Apple-style emoji and chose Windows' own color emoji (option A); notifications and songs both]
   - Today WinIsland shows emoji as black and white outlines, because WPF cannot draw color emoji. [Verified 4 Nov 2026: 0 colored pixels]
   - Emoji show in color everywhere the island shows text from another app: the sender and preview on banners, notification cards, stacks and the opened chat, the caller on the call banner, and the song's title and artist on the music pill and the music page. Island text WinIsland writes itself (the clock, "Not playing", times) has no emoji and stays as it is.
   - The colors are Windows' own emoji (Segoe UI Emoji), in its flat style: the font's simple color layers, drawn by WinIsland over WPF's normal layout. Skin tones and joined emoji (families) show as one emoji, as in Windows. No new library, no extra files. [Verified in spike E1, 4 Nov 2026]
   - Not Apple's emoji: Apple's emoji art belongs to Apple and may not be used in other apps.
+  - [Found in the build, 4 Nov 2026] WPF's "…" does not hide pictures after the cut, so one-line text with emoji is cut by WinIsland itself, between whole characters; the scrolling song title keeps scrolling instead. The emoji is placed so the line keeps its height (a full emoji line box made it 3 to 4 taller).
   - Unchanged: country flags show as letters (Windows' emoji font has no flags; Windows shows the same letters); emoji the font does not have stay as they are today; text keeps its size, line, trimming with "…" and, on Glass, its soft shadow.
   - Cost: about 3 MB more memory, read once when the first emoji appears, and a few milliseconds per line. [Verified in spike E3: 37 ms and about 3 MB once; 2.6 to 6 ms per line] Measured again in the app.
 
@@ -637,7 +638,7 @@ v1.7 [Confirmed 4 Nov 2026]:
 - Phase 22: the update button and shortcut (FR-46).
 - Then release `v1.7.0-beta.1`.
 
-v1.8 [Proposed, 4 Nov 2026]:
+v1.8 [Confirmed 4 Nov 2026]:
 
 - Phase 23: color emoji (FR-47), after you approve this PRD. Spike E1 to E3 passed on 4 Nov 2026.
 - Then release `v1.8.0-beta.1`, installed through the Update button.
@@ -685,4 +686,4 @@ v1.8 [Proposed, 4 Nov 2026]:
 27. Glass music page, 4 Nov 2026 [Confirmed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.
 28. Updating, 4 Nov 2026 [Confirmed]: you asked for an update button in Settings. Downloading inside WinIsland would break two rules (no network calls in the app; never handle tokens, and the private repository needs one), so you chose option B: a separate update script that uses the GitHub CLI already signed in on the PC. Then you asked for the button in Settings after all: it only starts that script, so both rules hold (FR-46).
 29. v1.7 released as v1.7.0-beta.1 on 4 Nov 2026 (your request). It is the first release the Update button can install: from an older WinIsland, Settings shows "Update available" and Update brings it in place (AC-42, checked with this release). Next: no batch planned.
-30. Color emoji, 4 Nov 2026 [Proposed]: you asked whether notifications can show Apple's emoji. Apple's emoji art may not be used in other apps, so you chose Windows' own color emoji (option A, over a free set like Twemoji or Noto, or leaving them black and white), for notifications and songs. Spike E1 to E3 passed; written as FR-47 for v1.8.
+30. Color emoji, 4 Nov 2026 [Confirmed]: you asked whether notifications can show Apple's emoji. Apple's emoji art may not be used in other apps, so you chose Windows' own color emoji (option A, over a free set like Twemoji or Noto, or leaving them black and white), for notifications and songs. Spike E1 to E3 passed; written as FR-47 for v1.8.
