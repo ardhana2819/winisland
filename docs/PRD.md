@@ -35,6 +35,7 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 ### What v1.7 adds, in short (approved 4 Nov 2026)
 
 - On Glass, the music page is glass too while a song plays: the artwork colour at the top fades into plain glass at the bottom, like the solid page fades to black (FR-45, backlog F8, variant C in the prototype).
+- An "Update WinIsland" shortcut in the Start menu that installs the newest release in one click; WinIsland itself stays offline (FR-46, draft).
 
 ### What v1.2 adds, in short
 
@@ -353,7 +354,15 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - The artist and the times are white at 85 percent, as the second lines on the other glass pages (FR-37), not the grey of the solid page, which disappears over bright games. Also on the plain glass music page (no artwork, nothing playing), so every glass page matches. [Confirmed 4 Nov 2026: "disamain kayak yang notification, jadi selaras"]
   - Unchanged: the title in white; the artwork; the play button, previous and next, equalizer, progress bar and speaker in the artwork's accent (FR-25); the white volume row (FR-39); the 0.45 second colour fade when the song changes. Solid keeps today's music page. No artwork, or nothing playing: plain glass, as today.
   - [Unverified] Readability over real games: the prototype only imitates the blur, and the accent controls at the bottom sit on plain glass. You check it with light, dark and grey covers over a bright and a dark game, as for FR-37.
-  - Idle memory and CPU: no change expected, because only the colours drawn on the page change; checked once after the build.
+  - Idle memory and CPU: no change expected, because only the colours drawn on the page change; checked once after the build. [Verified 4 Nov 2026: freshly started, 128 to 135 MB and 0.06 to 0.09 % CPU, the same as v1.6 measured the same way]
+- FR-46. Update in one click. [Proposed, 4 Nov 2026: option B, chosen by you]
+  - The installer adds a second Start menu shortcut, "Update WinIsland". Uninstalling removes it.
+  - It opens a small window that checks GitHub for the newest WinIsland release, beta releases included, and compares it with the installed WinIsland's own version (read from its program file).
+  - Newer release: it downloads that release's setup to a temporary folder, runs it silently (it closes WinIsland, updates it in place and keeps the settings, FR-44), deletes the download, starts WinIsland again and says "Updated to <version>". Same or older: it says the installed version is the newest and changes nothing. A test build is always replaced by the release of the same version.
+  - It uses the GitHub CLI (`gh`) that is already signed in on the PC, because the repository is private. WinIsland itself never goes online and never sees a password or token: the rule "No network calls in the app" stays. Without the GitHub CLI or without a sign-in it says so, with the two commands to set it up (`winget install GitHub.cli`, then `gh auth login`), and offers to open the Releases page in the browser instead.
+  - It is a PowerShell script next to the other packaging scripts (`packaging/Update-WinIsland.ps1`), so it also works from the repo or the zip, run by hand.
+  - The window closes by itself 10 seconds after a successful update; after a problem it waits for a key, so the message can be read.
+  - First use: v1.7.0-beta.1 itself is installed with its setup as usual; from then on the shortcut brings later releases.
 
 **v1.6 [Confirmed 4 Nov 2026]**
 
@@ -553,6 +562,9 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-39. Running a newer setup over an installed WinIsland updates it in place and keeps its settings.
 - AC-40. With Look Glass and a song with artwork playing, the open music page shows the blur with the artwork colour fading from the top, and the artist and times in near-white; with Look Solid it looks as in v1.6.
 - AC-41. Over a bright and a dark game, with a light, a dark and a grey cover, you can read the title, artist and times and see the controls on the Glass music page.
+- AC-42. With an older WinIsland installed, one click on "Update WinIsland" installs the newest release, keeps the settings, and WinIsland runs again afterwards.
+- AC-43. With the newest release installed, "Update WinIsland" says so and changes nothing.
+- AC-44. Without the GitHub CLI or its sign-in, "Update WinIsland" explains what to do and changes nothing.
 
 ## 16. Phased plan
 
@@ -602,7 +614,8 @@ v1.6 [Confirmed 4 Nov 2026]:
 
 v1.7 [Confirmed 4 Nov 2026]:
 
-- Phase 21: the glass music page (FR-45), after you approve this PRD. The prototype already shows it (variant C).
+- Phase 21: the glass music page (FR-45), after you approve this PRD. The prototype already shows it (variant C). [Done, merged 4 Nov 2026]
+- Phase 22: the update shortcut (FR-46), after you approve it.
 - Then release `v1.7.0-beta.1`.
 
 ## 17. Top risks
@@ -646,3 +659,4 @@ v1.7 [Confirmed 4 Nov 2026]:
 25. Installer answers, 4 Nov 2026 [Confirmed]: uninstall keeps `.winisland`; publisher "Diva" (can change later); the zip stays in each release next to the installer; Inno Setup approved as a new build tool, used only in CI; the CLAUDE.md rule "Releases contain only the app zip" becomes "the app zip and the installer"; released as v1.6.0-beta.1.
 26. v1.6 released as v1.6.0-beta.1 on 4 Nov 2026 (your request), with the installer and the zip. The README now has a plain-language "How light is it?" section with the measured numbers (your request). Next: no batch planned; the glass music page (backlog F8) waits for your call.
 27. Glass music page, 4 Nov 2026 [Confirmed]: you compared three prototype variants (plain glass, glass with a 35 percent artwork tint, and the artwork colour fading over the glass) and picked the fade, running from top to bottom like the solid page, with the second lines near-white like the notifications page. Written as FR-45 for v1.7.
+28. Updating, 4 Nov 2026 [Proposed]: you asked for an update button in Settings. Inside WinIsland it would break two rules (no network calls in the app; never handle tokens, and the private repository needs one), so you chose option B: a separate "Update WinIsland" shortcut that uses the GitHub CLI already signed in on the PC (FR-46).
