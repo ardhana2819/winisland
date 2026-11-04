@@ -85,6 +85,8 @@ Today WinIsland comes as a zip with manual steps (README "Install on another PC"
 
 ### F8. Glass music page while a song plays [Idea, 2 Nov 2026]
 
+Moved to the PRD as FR-45 (v1.7, 4 Nov 2026): you picked variant C in the prototype, the artwork colour fading from the top into plain glass.
+
 On Glass, the music page keeps the artwork colour while a song plays (FR-37). Idea from you: make that page glass too, perhaps with a light artwork tint over the blur. To discuss later; it needs its own readability tests with many covers.
 
 ## Removed
