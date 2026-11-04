@@ -1,7 +1,7 @@
 ; WinIsland.iss: the Inno Setup script that builds WinIsland-<version>-setup.exe (PRD FR-44).
 ; It installs WinIsland for the current Windows account only, without administrator rights, into
 ; %LOCALAPPDATA%\Programs\WinIsland, and lists it in Windows Settings > Apps with the publisher
-; "Diva". Uninstalling removes the files, the Start menu shortcut, the start with Windows entry and
+; "Diva". Uninstalling removes the files, the Start menu shortcuts, the start with Windows entry and
 ; the instant notifications package, and keeps %USERPROFILE%\.winisland (Diva, 4 Nov 2026).
 ; Build it with Build-Installer.ps1, which passes the version and the published app folder. It runs
 ; on GitHub's build machine, where Inno Setup is already installed; no certificate is used.
@@ -55,6 +55,8 @@ Source: "{#SourceFolder}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdi
 [Icons]
 ; The same name as the zip's Add-StartMenuShortcut.ps1 uses, so it replaces an old shortcut.
 Name: "{autoprograms}\WinIsland"; Filename: "{app}\WinIsland.App.exe"
+; FR-46: installs the newest release through the GitHub CLI; also behind Settings > Update.
+Name: "{autoprograms}\Update WinIsland"; Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\packaging\Update-WinIsland.ps1"""; WorkingDir: "{app}\packaging"; IconFilename: "{app}\WinIsland.App.exe"; Comment: "Install the newest WinIsland"
 
 [Registry]
 ; WinIsland writes this start with Windows entry itself (its Settings); uninstall removes it.

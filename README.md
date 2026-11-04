@@ -39,7 +39,7 @@ WinIsland is meant to sit on screen all day, also while you play, so it was buil
    (without a version, GitHub CLI only looks at releases that are not pre-releases).
 3. Run it. The setup is not signed, so Windows SmartScreen warns once per version: click **More info** > **Run anyway**.
    It installs WinIsland for your Windows account only, without administrator rights, into `%LOCALAPPDATA%\Programs\WinIsland`, adds it to the Start menu, and offers to start it. No .NET install is needed.
-   To update later, run the setup of the newer version: it closes WinIsland, replaces it, and keeps your settings.
+   To update later: tray icon > Settings > **Update** (or Start > **Update WinIsland**). It checks GitHub for the newest release, beta releases included, and if there is one, installs it in place: WinIsland closes for a moment, keeps your settings and starts again. WinIsland itself never goes online; the update uses the GitHub CLI, signed in once on that PC (`winget install GitHub.cli`, then `gh auth login`), because the repository is private. Without it, the window explains what to do and can open the Releases page; running the setup of the newer version by hand does the same.
 4. To pin it: Start > All, right-click WinIsland > Pin to Start. It starts with Windows from the first run on (switch it off in Settings).
 5. **Optional: instant notifications.** Without this step WinIsland checks notifications once per second; with it they arrive in about a tenth of a second. It gives WinIsland "package identity" with a personal signing certificate, trusted once as administrator. Steps, including for another PC: [packaging/README.md](packaging/README.md). The installed WinIsland has the scripts in `%LOCALAPPDATA%\Programs\WinIsland\packaging`.
 

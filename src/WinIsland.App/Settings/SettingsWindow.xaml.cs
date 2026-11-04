@@ -5,7 +5,12 @@
 // change (a rule in Core, or a combination another app owns) shows in amber under the hotkeys,
 // like the design board.
 // Island size (FR-32): Small, Medium, Large or Extra large; the island resizes at once.
+// v1.7 (FR-46): the installed version under the title, and an Update button that starts the
+// update script in its own window. WinIsland itself does not go online. When the window opens,
+// the script's quiet check runs without a window; only if a newer release exists does an amber
+// "Update available: x" show under the button (Diva, 4 Nov 2026).
 
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,6 +19,8 @@ using System.Windows.Interop;
 using WinIsland.Core.Hotkeys;
 using WinIsland.Core.Island;
 using WinIsland.Core.Settings;
+using WinIsland.Core.Updates;
+using WinIsland.Platform.Updates;
 using WinIsland.Platform.Windows;
 
 namespace WinIsland.App.Settings;
@@ -21,6 +28,7 @@ namespace WinIsland.App.Settings;
 public partial class SettingsWindow : Window
 {
     private const string RecordingText = "Press keys…";
+    private static readonly TimeSpan UpdateCheckTimeout = TimeSpan.FromSeconds(20);
 
     private static readonly (IslandSize Size, string Name)[] SizeNames =
     [
@@ -56,6 +64,7 @@ public partial class SettingsWindow : Window
         // knows it may not look right in every game.
         LookBox.Items.Add(new ComboBoxItem { Content = "Glass (beta)", Tag = IslandLook.Glass });
 
+        ShowVersionAndUpdate();
         SourceInitialized += (_, _) => DarkTitleBar.Apply(new WindowInteropHelper(this).Handle);
         PreviewKeyDown += OnPreviewKeyDown;
         Deactivated += (_, _) => StopRecording(applied: false);
@@ -63,6 +72,41 @@ public partial class SettingsWindow : Window
         _controller.Changed += (_, _) => ShowSettings();
         ShowSettings();
         ShowProblems(_controller.HotkeyConflictText is null ? [] : [$"{_controller.HotkeyConflictText}. Choose a different shortcut."]);
+    }
+
+    // The informational version keeps the "-beta.1" part ("1.7.0-beta.1"); the assembly version cannot.
+    private void ShowVersionAndUpdate()
+    {
+        string version = typeof(SettingsWindow).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+        VersionText.Text = $"Version {version}";
+        bool canUpdate = UpdateScript.Find() is not null;
+        UpdateButton.IsEnabled = canUpdate;
+        UpdateButton.ToolTip = canUpdate ? "Install the newest WinIsland" : "Update needs the installed WinIsland";
+        if (canUpdate)
+        {
+            Loaded += async (_, _) => await ShowIfUpdateAvailableAsync();
+        }
+    }
+
+    // Each opening checks again; up to date, offline or no GitHub CLI shows nothing.
+    private async Task ShowIfUpdateAvailableAsync()
+    {
+        if (UpdateScript.Find() is not string script)
+        {
+            return;
+        }
+
+        string? version = UpdateCheckOutput.AvailableVersion(await UpdateScript.CheckAsync(script, UpdateCheckTimeout));
+        UpdateNote.Text = version is null ? string.Empty : $"Update available: {version}";
+        UpdateNote.Visibility = version is null ? Visibility.Hidden : Visibility.Visible;
+    }
+
+    private void OnUpdateClick(object sender, RoutedEventArgs e)
+    {
+        if (UpdateScript.Find() is not string script || !UpdateScript.Start(script))
+        {
+            ShowProblems(["The update could not start. Use Start > Update WinIsland, or the setup from the Releases page."]);
+        }
     }
 
     private void ShowSettings()

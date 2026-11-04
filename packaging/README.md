@@ -19,11 +19,13 @@ To undo: `.\Unregister-IdentityPackage.ps1 -PackageName WinIsland`. WinIsland th
 | `Add-StartMenuShortcut.ps1` | Puts WinIsland in this user's Start menu (`-Remove` takes it out again). Pin it from Start > All yourself; Windows does not let apps pin themselves. | No |
 | `Install-WinIslandIdentity.ps1` | One step for WinIsland: checks the certificate, builds and signs the package, replaces an earlier registration, registers it for the folder with `WinIsland.App.exe`. | No |
 | `WinIslandFolder.ps1` | Shared helper: finds the folder with `WinIsland.App.exe` (the unzipped release, or the repo's Release build). | |
+| `Assets\` | The package's logos, made from the WinIsland icon. Windows shows the 44 one on the taskbar for WinIsland's Settings window. | |
 | `AppxManifest.template.xml` | Manifest with `{{...}}` placeholders. Declares external content, full trust, and the `userNotificationListener` capability. | |
 | `New-DevCertificate.ps1` | Creates a self-signed code signing certificate (`CN=WinIsland Dev`) in your certificate store and trusts it on this PC. | **Yes** |
 | `Build-IdentityPackage.ps1` | Fills in the template, packs it with `makeappx`, signs it with `signtool`. | No |
 | `Register-IdentityPackage.ps1` | Registers a signed package for your user, pointing at the exe's folder. | No |
 | `Unregister-IdentityPackage.ps1` | Removes a registered package again. | No |
+| `Update-WinIsland.ps1` | Installs the newest WinIsland release through the GitHub CLI signed in on this PC (PRD FR-46). Started by Settings > Update and by Start > Update WinIsland. `-CheckOnly` only reports. | No |
 | `Publish-WinIsland.ps1` | Build only (not shipped): makes the self-contained folder a release ships, with these scripts in it. Used by the Release and Installer workflows. | No |
 | `WinIsland.iss`, `Build-Installer.ps1` | Build only (not shipped): the Inno Setup script for `WinIsland-<version>-setup.exe` (PRD FR-44) and the script that builds it on GitHub's build machine. Uninstalling removes the identity package too. | No |
 

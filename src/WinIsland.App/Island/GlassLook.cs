@@ -34,6 +34,7 @@ internal sealed class GlassLook : IDisposable
     private BlurWindow? _blur;
     private bool _isFollowing;
     private int _stillFrames;
+    private int _framesSinceShapeChange;
     private (int Left, int Top, int Width, int Height, int Radius, float Opacity) _shown;
 
     public GlassLook(Window island, Border pill)
@@ -135,9 +136,17 @@ internal sealed class GlassLook : IDisposable
         (int, int, int, int, int, float) pill = PillInPixels();
         if (pill == _shown)
         {
-            if (++_stillFrames >= StillFramesBeforeStop)
+            // The click region fits once the shape has not changed for half a second. Counted apart
+            // from _stillFrames, which every layout pass resets: while music plays the pill lays out
+            // every frame, and the region stayed open over the whole window, so clicks next to the
+            // island did not reach the apps behind it (Diva, 4 Nov 2026).
+            if (++_framesSinceShapeChange == StillFramesBeforeStop)
             {
                 _blur.Backdrop.FitRegion();
+            }
+
+            if (++_stillFrames >= StillFramesBeforeStop)
+            {
                 StopFollowing();
             }
 
@@ -145,6 +154,7 @@ internal sealed class GlassLook : IDisposable
         }
 
         _stillFrames = 0;
+        _framesSinceShapeChange = 0;
         _shown = pill;
         (int left, int top, int width, int height, int radius, float opacity) = pill;
         _blur.Backdrop.OpenRegion();

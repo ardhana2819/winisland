@@ -46,7 +46,7 @@ public sealed class GlassBackdrop
     private readonly DesktopWindowTarget _target;
     private readonly SpriteVisual _blur;
     private readonly CompositionRoundedRectangleGeometry _shape;
-    private (int Left, int Top, int Width, int Height, int Radius) _shownShape;
+    private (int Left, int Top, int Width, int Height, int Radius, float Opacity) _shownShape;
     private bool _isRegionOpen;
 
     /// <summary>Sets the glass window up for the blur. Throws when Windows refuses; the caller shows Solid then.</summary>
@@ -82,7 +82,7 @@ public sealed class GlassBackdrop
         _blur.Size = size;
         _shape.Size = size;
         _shape.CornerRadius = new Vector2(radius, radius);
-        _shownShape = (left, top, width, height, radius);
+        _shownShape = (left, top, width, height, radius, opacity);
     }
 
     /// <summary>While the island moves: the whole window, so its shape is not redrawn every frame.</summary>
@@ -100,8 +100,21 @@ public sealed class GlassBackdrop
     /// <summary>Once the island is still: the window shrinks to the island's shape plus a small margin.</summary>
     public void FitRegion()
     {
+        if (!_isRegionOpen)
+        {
+            return;
+        }
+
         _isRegionOpen = false;
-        (int left, int top, int width, int height, int radius) = _shownShape;
+        (int left, int top, int width, int height, int radius, float opacity) = _shownShape;
+        if (opacity <= 0 || width <= 0 || height <= 0)
+        {
+            // The island is hidden: no click area at all, so clicks where it was reach the apps
+            // behind it, as with Solid (Diva, 4 Nov 2026: Chrome's new tab button behind a hidden island).
+            NativeMethods.SetWindowRgn(_window, NativeMethods.CreateRoundRectRgn(0, 0, 0, 0, 0, 0), true);
+            return;
+        }
+
         int margin = RegionMarginPixels;
         int corner = 2 * (radius + margin);
         NativeMethods.SetWindowRgn(_window, NativeMethods.CreateRoundRectRgn(left - margin, top - margin, left + width + margin + 1, top + height + margin + 1, corner, corner), true);

@@ -29,5 +29,7 @@ Get-ChildItem $PSScriptRoot -File |
     Where-Object { $_.Extension -in ".ps1", ".xml" -or $_.Name -eq "README.md" } |
     Where-Object { $_.Name -notin $buildOnly } |
     Copy-Item -Destination $packaging
+# The identity package's logos (Build-IdentityPackage.ps1).
+Copy-Item (Join-Path $PSScriptRoot "Assets") -Destination $packaging -Recurse
 
 Write-Output (Resolve-Path $appFolder).Path
