@@ -129,4 +129,60 @@ internal static partial class NativeMethods
 
     [LibraryImport("CoreMessaging.dll")]
     public static partial int CreateDispatcherQueueController(DispatcherQueueOptions options, out IntPtr controller);
+
+    // v1.5 polish: the blur window as a window that shows only what the blur draws (GlassWindow.cs).
+    public const long WsExNoRedirectionBitmap = 0x00200000;
+    public const uint WsPopup = 0x80000000;
+    public const int SwShowNoActivate = 4;
+    public const uint SwpNoZOrder = 0x0004;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct WindowClass
+    {
+        public int Size;
+        public uint Style;
+        public delegate* unmanaged[Stdcall]<IntPtr, uint, IntPtr, IntPtr, IntPtr> WindowProcedure;
+        public int ClassExtraBytes;
+        public int WindowExtraBytes;
+        public IntPtr Instance;
+        public IntPtr Icon;
+        public IntPtr Cursor;
+        public IntPtr Background;
+        public IntPtr MenuName;
+        public IntPtr ClassName;
+        public IntPtr SmallIcon;
+    }
+
+    [LibraryImport("user32.dll", EntryPoint = "RegisterClassExW", SetLastError = true)]
+    public static partial ushort RegisterClassEx(in WindowClass windowClass);
+
+    [LibraryImport("user32.dll", EntryPoint = "CreateWindowExW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    public static partial IntPtr CreateWindowEx(uint extendedStyle, string className, string title, uint style, int x, int y, int width, int height, IntPtr owner, IntPtr menu, IntPtr instance, IntPtr parameter);
+
+    [LibraryImport("user32.dll", EntryPoint = "DefWindowProcW")]
+    public static partial IntPtr DefWindowProc(IntPtr windowHandle, uint message, IntPtr wParam, IntPtr lParam);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DestroyWindow(IntPtr windowHandle);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool ShowWindow(IntPtr windowHandle, int command);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetWindowRect(IntPtr windowHandle, out Rect rect);
+
+    [LibraryImport("kernel32.dll", EntryPoint = "GetModuleHandleW")]
+    public static partial IntPtr GetModuleHandle(IntPtr moduleName);
 }

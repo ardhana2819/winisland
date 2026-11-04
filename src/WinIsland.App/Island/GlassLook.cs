@@ -1,7 +1,7 @@
 // GlassLook.cs: turns the Glass look on and off and keeps the blur exactly under the island
 // (PRD FR-37, DESIGN_SPEC section 11).
-// On: a BlurWindow is placed over the island window and made the island's owner, which keeps the
-// island always above it. Its blur follows the pill's place, size, corners and opacity, so it
+// On: a BlurWindow is placed over the island window (it can move with the display) and made the
+// island's owner, which keeps the island always above it. Its blur follows the pill's place, size, corners and opacity, so it
 // moves with every shape change, the hide animation and the size change in the same frame
 // (glass spike G3).
 // Following costs a little each frame, so it runs only while something may be moving: it starts
@@ -55,18 +55,20 @@ internal sealed class GlassLook : IDisposable
             return true;
         }
 
-        BlurWindow blur = new() { Left = _island.Left, Top = _island.Top, Width = _island.Width, Height = _island.Height };
-        blur.Show();
+        BlurWindow blur = new();
         if (blur.Backdrop is null)
         {
             Trace.TraceWarning("Glass look unavailable, showing Solid: {0} (HRESULT 0x{1:X8})", blur.Problem?.GetType().Name, blur.Problem?.HResult);
-            blur.Close();
+            blur.Dispose();
             return false;
         }
 
         _blur = blur;
-        _island.Owner = blur;
-        blur.Backdrop.PlaceBelow(new WindowInteropHelper(_island).Handle);
+        WindowInteropHelper island = new(_island);
+        blur.PlaceOver(island.Handle);
+        blur.Show();
+        island.Owner = blur.Handle;
+        blur.Backdrop.PlaceBelow(island.Handle);
         _shown = default;
         _refresh.Start();
         Follow();
@@ -82,8 +84,9 @@ internal sealed class GlassLook : IDisposable
 
         StopFollowing();
         _refresh.Stop();
-        _island.Owner = null;
-        _blur.Close();
+        // The island is let go first: closing an owner window would close the island with it.
+        new WindowInteropHelper(_island).Owner = IntPtr.Zero;
+        _blur.Dispose();
         _blur = null;
     }
 
@@ -106,7 +109,7 @@ internal sealed class GlassLook : IDisposable
     {
         StopFollowing();
         _refresh.Stop();
-        _blur?.Close();
+        _blur?.Dispose();
         _blur = null;
     }
 
@@ -126,7 +129,7 @@ internal sealed class GlassLook : IDisposable
             return;
         }
 
-        PlaceOverIsland(_blur);
+        _blur.PlaceOver(new WindowInteropHelper(_island).Handle);
         (int, int, int, int, int, float) pill = PillInPixels();
         if (pill == _shown)
         {
@@ -142,18 +145,6 @@ internal sealed class GlassLook : IDisposable
         _shown = pill;
         (int left, int top, int width, int height, int radius, float opacity) = pill;
         _blur.Backdrop.Update(left, top, width, height, radius, opacity);
-    }
-
-    // The island window never moves while the island changes size; it can move with the display.
-    private void PlaceOverIsland(Window blur)
-    {
-        if (blur.Left != _island.Left || blur.Top != _island.Top || blur.Width != _island.Width || blur.Height != _island.Height)
-        {
-            blur.Left = _island.Left;
-            blur.Top = _island.Top;
-            blur.Width = _island.Width;
-            blur.Height = _island.Height;
-        }
     }
 
     // The pill as it is drawn: all its scales and moves applied, in the window's pixels.

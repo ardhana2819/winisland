@@ -1,7 +1,8 @@
 // MusicMediaSession.cs: connects WinIsland to the music app through the Windows media session API
 // (Windows.Media.Control), the only music source the PRD allows. No music service's web API, no
 // network. v1.5 (FR-41): any app that tells Windows what it plays, not only Spotify; which one
-// shows follows MusicSource.Choose, checked again whenever a session starts or stops playing.
+// shows follows MusicSource.Choose, checked again whenever a session starts or stops playing, and
+// once more when a paused app's 3 seconds on the island (PauseHold) are over.
 //   FR-7  reads title, artist, artwork, play state, position and length.
 //   FR-8  sends play/pause, next and previous.
 //   FR-10 follows the app opening, closing and changing songs without errors.
@@ -35,6 +36,7 @@ public sealed class MusicMediaSession : IDisposable
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
     private readonly SemaphoreSlim _chooseGate = new(1, 1);
     private readonly List<GlobalSystemMediaTransportControlsSession> _watched = [];
+    private readonly PauseHold _pauseHold = new();
     private GlobalSystemMediaTransportControlsSession? _session;
     private string? _artworkTrackKey;
     private byte[]? _shownArtwork;
@@ -141,9 +143,23 @@ public sealed class MusicMediaSession : IDisposable
             IReadOnlyList<GlobalSystemMediaTransportControlsSession> sessions = _manager.GetSessions();
             WatchAll(sessions);
 
-            List<MediaSessionCandidate> candidates = [.. sessions.Select(session => new MediaSessionCandidate(session.SourceAppUserModelId, IsPlaying(session)))];
-            string? chosenId = MusicSource.Choose(candidates, _manager.GetCurrentSession()?.SourceAppUserModelId, _session?.SourceAppUserModelId);
+            List<MediaSessionCandidate> candidates = [];
+            foreach (GlobalSystemMediaTransportControlsSession session in sessions)
+            {
+                candidates.Add(new MediaSessionCandidate(session.SourceAppUserModelId, IsPlaying(session), await HasAlbumAsync(session)));
+            }
+
+            string? shownId = _session?.SourceAppUserModelId;
+            DateTimeOffset now = DateTimeOffset.Now;
+            TimeSpan held = _pauseHold.Update(shownId, candidates.Any(candidate => candidate.AppId == shownId && candidate.IsPlaying), now);
+            string? chosenId = MusicSource.Choose(candidates, _manager.GetCurrentSession()?.SourceAppUserModelId, shownId, held > TimeSpan.Zero);
             GlobalSystemMediaTransportControlsSession? chosen = sessions.FirstOrDefault(session => session.SourceAppUserModelId == chosenId);
+            _pauseHold.Update(chosenId, candidates.Any(candidate => candidate.AppId == chosenId && candidate.IsPlaying), now);
+            if (held > TimeSpan.Zero && chosenId == shownId)
+            {
+                // Look again when the paused app's 3 seconds are over.
+                _ = ChooseAfterDelayAsync(held);
+            }
 
             if (!ReferenceEquals(chosen, _session))
             {
@@ -170,6 +186,28 @@ public sealed class MusicMediaSession : IDisposable
             {
                 _chooseGate.Release();
             }
+        }
+    }
+
+    private async Task ChooseAfterDelayAsync(TimeSpan delay)
+    {
+        await Task.Delay(delay);
+        await ChooseSessionAsync();
+    }
+
+    // An album name tells a music player (YouTube Music in a browser) from a video (YouTube).
+    private static async Task<bool> HasAlbumAsync(GlobalSystemMediaTransportControlsSession session)
+    {
+        try
+        {
+            GlobalSystemMediaTransportControlsSessionMediaProperties properties = await session.TryGetMediaPropertiesAsync();
+            return !string.IsNullOrWhiteSpace(properties.AlbumTitle);
+        }
+        catch (Exception error)
+        {
+            // A session that is closing can refuse; it counts as a video then.
+            PlatformLog.Problem("Reading what a media session plays failed", error);
+            return false;
         }
     }
 
