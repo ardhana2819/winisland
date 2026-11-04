@@ -4,9 +4,24 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 ## Status
 
-**Beta (v1.5.0-beta.1).** WinIsland is ready to use, but still in development: an installer is planned. All PRD v1.0 to v1.5 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current song from any media app (music players before videos) with play, pause, next, previous, seek and that app's volume, colored from the song's artwork, also when paused or with an empty view when nothing plays, an orange or green dot while an app uses the microphone or camera, WhatsApp, Discord and (if turned on) other apps' notifications with their logos (banner, +N, the last 3 chats as stacked cards that open to their last 3 messages, Alt+X to hide, a small white dot on the island for ones you have not seen yet, and a banner while a WhatsApp Web call rings), an expanded island with a music page and a notifications page (scroll, Alt+Up and Alt+Down, or the page dots, which show while the page changes), and a Settings window (tray > Settings) that sets the island size (Small to Extra large), the look (Solid, or Glass in beta), whether hiding a banner also clears it from Windows, and start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
+**Beta (v1.6.0-beta.1).** WinIsland is ready to use and installs like a normal app, but it is still a beta. All PRD v1.0 to v1.6 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current song from any media app (music players before videos) with play, pause, next, previous, seek and that app's volume, colored from the song's artwork, also when paused or with an empty view when nothing plays, an orange or green dot while an app uses the microphone or camera, WhatsApp, Discord and (if turned on) other apps' notifications with their logos (banner, +N, the last 3 chats as stacked cards that open to their last 3 messages, Alt+X to hide, a small white dot on the island for ones you have not seen yet, and a banner while a WhatsApp Web call rings), an expanded island with a music page and a notifications page (scroll, Alt+Up and Alt+Down, or the page dots, which show while the page changes), and a Settings window (tray > Settings) that sets the island size (Small to Extra large), the look (Solid, or Glass in beta), whether hiding a banner also clears it from Windows, and start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
 Personal project, private repository.
+
+## How light is it?
+
+WinIsland is meant to sit on screen all day, also while you play, so it was built to use as little of the PC as possible. These numbers were measured on the PC it was made for (Intel Core i5-9400F with 6 cores, 16 GB of memory, GeForce GTX 1650 Super, Windows 11), with the island showing the clock, Glass look, Extra large size, on 4 Nov 2026. Details and the method: [docs/performance-results.md](docs/performance-results.md).
+
+| What | Measured | What it means |
+|---|---|---|
+| Processor (CPU) while idle | 0.05 to 0.09 % | Less than a tenth of one percent of the processor: in practice, nothing. |
+| Processor when a message arrives | 4 to 6 % for a moment | The banner's short animation; it drops back to almost zero right after. |
+| Memory (RAM) | about 127 to 131 MB, of which 45 to 47 MB is WinIsland's own | Less than 1 % of 16 GB. The part that is not WinIsland's own is mostly Windows' shared program parts, which other apps load too. |
+| Video memory (graphics card) | 0 MB | The island is drawn by the processor, not the graphics card, so it takes nothing away from your games. With the Glass look, the blur behind it is drawn by Windows itself, which draws your screen anyway. |
+| Start-up | about 1.7 s of processor time | Spread over the first seconds after Windows starts. |
+| Network | none | WinIsland never goes online. |
+
+**In short:** WinIsland is very light. While it waits, it uses almost no processor time; it takes less than 1 % of the memory on a 16 GB PC and no graphics card memory at all. On a PC like the one above you should not notice it in games or daily work. On a slower PC or one with less memory it still uses the same small amounts, so it takes a bigger share there.
 
 ## Requirements
 

@@ -50,6 +50,7 @@ Claude ran, 4 Nov 2026, the same way as above, on branch `chore/v1.5-memory` (th
 - Working set about 16 MB lower (126.6 to 130.7 MB against 142.1 to 147.0 MB), and steadier: peaks stay within 2 MB of the average instead of up to 10 MB.
 - Private memory about 7 MB lower (44.8 to 47.4 MB against 50.0 to 53.9 MB): the background recompiling and its code are gone.
 - Idle CPU is the same (0.05 and 0.09 % in the quiet runs); a banner costs 4 to 6 % for a moment instead of 9 to 13 %.
+- Video memory, checked on the installed v1.6.0-test.1 build (4 Nov 2026, Glass): Windows' "GPU Process Memory" counters list 23 processes (for example dwm with 664.7 MB dedicated) and none for WinIsland, so it holds no graphics card memory. The Glass blur is drawn by Windows (dwm) itself.
 - Not measured: whether a page opens a little slower the first time after start, because its code is now compiled fully on first use. Diva judges that by feel.
 
 ## v1.4 Glass look vs Solid (2 Nov 2026)
