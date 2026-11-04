@@ -14,7 +14,7 @@
     <WindowsMinimumVersion>10.0.22000.0</WindowsMinimumVersion>
     <!-- WinIsland's version; the release tag (v1.2.0-beta.1) should match it. Still in beta because
          more features are planned; a tag with "-beta" is published as a GitHub pre-release. -->
-    <Version>1.7.0-beta.1</Version>
+    <Version>1.8.0-beta.1</Version>
     <!-- Keep the version in the log readable: no git commit id appended after a "+". -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
