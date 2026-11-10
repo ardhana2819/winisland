@@ -90,6 +90,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Core | `Text/EmojiSegments.cs`, `Text/EmojiColorTable.cs` | Splits another app's text into plain text and emoji, and reads the emoji font's simple color layers (v1.8, FR-47). |
 | Platform | `Text/EmojiFont.cs` | Reads only the color tables from Windows' emoji font file, once, on the first emoji (v1.8, FR-47). |
 | App | `Text/ColorEmoji.cs`, `Text/EmojiText.cs` | Draws an emoji in color as a small picture, and puts text with emoji into a TextBlock with its line height, trimming and Glass shadow intact (v1.8, FR-47). |
+| Core | `Startup/StartupTaskPlan.cs`, `Startup/StartupTaskStatus.cs` | Decides whether to turn the Windows startup task on or off, and what Settings shows when Windows will not follow the switch (FR-20). |
 | Core | `Updates/UpdateCheckOutput.cs` | Reads the update script's quiet result line, so Settings can show "Update available" (v1.7, FR-46). |
 | Platform | `Updates/UpdateScript.cs` | Finds `packaging/Update-WinIsland.ps1` next to WinIsland and starts it in its own window for the Update button, or runs its quiet check without a window when Settings opens (v1.7, FR-46). WinIsland itself never goes online. |
 | Platform | `Windows/PrimaryDisplay.cs` | Reads the primary monitor's width. |
@@ -105,7 +106,8 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | Platform | `Windows/PointerState.cs` | Reads the mouse position and whether a button is down (no hook), used only while the island is expanded. |
 | Platform | `Notifications/WindowsNotificationListener.cs`, `Notifications/ToastReader.cs`, `Notifications/NotificationArrival.cs` | Reads Windows notifications with permission: instant with package identity, otherwise checked once per second; reports new and removed ones and the app logo. |
 | Platform | `Settings/SettingsFile.cs` | Reads and safely writes `%USERPROFILE%.winislandsettings.json` (outside AppData, so package identity cannot hide it). |
-| Platform | `Startup/StartupRegistration.cs` | Turns "start with Windows" on or off in the per-user Run list. |
+| Platform | `Startup/StartupRegistration.cs` | Turns "start with Windows" on or off in the per-user Run list (without package identity). |
+| Platform | `Startup/WindowsStartupTask.cs`, `Startup/PackageIdentity.cs` | With package identity, turns WinIsland's Windows startup task on or off instead, and tells whether identity is present (FR-20). |
 | Platform | `Windows/DarkTitleBar.cs` | Dark title bar for the Settings window. |
 | App | `App.xaml.cs` | Starts the island window and the tray icon; Quit closes both. |
 | App | `Island/IslandWindow.xaml(.cs)` | The island: a clear, fixed-size, always-on-top window with the black pill and the clock. |
@@ -145,6 +147,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Island/IslandNotificationPresenter.cs` | Keeps the banner and the notifications page up to date, with "Hide message text" applied. |
 | App | `Island/IslandHotkeys.cs` | The three island hotkeys: applied at start and from Settings, freed while Settings records a new combination. |
 | App | `Settings/SettingsController.cs` | Loads, checks, applies and saves settings; opens the Settings window. |
+| App | `Settings/LaunchAtStartup.cs` | Applies "Launch with Windows": the Run list without package identity, the startup task with it (FR-20). |
 | App | `Settings/SettingsWindow.xaml`, `Settings/HotkeyCapture.cs` | The Settings window from the design board, and turning a key press into a hotkey. |
 | App | `Diagnostics/ErrorLogFile.cs`, `Diagnostics/CrashGuard.cs` | The error log (`%USERPROFILE%.winislandwinisland.log`, 256 KB, errors and event types only) and catching unexpected errors so the island keeps running. |
 | App | `SingleInstance.cs` | Makes sure only one WinIsland runs; a second copy closes at once. |
