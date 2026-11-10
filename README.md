@@ -6,7 +6,7 @@ A small Windows 11 overlay inspired by the iPhone Dynamic Island. A black pill a
 
 **Beta (v1.8.1-beta.1).** WinIsland is ready to use and installs like a normal app, but it is still a beta. All PRD v1.0 to v1.8 features are built; see [docs/PRD.md](docs/PRD.md). Phase 1 (technical spike) is done; results are in [docs/spike-results.md](docs/spike-results.md). The app currently shows the island with a clock at the top of the screen, a tray icon (Pause for 1 hour or Resume, Hide or Show island, Settings, Quit; dimmed while paused), the hotkeys Ctrl+Alt+H (hide or show) and Ctrl+Alt+I (expand), the current song from any media app (music players before videos) with play, pause, next, previous, seek and that app's volume, colored from the song's artwork, also when paused or with an empty view when nothing plays, an orange or green dot while an app uses the microphone or camera, WhatsApp, Discord and (if turned on) other apps' notifications with their logos (banner, +N, the last 3 chats as stacked cards that open to their last 3 messages, Alt+X to hide, a small white dot on the island for ones you have not seen yet, and a banner while a WhatsApp Web call rings), an expanded island with a music page and a notifications page (scroll, Alt+Up and Alt+Down, or the page dots, which show while the page changes), and a Settings window (tray > Settings) that sets the island size (Small to Extra large), the look (Solid, or Glass in beta), whether hiding a banner also clears it from Windows, and start with Windows. The plan and requirements are in [docs/PRD.md](docs/PRD.md).
 
-Personal project, private repository. The installer and zip of each release are also published, without source code, in the public repository [ardhana2819/WinIsland-releases](https://github.com/ardhana2819/WinIsland-releases), so friends can download WinIsland without an invite.
+Personal project, private repository. The installer and zip of each release are also published, without source code, in the public repository [ardhana2819/winisland-releases](https://github.com/ardhana2819/winisland-releases), so friends can download WinIsland without an invite.
 
 ## How light is it?
 
@@ -33,10 +33,10 @@ WinIsland is meant to sit on screen all day, also while you play, so it was buil
 
 ## Install on another PC
 
-1. **Without access to this private repository** (for example a friend): open [ardhana2819/WinIsland-releases](https://github.com/ardhana2819/WinIsland-releases) > **Releases**, no sign-in needed, and continue at step 3 with the newest `setup.exe`. The **Update** button cannot reach the private repository from that PC, so update by running the newer setup by hand.
+1. **Without access to this private repository** (for example a friend): open [ardhana2819/winisland-releases](https://github.com/ardhana2819/winisland-releases) > **Releases**, no sign-in needed, and continue at step 3 with the newest `setup.exe`. The **Update** button cannot reach the private repository from that PC, so update by running the newer setup by hand.
    **With access:** sign in to GitHub in your browser (this repository is private).
 2. Open this repository's **Releases** page and download `WinIsland-<version>-setup.exe` from the newest release (from v1.6.0-beta.1 on). Beta releases are marked **Pre-release**.
-   Or, with GitHub CLI, naming the version: `gh release download v1.8.1-beta.1 --repo ardhana2819/WinIsland --pattern "*-setup.exe"`
+   Or, with GitHub CLI, naming the version: `gh release download v1.8.1-beta.1 --repo ardhana2819/winisland --pattern "*-setup.exe"`
    (without a version, GitHub CLI only looks at releases that are not pre-releases).
 3. Run it. The setup is not signed, so Windows SmartScreen warns once per version: click **More info** > **Run anyway**.
    It installs WinIsland for your Windows account only, without administrator rights, into `%LOCALAPPDATA%\Programs\WinIsland`, adds it to the Start menu, and offers to start it. No .NET install is needed.
@@ -84,8 +84,8 @@ and the shortcut by deleting `WinIsland` from `%APPDATA%\Microsoft\Windows\Start
 You need git, the .NET 10 SDK, and (for the identity package) the Windows SDK.
 
 ```powershell
-git clone https://github.com/ardhana2819/WinIsland.git
-cd WinIsland
+git clone https://github.com/ardhana2819/winisland.git
+cd winisland
 git config core.hooksPath .githooks   # one-time setup, see "Branch workflow"
 dotnet restore WinIsland.slnx
 dotnet format WinIsland.slnx --verify-no-changes
@@ -118,8 +118,8 @@ Nothing is pushed straight to `main`. Every change goes through a branch and a p
 5. After review and approval, squash merge and delete the branch.
 6. Pushing a tag like `v1.0.0-beta.1` builds a release automatically. A tag with `-beta` becomes a pre-release. If no Release run starts (it happened once during a GitHub outage), delete the tag on GitHub and push it again on the same commit: `git push origin :refs/tags/<tag>`, then `git push origin refs/tags/<tag>`.
 7. Copy the finished release to the public download repository, from a PC where the GitHub CLI is signed in (no token in CI). In an empty folder:
-   `gh release download <tag> --repo ardhana2819/WinIsland`
-   `gh release create <tag> * --repo ardhana2819/WinIsland-releases --prerelease --title "WinIsland <tag>" --notes "<what changed, in plain words>"`
+   `gh release download <tag> --repo ardhana2819/winisland`
+   `gh release create <tag> * --repo ardhana2819/winisland-releases --prerelease --title "WinIsland <tag>" --notes "<what changed, in plain words>"`
    Leave out `--prerelease` for a release without `-beta`. Write the notes by hand: the private release's notes link to pull requests that friends cannot open.
 
 **One-time setup per clone:** run `git config core.hooksPath .githooks`. This turns on a local hook that refuses pushes to `main`. It is a safety net on your own PC only. GitHub does not enforce branch protection on free private repositories, and the hook can be skipped with `git push --no-verify`.

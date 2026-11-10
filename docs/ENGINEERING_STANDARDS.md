@@ -1,6 +1,6 @@
 # WinIsland Engineering Standards
 
-Save as `docs/ENGINEERING_STANDARDS.md` in `D:\Claude Project\WinIsland`. Claude Code reads it in every session through `CLAUDE.md`. Owner: Diva. Last updated 31 Oct 2026.
+Save as `docs/ENGINEERING_STANDARDS.md` in `D:Claude Projectwinisland`. Claude Code reads it in every session through `CLAUDE.md`. Owner: Diva. Last updated 31 Oct 2026.
 
 These rules apply to every change in this repo, by Claude Code or by a person.
 
@@ -46,7 +46,7 @@ These rules apply to every change in this repo, by Claude Code or by a person.
 
 ## 6. Git and repo workflow
 
-- Local folder: `D:\Claude Project\WinIsland`. Always quote paths, because they contain a space.
+- Local folder: `D:Claude Projectwinisland`. Always quote paths, because they contain a space.
 - Never commit or push directly to `main`, except the first bootstrap commit. Work happens on a branch, named `feat/`, `fix/`, `chore/`, `docs/`, or `spike/` plus a short name.
 - Small commits with Conventional Commit messages, for example `feat: add clock state to island`.
 - Run format, build, and tests locally. Then push the branch and open a pull request into `main` using the template.
