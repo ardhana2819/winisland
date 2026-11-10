@@ -24,7 +24,7 @@ if ($Quiet) { $CheckOnly = $true }
 
 $ErrorActionPreference = "Stop"
 
-$repository = "ardhana2819/WinIsland"
+$repository = "ardhana2819/winisland"
 $releasesPage = "https://github.com/$repository/releases"
 $secondsBeforeClosing = 10
 

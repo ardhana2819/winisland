@@ -53,7 +53,7 @@ Never commit or push directly to `main`. Never weaken or skip tests to make CI p
 
 ## Commands
 
-The repo path contains a space. Always quote it: `"D:\Claude Project\WinIsland"`.
+The repo path contains a space. Always quote it: `"D:Claude Projectwinisland"`.
 
 ```powershell
 dotnet restore WinIsland.slnx

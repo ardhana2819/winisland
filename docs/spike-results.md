@@ -86,7 +86,7 @@ v1.8 color emoji spike (`spikes/EmojiProbe`, 4 Nov 2026, Claude ran on Diva's PC
 Build everything once, in a normal PowerShell:
 
 ```powershell
-cd "D:\Claude Project\WinIsland\spikes"
+cd "D:Claude Projectwinisland\spikes"
 dotnet build NotificationProbe\NotificationProbe.csproj -c Release
 dotnet build OverlayProbe\OverlayProbe.csproj -c Release
 dotnet build MediaProbe\MediaProbe.csproj -c Release
@@ -98,9 +98,9 @@ The programs are then in each project's `bin\Release\net10.0-windows10.0.26100.0
 
 GlassProbe shows a glass pill at the top center: Windows' own blur (acrylic) behind it, a dark tint, a thin light edge, and a clock. Windows draws the blur; nothing captures the screen.
 
-1. Build it once: `dotnet build "D:\Claude Project\WinIsland\spikes\GlassProbe\GlassProbe.csproj" -c Release`
+1. Build it once: `dotnet build "D:Claude Projectwinisland\spikes\GlassProbe\GlassProbe.csproj" -c Release`
 2. Quit WinIsland from the tray first, so the two pills do not sit on top of each other.
-3. Run `& "D:\Claude Project\WinIsland\spikes\GlassProbe\bin\Release\net10.0-windows10.0.26100.0\GlassProbe.exe"`.
+3. Run `& "D:Claude Projectwinisland\spikes\GlassProbe\bin\Release\net10.0-windows10.0.26100.0\GlassProbe.exe"`.
 4. On the desktop, with a colourful window or wallpaper behind the pill:
    - G1: is the pill blurred glass, or plain black or plain grey? Click another window: does the glass stay, or turn flat? (The island is never the active window, so it must stay.)
    - G2: look closely at the round ends. Smooth, or visibly stair-stepped?
@@ -114,7 +114,7 @@ GlassProbe shows a glass pill at the top center: Windows' own blur (acrylic) beh
 
 NotificationProbe prints every Windows notification. With `--show-text` it also prints the text, in its own window only, never to a file.
 
-1. Run `& "D:\Claude Project\WinIsland\spikes\NotificationProbe\bin\Release\net10.0-windows10.0.26100.0\NotificationProbe.exe" --show-text`. WinIsland can keep running.
+1. Run `& "D:Claude Projectwinisland\spikes\NotificationProbe\bin\Release\net10.0-windows10.0.26100.0\NotificationProbe.exe" --show-text`. WinIsland can keep running.
 2. With **WhatsApp desktop** open, have someone voice call you. Let it ring about 10 seconds, then **decline** it. Then a second call that you **let ring out** (missed). If you can, a third that you **answer** and hang up after a few seconds.
 3. Do the same with only **WhatsApp Web** (the Chrome app) open, WhatsApp desktop fully closed. If Web shows no call at all, say so; that is a result too.
 4. One **video call** to either app.
@@ -126,11 +126,11 @@ NotificationProbe prints every Windows notification. With `--show-text` it also 
 Goal: find out whether the `NotificationChanged` event works once the probe has package identity.
 
 1. Open PowerShell with **Run as administrator** and run:
-   `& "D:\Claude Project\WinIsland\packaging\New-DevCertificate.ps1"`
+   `& "D:Claude Projectwinisland\packaging\New-DevCertificate.ps1"`
    Look for: "Trusted the certificate in LocalMachine\TrustedPeople".
 2. Close the admin window. In a **normal** PowerShell run:
    ```powershell
-   cd "D:\Claude Project\WinIsland\packaging"
+   cd "D:Claude Projectwinisland\packaging"
    .\Build-IdentityPackage.ps1 -PackageName WinIsland.Spike.NotificationProbe -ApplicationId NotificationProbe -Executable NotificationProbe.exe -DisplayName "WinIsland NotificationProbe"
    .\Register-IdentityPackage.ps1 -PackagePath .\out\WinIsland.Spike.NotificationProbe.msix -ExternalLocation "..\spikes\NotificationProbe\bin\Release\net10.0-windows10.0.26100.0"
    ```
