@@ -27,7 +27,7 @@ namespace WinIsland.App.Settings;
 
 public partial class SettingsWindow : Window
 {
-    private const string RecordingText = "Press keys…";
+    private const string RecordingText = "Press keysâ€¦";
     private static readonly TimeSpan UpdateCheckTimeout = TimeSpan.FromSeconds(20);
 
     private static readonly (IslandSize Size, string Name)[] SizeNames =
@@ -70,8 +70,10 @@ public partial class SettingsWindow : Window
         Deactivated += (_, _) => StopRecording(applied: false);
         Closed += (_, _) => StopRecording(applied: false);
         _controller.Changed += (_, _) => ShowSettings();
+        _controller.StartupProblemChanged += OnStartupProblemChanged;
+        Closed += (_, _) => _controller.StartupProblemChanged -= OnStartupProblemChanged;
         ShowSettings();
-        ShowProblems(_controller.HotkeyConflictText is null ? [] : [$"{_controller.HotkeyConflictText}. Choose a different shortcut."]);
+        ShowProblems(Notices());
     }
 
     // The informational version keeps the "-beta.1" part ("1.7.0-beta.1"); the assembly version cannot.
@@ -246,16 +248,32 @@ public partial class SettingsWindow : Window
     private bool Change(AppSettings next)
     {
         IReadOnlyList<string> problems = _controller.TryChange(next);
-        List<string> shown = [.. problems];
-        if (_controller.HotkeyConflictText is string conflict)
-        {
-            shown.Add($"{conflict}. Choose a different shortcut.");
-        }
+        List<string> shown = [.. problems, .. Notices()];
 
         ShowProblems(shown);
         ShowSettings();
         return problems.Count == 0;
     }
+
+    // Lasting notes, not tied to one change: a hotkey another app owns, and (FR-20) Windows not
+    // following the Launch with Windows switch.
+    private List<string> Notices()
+    {
+        List<string> notices = [];
+        if (_controller.HotkeyConflictText is string conflict)
+        {
+            notices.Add($"{conflict}. Choose a different shortcut.");
+        }
+
+        if (_controller.StartupProblemText is string startupProblem)
+        {
+            notices.Add(startupProblem);
+        }
+
+        return notices;
+    }
+
+    private void OnStartupProblemChanged(object? sender, EventArgs e) => ShowProblems(Notices());
 
     private void ShowProblems(IReadOnlyList<string> problems)
     {

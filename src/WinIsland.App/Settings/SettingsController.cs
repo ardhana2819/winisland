@@ -2,18 +2,19 @@
 // (PRD FR-19, FR-20). A change from the Settings window is checked against the rules in Core
 // first; only a valid change is applied at once (island, hotkeys, start with Windows) and saved.
 // It also opens the Settings window, from the tray or the conflict banner's Change button.
+// Start with Windows is answered later by Windows (LaunchAtStartup), so its problem text comes separately.
 
 using WinIsland.App.Island;
 using WinIsland.Core.Island;
 using WinIsland.Core.Settings;
 using WinIsland.Platform.Settings;
-using WinIsland.Platform.Startup;
 
 namespace WinIsland.App.Settings;
 
 internal sealed class SettingsController
 {
     private readonly IslandStateMachine _island;
+    private readonly SemaphoreSlim _startupGate = new(1, 1);
     private IslandHotkeys? _hotkeys;
     private SettingsWindow? _window;
 
@@ -28,10 +29,16 @@ internal sealed class SettingsController
     /// <summary>Raised after a change was applied, so an open Settings window can refresh.</summary>
     public event EventHandler? Changed;
 
+    /// <summary>Raised when Windows answered a start with Windows change, so Settings can show StartupProblemText.</summary>
+    public event EventHandler? StartupProblemChanged;
+
     public AppSettings Current { get; private set; }
 
     /// <summary>"Alt+X is used by another app", or null when all hotkeys are WinIsland's.</summary>
     public string? HotkeyConflictText { get; private set; }
+
+    /// <summary>Why Windows does not follow the "Launch with Windows" switch, or null when it does.</summary>
+    public string? StartupProblemText { get; private set; }
 
     /// <summary>Reads the saved settings; a missing or damaged file gives the defaults.</summary>
     public static AppSettings LoadSaved() => AppSettingsJson.Read(SettingsFile.Load());
@@ -101,12 +108,21 @@ internal sealed class SettingsController
         _window.Activate();
     }
 
-    private void ApplyStartup()
+    // Fire and forget: the startup task answers asynchronously. A problem shows in an open Settings
+    // window through Changed. One change at a time, each reading Current when it runs, so quick
+    // on-off clicks always end in the switch's last position.
+    private async void ApplyStartup()
     {
-        string? executable = Environment.ProcessPath;
-        if (executable is not null)
+        await _startupGate.WaitAsync();
+        try
         {
-            StartupRegistration.Apply(Current.LaunchAtStartup, executable);
+            StartupProblemText = await LaunchAtStartup.ApplyAsync(Current.LaunchAtStartup);
         }
+        finally
+        {
+            _startupGate.Release();
+        }
+
+        StartupProblemChanged?.Invoke(this, EventArgs.Empty);
     }
 }
