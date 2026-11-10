@@ -1,7 +1,8 @@
 // IslandTimeTimer.cs: wakes the island exactly when a time-based change is due.
-// Core says when that is (NextTimeCheckAt): the end of "Pause for 1 hour" (PRD FR-6), or paused
-// music going back to the clock after 5 seconds (section 13). One timer covers both, and nothing
-// runs while no change is due. The once-per-minute clock tick is a backup for when the PC slept
+// Core says when that is (NextTimeCheckAt): the end of "Pause for 1 hour" (PRD FR-6), paused
+// music going back to the clock after 5 seconds (section 13), the end of a banner (FR-16), or the
+// 1-second wait before a chat removed in Windows leaves the island (FR-15). One timer covers all,
+// and nothing runs while no change is due. The once-per-minute clock tick is a backup for when the PC slept
 // through the due time.
 
 using System.Windows.Threading;
@@ -22,8 +23,11 @@ internal sealed class IslandTimeTimer : IDisposable
         _timer = new DispatcherTimer(DispatcherPriority.Background);
         _timer.Tick += (_, _) =>
         {
-            _timer.Stop();
             _island.UpdateTime(DateTimeOffset.Now);
+            // The timer can fire a few milliseconds before the due time. Then nothing is due yet,
+            // the island does not change, and Changed would never start the timer again, so the
+            // change would wait for the once-per-minute backup. Always aim at the next due time.
+            FollowNextCheck();
         };
         _island.Changed += (_, _) => FollowNextCheck();
     }
