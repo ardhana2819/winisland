@@ -1,6 +1,6 @@
-# WinIsland PRD (v1.8)
+# WinIsland PRD (v1.9)
 
-Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos). Built in Phases 17 to 19, tested by you, idle memory measured and lowered (`docs/performance-results.md`), and released as v1.5.0-beta.1 on 4 Nov 2026, before the installer (decision 24). **v1.6 (the installer, FR-44) approved by you on 4 Nov 2026**, built in Phase 20, tested by you (install, update, uninstall, start with Windows after a restart), and released as v1.6.0-beta.1 on 4 Nov 2026. **v1.7 (the glass music page, FR-45, and one-click update, FR-46) approved by you on 4 Nov 2026**, built in Phases 21 and 22 with fixes to the Glass look's smoothness and click area, tested by you, and released as v1.7.0-beta.1 on 4 Nov 2026. **v1.8 (color emoji, FR-47) approved by you on 4 Nov 2026**, after spike E1 to E3, built in Phase 23, tested by you, and released as v1.8.0-beta.1 on 4 Nov 2026. Two fixes found by the smoke tests (start with Windows under package identity, decision 33; time-based changes late by up to a minute, decision 34) released as v1.8.1-beta.1 on 10 Nov 2026.
+Status: MVP v1.0 approved by you on 30 Oct 2026, after reviewing the prototype, and released as v1.0.0-beta.1 on 1 Nov 2026. **v1.1 requirements approved by you on 1 Nov 2026** (written the same day from the backlog), designed in the prototype (Phase 6), built in Phases 7 to 9 and tested by you, and released as v1.1.0-beta.1 on 1 Nov 2026. **v1.2 (WhatsApp Web) requirements agreed by you in chat on 1 Nov 2026**, after the WhatsApp Web spike (`docs/spike-results.md`), built and tested by you (AC-17 and AC-18; AC-19 not yet triggered), and released as v1.2.0-beta.1 on 1 Nov 2026. The 10 minute cover window in FR-29 is still marked [Proposed]. **v1.3 (first batch of the 2 Nov 2026 requests) written and approved by you on 2 Nov 2026, with every [Proposed] item in FR-30 to FR-34, after reviewing the prototype; you picked app icon concept B, "Mono pill".** Built in Phases 10 to 12, tested by you, and released as v1.3.0-beta.1 on 2 Nov 2026 together with the drawn WhatsApp logo and the README uninstall steps. Exact values are in `docs/design/DESIGN_SPEC.md` section 10. **v1.4 requirements approved by you on 2 Nov 2026**, after the glass and call spikes and your review of the prototype. Built in Phases 14 and 15, tested by you (Glass also in GTA San Andreas, GTA Vice City and Bleach), idle memory measured (`docs/performance-results.md`), and released as v1.4.0-beta.1 on 2 Nov 2026. **v1.5 requirements approved by you on 3 Nov 2026**, after your review of the prototype (volume behind a speaker button, privacy dots, wide artwork, app logos). Built in Phases 17 to 19, tested by you, idle memory measured and lowered (`docs/performance-results.md`), and released as v1.5.0-beta.1 on 4 Nov 2026, before the installer (decision 24). **v1.6 (the installer, FR-44) approved by you on 4 Nov 2026**, built in Phase 20, tested by you (install, update, uninstall, start with Windows after a restart), and released as v1.6.0-beta.1 on 4 Nov 2026. **v1.7 (the glass music page, FR-45, and one-click update, FR-46) approved by you on 4 Nov 2026**, built in Phases 21 and 22 with fixes to the Glass look's smoothness and click area, tested by you, and released as v1.7.0-beta.1 on 4 Nov 2026. **v1.8 (color emoji, FR-47) approved by you on 4 Nov 2026**, after spike E1 to E3, built in Phase 23, tested by you, and released as v1.8.0-beta.1 on 4 Nov 2026. Two fixes found by the smoke tests (start with Windows under package identity, decision 33; time-based changes late by up to a minute, decision 34) released as v1.8.1-beta.1 on 10 Nov 2026. **v1.9 (the colored equalizer, FR-48) approved by you in chat on 24 Nov 2026**, after you sent a reference video of an Android island; built in Phase 24.
 
 ### What v1.3 adds, in short
 
@@ -40,6 +40,10 @@ The last planned release (your wish, 3 Nov 2026): after it, only polish and the 
 ### What v1.8 adds, in short (approved 4 Nov 2026)
 
 - Emoji in notifications and in the song's title and artist show in color, in Windows' own emoji style, instead of black and white outlines (FR-47, spike E1 to E3).
+
+### What v1.9 adds, in short (approved 24 Nov 2026)
+
+- The equalizer bars move more like real music (five bars that rise and fall unevenly from the middle) and, on the compact pill, take the song's artwork colour instead of always green (FR-48).
 
 ### What v1.2 adds, in short
 
@@ -223,7 +227,7 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Text stays white and light grey. The background is darkened until text meets the normal contrast rule for small text (at least 4.5 to 1), and the accent is kept at least 3 to 1 against the background. [Confirmed 1 Nov 2026]
   - No artwork, or the empty view, means black, as in v1.0. Grey or black-and-white artwork gives a neutral dark grey. [Confirmed 1 Nov 2026]
   - When the song changes, the colours fade over (about 0.4 seconds). [Confirmed 1 Nov 2026]
-  - Only the expanded music page is coloured. The compact pill, banner and notifications page stay black, like the iPhone. While sliding between pages the background fades between the two. [Confirmed 1 Nov 2026]
+  - Only the expanded music page is coloured. The compact pill, banner and notifications page stay black, like the iPhone. [v1.9: the compact pill's equalizer bars take the accent too, FR-48; its background stays black] While sliding between pages the background fades between the two. [Confirmed 1 Nov 2026]
   - The colour is worked out once per song, in memory, from the artwork WinIsland already has. The picking logic lives in Core with unit tests.
 - FR-26. Notification cards. Each notification sits on its own rounded grey card inside the black island: app icon, sender in bold, preview below, and the time it arrived on the right (24-hour, like the clock). [Confirmed 1 Nov 2026]
   - Used on the notifications page and in the banner, so both look the same. [Confirmed 1 Nov 2026]
@@ -392,6 +396,16 @@ One user: you, on one Windows 11 PC with one 27-inch monitor (the design should 
   - Uninstalling from Installed apps closes WinIsland and removes its files, the Start menu shortcut, the start with Windows entry, and the instant notifications package (no administrator rights needed for that). It keeps `%USERPROFILE%\.winisland` (settings and log, never message text), your choice. The signing certificate, if you trusted one, stays; removing it needs administrator rights, so the README keeps those steps.
   - The installer is not signed, so Windows SmartScreen warns once per version: More info > Run anyway. A paid signature is only worth it for a public release (backlog F7 option 2).
   - Built with Inno Setup (free, also for commercial use), only on GitHub's build machine, where it is already installed: nothing to install on your PC, and no certificates or keys in CI. An "Installer" workflow builds the setup on pull requests that change the installer, and on request from any branch, so you can test it before a release.
+
+**v1.9 [Confirmed 24 Nov 2026: "Approve, build it", after your reference video]**
+
+- FR-48. A livelier equalizer in the artwork's colour.
+  - Five bars instead of three. They grow up and down from their middle; at their lowest they are small round dots. The middle bars tend to be the tallest, like a sound wave.
+  - Each bar rises and falls unevenly, a new height every 0.12 to 0.2 seconds with a smooth move between, on its own pattern of a few seconds, so no repeat is visible. Windows' media session gives no sound levels, so this is a richer animation, not the real music. WinIsland does not listen to the computer's sound: that would read what other apps play, against the privacy rules in section 14.
+  - Compact pill: the bars use the artwork's accent (FR-25). Grey or black-and-white artwork gives white bars. No artwork keeps today's green. When the song changes the colour fades over 0.45 seconds, like the music page. The pill's background stays black.
+  - Music page: the same bars, still in the accent.
+  - Paused: the bars stop as dots. With Windows animation effects off they stand still at fixed heights while music plays.
+  - Cost: the bars still redraw at 30 frames per second, only while music plays and the bars are on screen. Idle memory and CPU are measured and reported in the pull request (G4).
 
 **Fixes [v1.1]**
 
@@ -587,6 +601,12 @@ This is a recommendation from reading docs, not from building. A small spike wil
 - AC-46. A long preview or title with emoji still fits on its line and ends with "…" where it is cut.
 - AC-47. Idle memory rises by no more than about 5 MB after the first emoji, and stays under 150 MB (G4).
 
+### Acceptance criteria (v1.9)
+
+- AC-48. While a song plays, the compact pill shows five bars rising and falling unevenly from their middle; paused, they stop as dots.
+- AC-49. With a red, a blue and a grey cover the pill's bars are red, blue and white; a song without artwork keeps green bars; changing songs fades the colour.
+- AC-50. Idle memory stays under 150 MB working set, and CPU while music plays on the pill is not clearly higher than in v1.8 (G4).
+
 ## 16. Phased plan
 
 - Phase 0: Prototype in Claude chat (visual states and animation), then your design approval.
@@ -643,6 +663,10 @@ v1.8 [Confirmed 4 Nov 2026]:
 
 - Phase 23: color emoji (FR-47), after you approve this PRD. Spike E1 to E3 passed on 4 Nov 2026.
 - Then release `v1.8.0-beta.1`, installed through the Update button.
+
+v1.9 [Confirmed 24 Nov 2026]:
+
+- Phase 24: the colored equalizer (FR-48).
 
 ## 17. Top risks
 
