@@ -1,4 +1,4 @@
-# WinIsland Design Spec (v1.1)
+# WinIsland Design Spec (v1.9)
 
 Save as `docs/design/DESIGN_SPEC.md`. Save the prototype next to it as `docs/design/prototype.html` (open it in a browser to see and try the real motion). Source: the approved prototype, 30 Oct 2026, updated for v1.1 and approved by Diva on 1 Nov 2026 (section 9). If this spec and the prototype disagree, the prototype wins for look and motion, and the PRD wins for behavior rules. Report the difference to Diva. `winisland-design-boards.html` is a snapshot of v1.0 only; for v1.1 states use the prototype.
 
@@ -42,7 +42,7 @@ The corner radius is half the height for the compact and banner states (a true p
 | Secondary text (artist, preview, time labels) | `#A6ABB6` |
 | Progress track | `#3A3A3C` |
 | Progress fill | `#FFFFFF` |
-| Equalizer bars | `#4ADE80` |
+| Equalizer bars | `#4ADE80` (v1.9: only when the song has no artwork, section 15) |
 | Notification badge background | `#2C2C2E` |
 | WhatsApp icon circle | `#30D158` (v1.4, was `#177A40`) |
 | Discord icon circle | `#4752C4` |
@@ -52,7 +52,7 @@ The prototype also draws a soft shadow under the pill (0 8 30, 40 percent black)
 
 ## 5. Layout of each state
 
-- **Compact, music:** left padding 6, right padding 12. Artwork 24 square, radius 6. 10 gap. Title fills the middle. Equalizer on the right: three bars, 3 wide, 3 gap, up to 16 high.
+- **Compact, music:** left padding 6, right padding 12. Artwork 24 square, radius 6. 10 gap. Title fills the middle. Equalizer on the right: three bars, 3 wide, 3 gap, up to 16 high. [v1.9: five bars, section 15]
 - **Expanded:** padding 16, vertical gap 10. Top row: artwork 64 square, radius 12, 14 gap, then title and artist. Middle row: elapsed time, progress bar (4 high, radius 2), total time, 8 gap. Bottom row: previous, play or pause, next, centered, 16 gap. Each button is 44 across with a 22 icon. Play or pause is a white circle with a black icon. The other two have no background. Seek: the progress bar has a 16 high touch area. On hover it grows from 4 to 6 high and shows a white 10 round thumb at the end of the fill. Click or drag to seek. Mouse only: no arrow keys, because the island never has keyboard focus (PRD FR-3, FR-11; confirmed by Diva 31 Oct 2026). If seek is not supported, none of this appears and the bar stays 4 high.
 - **Notification banner:** 16 side padding, 12 gap. Icon circle 40 with the app letter, centered bold 16. Sender above preview. Badge on the right (+N), radius 12, padding 3 by 9. The badge is hidden when there is only one.
 - **Notification list:** padding 12 by 16, 8 between rows. Each row 50 high with a 36 icon circle, 12 gap. Newest first.
@@ -65,7 +65,7 @@ The whole feel is a spring-like morph, similar to the iPhone Dynamic Island.
 - **Shape change** (width, height, corner radius): 0.6 seconds, easing cubic-bezier(0.34, 1.4, 0.56, 1). This curve overshoots slightly and settles.
 - **Content swap:** the old content fades out, scales down to 0.88, and blurs by 10 px, over 0.2 to 0.35 seconds. The new content starts 0.14 seconds later and fades in from blur 10 to 0, scale 0.88 to 1, opacity 0 to 1, over 0.3 to 0.5 seconds, with the same easing curve on the scale. Content therefore appears after the shape has started to grow.
 - **Hide and show:** the pill fades over 0.3 seconds and scales between 0.4 and 1 while moving 14 up, over 0.5 seconds, with the same spring curve. Hidden means opacity 0 and no mouse interaction.
-- **Equalizer:** bars animate between 4 and 16 high, 0.9 seconds, alternating, with delays of 0, minus 0.3 and minus 0.6 seconds. They stop when music is paused.
+- **Equalizer:** bars animate between 4 and 16 high, 0.9 seconds, alternating, with delays of 0, minus 0.3 and minus 0.6 seconds. They stop when music is paused. [v1.9: replaced by section 15]
 - **Swipe to hide a banner:** the banner slides 90 to the side while fading out, over 0.2 seconds. A horizontal drag of more than 40 counts as a swipe.
 - **Reduced motion:** follow the Windows Animation effects setting. When it is off, skip all of this and change states instantly. The prototype follows the browser setting and has a button to simulate it.
 - WPF note, not yet tested: WPF easing curves (KeySpline) may not allow the overshoot values. If not, use a spring or back-ease equivalent and compare with the prototype side by side.
@@ -104,7 +104,7 @@ The separate notification list from v1.0 (the two "Notification list" rows in se
 ### Music page
 
 - Rows centered vertically with a 14 gap: top row (artwork 64, radius 12, 14 gap, title 16 semibold and artist 13, equalizer on the right), progress row (unchanged from v1.0), controls row (unchanged sizes: three 44 buttons with 22 icons, 16 apart).
-- New: the equalizer moves into the top row on the right, in the accent colour. The compact pill keeps its green equalizer.
+- New: the equalizer moves into the top row on the right, in the accent colour. The compact pill keeps its green equalizer. [v1.9: the pill's bars take the accent too, section 15]
 - New look of the controls: play or pause is a 44 circle filled with the accent at 22 percent, with the icon in the accent. Previous and next have no background and the icon in the accent. Progress fill and the seek thumb use the accent; the track is white at 18 percent.
 - Secondary text (artist, time labels) is white at 68 percent over the background colour.
 - Paused: same layout, play icon, equalizer stopped.
@@ -301,3 +301,15 @@ Color emoji (PRD FR-47, spike E1 to E3).
 - On Glass the emoji keep the text's soft shadow, like the letters around them.
 - Trimming: a cut line still ends with "…"; an emoji is never cut in half.
 - The prototype already shows color emoji, because the browser draws them; on a Mac it shows Apple's emoji, which WinIsland will not. WinIsland's look is Windows' flat Fluent emoji, as in `Claude outputs/emoji-spike.png` from the spike.
+
+## 15. v1.9 additions (approved 24 Nov 2026)
+
+The colored equalizer (PRD FR-48), from Diva's reference video of an Android island. It replaces the equalizer in sections 4, 5, 6 and 9, in the compact pill and on the music page.
+
+- **Shape:** five bars, 3 wide, 2 apart (23 wide in all), in a box 16 high. Each bar is centered vertically and grows up and down from its middle, with fully round ends (radius 1.5). Lowest 3 high (a dot), highest 16.
+- **Motion:** each bar moves through its own fixed loop of 24 heights, a new height every 0.12 to 0.2 seconds, eased in and out between them. A bar's loop lasts about 3 to 5 seconds and the five loops differ in length, so the whole never visibly repeats. Each height is a random level of the bar's reach: 55 percent for the outer bars, 80 percent for the next ones and 100 percent for the middle bar, so the middle tends to be tallest, like a sound wave. Two heights in a row differ by at least a quarter of the reach, so the bars never look stuck. The loops are made once, from a fixed seed, so the equalizer looks the same every time. Redrawn at 30 frames per second, as before.
+- **Paused:** all bars stop as dots (3 high).
+- **Windows animation effects off:** while music plays the bars stand still at 7, 12, 16, 10 and 6 high.
+- **Color, compact pill:** the artwork's accent (section 9). Grey or black-and-white artwork gives white (the neutral accent). No artwork: `#4ADE80`, as before. When the song changes the color fades over 0.45 seconds, like the music page. The pill's background stays black.
+- **Color, music page:** the accent, as before.
+- The title in the compact pill gets 8 less room, because the equalizer is 8 wider.
