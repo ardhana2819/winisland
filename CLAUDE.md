@@ -4,7 +4,7 @@ Instructions Claude Code loads at the start of every session in this repo.
 
 ## Project
 
-WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the iPhone Dynamic Island. A black, pill-shaped, topmost, non-activating overlay at the top center of the screen shows a clock, the current song from Spotify or another media app with controls, and WhatsApp and Discord notification previews, so they are visible in borderless games without alt-tabbing. It is a personal project in a private GitHub repo.
+WinIsland is a small Windows 11 desktop app for one user (Diva), inspired by the iPhone Dynamic Island. A black, pill-shaped, topmost, non-activating overlay at the top center of the screen shows a clock, the current song from Spotify or another media app with controls, and WhatsApp and Discord notification previews, so they are visible in borderless games without alt-tabbing. It is a personal project in a public GitHub repo (public since 24 Nov 2026, PRD decision 36).
 
 **Before any feature work, read `docs/PRD.md`.** It is the source of truth for behavior. **Before any UI work, also read `docs/design/DESIGN_SPEC.md` and open `docs/design/prototype.html`:** the prototype is the source of truth for look and motion, the spec holds the exact values. Report any difference between them and the PRD instead of deciding it yourself. Build nothing that is not in it. `docs/BACKLOG.md` is next-release ideas only and is out of scope. If a requirement is missing, ambiguous, or conflicting, stop and ask.
 
