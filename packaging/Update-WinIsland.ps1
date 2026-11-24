@@ -1,8 +1,8 @@
 # Update-WinIsland.ps1: installs the newest WinIsland release in one step (PRD FR-46).
 # Started by the "Update" button in WinIsland's Settings and by the "Update WinIsland" shortcut in
 # the Start menu; it can also be run by hand. WinIsland itself never goes online: this script does,
-# through the GitHub CLI (gh) that is already signed in on this PC, because the repository is
-# private. No password or token passes through WinIsland or this script.
+# through the GitHub CLI (gh) that is already signed in on this PC (chosen while the repository was
+# private, PRD decision 36). No password or token passes through WinIsland or this script.
 #
 # What it does:
 #   1. Reads the installed WinIsland's version from its program file.
