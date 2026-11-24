@@ -1,6 +1,7 @@
 // IslandMusicPresenter.cs: keeps the music views on the island up to date.
 // Fills the compact music pill and the expanded controls from the island's state (or the empty
-// view when there is no music session, FR-24) with the artwork's colors (FR-25), moves the
+// view when there is no music session, FR-24) with the artwork's colors (FR-25; v1.9, FR-48: also
+// the pill's equalizer bars), moves the
 // progress on once per second while the expanded island shows playing music (DESIGN_SPEC
 // section 7; nothing ticks otherwise), and sends the button presses to the music app (FR-8, FR-11).
 // v1.5 (FR-39): the speaker button and Ctrl+Up or Ctrl+Down show the music app's volume in place
@@ -121,6 +122,7 @@ internal sealed class IslandMusicPresenter : IDisposable
         if (music is not null)
         {
             _pill.Show(music, _music.Artwork);
+            _pill.SetEqualizerColor(EqualizerColor.ForPill(CurrentPalette, hasArtwork: _music.Artwork is not null));
             _controls.Show(music, _music.Artwork, DateTimeOffset.Now);
         }
         else

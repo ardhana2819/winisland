@@ -120,7 +120,7 @@ Core never reads the clock itself: the app passes in the current time. That keep
 | App | `Clock/MinuteTimer.cs` | Wakes the clock once per minute, and right away after a time change or sleep. |
 | App | `Clock/IslandTimeTimer.cs` | Wakes the island exactly when Core says a time-based change is due: the end of a pause, or paused music going back to the clock. |
 | App | `Music/MusicController.cs` | Moves Spotify reports to the UI thread, hands them to Core, decodes album art small, and forwards button presses. |
-| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (green here, in the accent color on the music page), and the unread dot at the end. |
+| App | `Music/MusicPillView.xaml`, `Music/EqualizerView.xaml` | The compact music pill: artwork, title, moving equalizer (five bars on uneven loops from Core's `Music/EqualizerPattern.cs`, in the artwork accent from `Music/EqualizerColor.cs`, green without artwork; FR-48), and the unread dot at the end. |
 | App | `Island/ExpandedIslandView.xaml` | The expanded island, 420 x 190: slides between the music and notifications pages and draws the page dots. |
 | App | `Island/PageDotsFader.cs` | Shows the page dots when the island opens or changes page, and fades them out 1.5 s later. |
 | App | `Notifications/IslandDot.cs` | The small dots on the clock and the compact music pill: white for a notification not seen yet, green or orange while an app uses the camera or microphone (v1.5). |
